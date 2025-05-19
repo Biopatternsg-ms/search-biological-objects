@@ -1,6 +1,6 @@
 package infrastructure.adapters.in;
 
-import infrastructure.dtos.ConsultaJaspar;
+import infrastructure.dtos.JasparRegionDataRequest;
 import infrastructure.dtos.JasparRegionData;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -13,5 +13,5 @@ public interface JasparRegionDataFetcher {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    JasparRegionData getRegionData(@BeanParam ConsultaJaspar jasparRequest);
+    JasparRegionData getRegionData(@BeanParam JasparRegionDataRequest jasparRequest);
 }

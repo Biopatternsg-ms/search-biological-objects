@@ -10,14 +10,14 @@ import java.util.List;
 @ApplicationScoped
 public class GetTFBindTranscriptionFactors {
 
-    private final TranscriptionFactorTFBindDataProviderPort externalDataProviderPort;
+    private final TranscriptionFactorTFBindDataProviderPort transcriptionFactorTFBindDataPort;
 
-    public GetTFBindTranscriptionFactors(TranscriptionFactorTFBindDataProviderPort externalDataProviderPort) {
-        this.externalDataProviderPort = externalDataProviderPort;
+    public GetTFBindTranscriptionFactors(TranscriptionFactorTFBindDataProviderPort transcriptionFactorTFBindDataPort) {
+        this.transcriptionFactorTFBindDataPort = transcriptionFactorTFBindDataPort;
     }
 
-    public List<TranscriptionFactor> algo(PromoterRegionDTO tfRequest) {
-        return externalDataProviderPort.fetchDataFromTFBindSource(tfRequest);
+    public List<TranscriptionFactor> getTFBindTranscriptionFactors(PromoterRegionDTO tfRequest) {
+        return transcriptionFactorTFBindDataPort.fetchDataFromTFBindSource(tfRequest);
     }
 
 }
