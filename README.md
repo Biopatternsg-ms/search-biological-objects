@@ -60,3 +60,12 @@ If you want to learn more about building native executables, please consult <htt
 Easily start your REST Web Services
 
 [Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+
+### Build Docker Container (Mutable Jar)
+
+```shell script
+./mvnw clean package -Dquarkus.package.type=mutable-jar
+
+docker build -f src/main/docker/Dockerfile.jvm -t search-biological-objects:1.0 .
+
+docker run -d -p 80:8080 --name search-biological-objects ygcl/search-biological-objects:2.0
