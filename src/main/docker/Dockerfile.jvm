@@ -77,7 +77,7 @@
 # - NO_PROXY: A comma separated lists of hosts, IP addresses or domains that can be
 #   accessed directly. (example: "foo.example.com,bar.example.com")
 #
-###
+####
 ##Cambiar a java 21
 FROM eclipse-temurin:17-jdk-focal
 
