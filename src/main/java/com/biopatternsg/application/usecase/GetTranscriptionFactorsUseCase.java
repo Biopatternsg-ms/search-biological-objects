@@ -6,17 +6,15 @@ import com.biopatternsg.domain.models.TranscriptionFactor;
 import com.biopatternsg.infrastructure.dtos.JasparRequest;
 import com.biopatternsg.infrastructure.dtos.PromoterRegionRequest;
 import jakarta.enterprise.context.ApplicationScoped;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @ApplicationScoped
 public class GetTranscriptionFactorsUseCase implements FindTranscriptionFactor {
 
     private final BuildTranscriptionFactorsService buildTranscriptionFactorsService;
-
-    public GetTranscriptionFactorsUseCase(BuildTranscriptionFactorsService buildJasparTranscriptionFactorsService) {
-        this.buildTranscriptionFactorsService = buildJasparTranscriptionFactorsService;
-    }
 
     @Override
     public List<TranscriptionFactor> getJasparTranscriptionFactors(JasparRequest jasparRequest) {

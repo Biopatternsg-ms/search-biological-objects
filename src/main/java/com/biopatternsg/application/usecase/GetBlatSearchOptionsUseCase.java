@@ -5,17 +5,15 @@ import com.biopatternsg.domain.models.external_entities.BlatSearchOptionsRespons
 import com.biopatternsg.domain.port.in.FindBlatOption;
 import com.biopatternsg.infrastructure.dtos.PromoterRegionRequest;
 import jakarta.enterprise.context.ApplicationScoped;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @ApplicationScoped
 public class GetBlatSearchOptionsUseCase implements FindBlatOption {
 
     private final BuildBlatSearchOptionsService blatSearchOptionsBuilder;
-
-    public GetBlatSearchOptionsUseCase(BuildBlatSearchOptionsService blatSearchOptionsBuilder) {
-        this.blatSearchOptionsBuilder = blatSearchOptionsBuilder;
-    }
 
     @Override
     public List<BlatSearchOptionsResponse> execute(PromoterRegionRequest promoterRegion) {
