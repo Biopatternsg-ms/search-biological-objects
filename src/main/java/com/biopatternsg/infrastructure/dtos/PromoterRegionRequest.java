@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-public record PromoterRegionDTO(
+public record PromoterRegionRequest(
         @NotNull(message = "Reliability is required")
         @Positive(message = "Reliability must be positive")
         int reliability,

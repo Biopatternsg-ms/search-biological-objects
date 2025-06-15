@@ -2,6 +2,7 @@ package com.biopatternsg.application.usecase;
 
 import com.biopatternsg.application.services.BuildBiologicalObjectService;
 import com.biopatternsg.domain.models.BiologicalObject;
+import com.biopatternsg.domain.models.TranscriptionFactor;
 import com.biopatternsg.domain.port.in.FindBiologicalObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,11 @@ public class FindBiologicalObjectUseCase implements FindBiologicalObject {
     @Override
     public BiologicalObject execute(String label) {
         return buildBiologicalObjectService.execute(label);
+    }
+
+    @Override
+    public BiologicalObject execute(TranscriptionFactor transcriptionFactor) {
+        return buildBiologicalObjectService.execute(transcriptionFactor);
     }
 
 }
