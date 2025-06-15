@@ -4,7 +4,6 @@ import com.biopatternsg.infrastructure.clients.external_clients.BlatHttpClient;
 import com.biopatternsg.infrastructure.dtos.PromoterRegionRequest;
 import com.biopatternsg.infrastructure.external_services.QueryBlat;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @ApplicationScoped
