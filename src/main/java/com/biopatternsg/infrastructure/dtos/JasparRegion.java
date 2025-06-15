@@ -4,15 +4,15 @@ import jakarta.ws.rs.QueryParam;
 import lombok.Builder;
 
 @Builder
-public class JasparRegionDataRequest {
+public class JasparRegion {
         @QueryParam("genome") public String genome;
         @QueryParam("track") public String track;
         @QueryParam("chrom") public String chrom;
         @QueryParam("start") public String start;
         @QueryParam("end") public String end;
 
-        public static JasparRegionDataRequest of(JasparTFRequest jasparRequest) {
-                return JasparRegionDataRequest.builder()
+        public static JasparRegion of(JasparRequest jasparRequest) {
+                return JasparRegion.builder()
                         .genome(jasparRequest.genome())
                         .track(jasparRequest.track())
                         .chrom(jasparRequest.chromosome())
