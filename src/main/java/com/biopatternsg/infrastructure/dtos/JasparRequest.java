@@ -3,7 +3,7 @@ package com.biopatternsg.infrastructure.dtos;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-public record JasparTFRequest(
+public record JasparRequest(
         @NotNull(message = "Genome is required")
         String genome,
 
