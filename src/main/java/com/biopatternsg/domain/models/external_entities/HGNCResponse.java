@@ -1,14 +1,26 @@
 package com.biopatternsg.domain.models.external_entities;
 
 import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 @Builder
+
 public class HGNCResponse {
 
+    private String id;
+    private String symbol;
     private String name;
-    //....
+    private String locusType;
+    private String ensemblGeneId;
+    private List<String> synonym;
+    private List<String> geneFamily;
+
+    public HGNCResponse() {
+        synonym = new ArrayList<>();
+        geneFamily = new ArrayList<>();
+    }
 }

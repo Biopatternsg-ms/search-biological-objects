@@ -2,11 +2,13 @@ package com.biopatternsg.application.services.impl;
 
 import com.biopatternsg.application.services.BuildBiologicalObjectService;
 import com.biopatternsg.domain.models.BiologicalObject;
-import com.biopatternsg.domain.models.TranscriptionFactor;
 import com.biopatternsg.domain.port.out.external_repositories.HGNCRepository;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @ApplicationScoped
@@ -16,24 +18,38 @@ public class BiologicalObjectServiceImpl implements BuildBiologicalObjectService
     private final BiologicalObjectRepository biologicalObjectRepository;
 
     @Override
-    public BiologicalObject execute(String geneSymbol) {
+    public List<BiologicalObject> execute(String geneSymbol) {
         var biologicalObject = build(geneSymbol);
         return biologicalObjectRepository.save(biologicalObject);
     }
 
+    /*
     @Override
     public BiologicalObject execute(TranscriptionFactor transcriptionFactor) {
         var biologicalObject = build(transcriptionFactor.name());
         biologicalObject.setTranscriptionFactor(transcriptionFactor);
         return biologicalObjectRepository.save(biologicalObject);
     }
+    */
 
-    private BiologicalObject build(String geneSymbol) {
-        var biologicalObject = new BiologicalObject();
+    private List<BiologicalObject> build(String geneSymbol) {
+        List<BiologicalObject> biologicalObject = new ArrayList<>();
         var hgncResponse = hgncRepository.findHGNCInformation(geneSymbol);
 
         if (hgncResponse != null) {
-            biologicalObject.setName(hgncResponse.getName());
+            hgncResponse.forEach(object -> {
+                var oneObject = new BiologicalObject();
+
+                oneObject.setId(object.getId());
+                oneObject.setSymbol(object.getSymbol());
+                oneObject.setName(object.getName());
+                oneObject.setLocusType(object.getLocusType());
+                oneObject.setEnsemblGeneId(object.getEnsemblGeneId());
+                oneObject.setSynonym(object.getSynonym());
+                oneObject.setGeneFamily(object.getGeneFamily());
+
+                biologicalObject.add(oneObject);
+            });
         }
         return biologicalObject;
     }

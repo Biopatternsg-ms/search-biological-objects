@@ -1,14 +1,15 @@
 package com.biopatternsg.infrastructure.adapters.out.external_repositories;
 
-import com.biopatternsg.infrastructure.dtos.PromoterRegionRequest;
 import com.biopatternsg.domain.enums.TranscriptionFactorSource;
 import com.biopatternsg.domain.models.TranscriptionFactor;
 import com.biopatternsg.domain.port.out.external_repositories.TFBindRepository;
+import com.biopatternsg.infrastructure.dtos.PromoterRegionRequest;
 import com.biopatternsg.infrastructure.external_services.QueryTFBIND;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.TextNode;
+
 import java.util.Arrays;
 import java.util.List;
 
