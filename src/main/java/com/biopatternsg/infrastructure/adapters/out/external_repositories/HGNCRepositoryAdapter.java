@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @ApplicationScoped
@@ -17,29 +18,34 @@ import java.util.List;
 public class HGNCRepositoryAdapter implements HGNCRepository {
 
     private final QueryHGNC queryHGNC;
-    private final List<HGNCResponse> hgncResponses = new ArrayList<>();
 
     @Override
     public List<HGNCResponse> findHGNCInformation(String geneSymbol) {
         var hgncSymbol = queryHGNC.search(geneSymbol);
 
-        var symbolList = hgncSymbol.response().docs().stream()
+        var symbols = hgncSymbol.response().docs().stream()
                 .filter(doc -> doc.score() >= hgncSymbol.response().maxScore())
                 .map(Docs::symbol)
                 .toList();
 
-        symbolList.forEach(symbol -> {
+        List<HGNCResponse> hgncResponses = new ArrayList<>();
+        symbols.forEach(symbol -> {
 
             var hgncInformation = queryHGNC.fetch(symbol);
-            var hgnc = new HGNCResponse();
+            var values = hgncInformation.response().docs().get(0);
 
-            hgnc.setId(hgncInformation.response().docs().get(0).hgncId());
-            hgnc.setName(hgncInformation.response().docs().get(0).name());
-            hgnc.setSymbol(hgncInformation.response().docs().get(0).symbol());
-            hgnc.setEnsemblGeneId(hgncInformation.response().docs().get(0).ensemblGeneId());
-            hgnc.setLocusType(hgncInformation.response().docs().get(0).locusType());
-            hgnc.getSynonym().addAll(hgncInformation.response().docs().get(0).aliasName());
-            hgnc.getSynonym().add(hgncInformation.response().docs().get(0).cosmic());
+            List<String> combinedSynonyms = new ArrayList<>();
+            Optional.ofNullable(values.aliasName()).ifPresent(combinedSynonyms::addAll);
+            Optional.ofNullable(values.cosmic()).ifPresent(combinedSynonyms::add);
+
+            HGNCResponse hgnc = HGNCResponse.builder()
+                    .id(values.hgncId())
+                    .name(values.name())
+                    .symbol(values.symbol())
+                    .ensemblGeneId(values.ensemblGeneId())
+                    .locusType(values.locusType())
+                    .synonym(combinedSynonyms)
+                    .build();
 
             hgncResponses.add(hgnc);
         });

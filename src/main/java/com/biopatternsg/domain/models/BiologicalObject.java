@@ -2,7 +2,6 @@ package com.biopatternsg.domain.models;
 
 import lombok.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -20,10 +19,4 @@ public class BiologicalObject {
     private List<String> synonym;
     private List<String> geneFamily;
     private List<String> tissue;
-
-    public BiologicalObject(){
-        synonym = new ArrayList<>();
-        geneFamily = new ArrayList<>();
-        tissue = new ArrayList<>();
-    }
 }

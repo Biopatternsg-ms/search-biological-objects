@@ -38,15 +38,16 @@ public class BiologicalObjectServiceImpl implements BuildBiologicalObjectService
 
         if (hgncResponse != null) {
             hgncResponse.forEach(object -> {
-                var oneObject = new BiologicalObject();
 
-                oneObject.setId(object.getId());
-                oneObject.setSymbol(object.getSymbol());
-                oneObject.setName(object.getName());
-                oneObject.setLocusType(object.getLocusType());
-                oneObject.setEnsemblGeneId(object.getEnsemblGeneId());
-                oneObject.setSynonym(object.getSynonym());
-                oneObject.setGeneFamily(object.getGeneFamily());
+                BiologicalObject oneObject = BiologicalObject.builder()
+                        .id(object.getId())
+                        .symbol(object.getSymbol())
+                        .name(object.getName())
+                        .locusType(object.getLocusType())
+                        .ensemblGeneId(object.getEnsemblGeneId())
+                        .synonym(object.getSynonym())
+                        .geneFamily(object.getGeneFamily())
+                        .build();
 
                 biologicalObject.add(oneObject);
             });

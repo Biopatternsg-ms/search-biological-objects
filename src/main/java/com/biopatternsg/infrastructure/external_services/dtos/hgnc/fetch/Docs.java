@@ -18,9 +18,9 @@ public record Docs(
     @JsonProperty("entrez_id") String entrezId,
     @JsonProperty("alias_symbol") List<String> aliasSymbol,
     String status,
-    @JsonProperty("date_name_changed") String dateNameChanged, // O Instant/LocalDate si quieres parsearlo
+    @JsonProperty("date_name_changed") String dateNameChanged,
     @JsonProperty("mgd_id") List<String> mgdId,
-    Integer orphanet, // Puede ser int si siempre está presente, o Integer para permitir null
+    Integer orphanet,
     @JsonProperty("alias_name") List<String> aliasName,
     String location,
     @JsonProperty("uniprot_ids") List<String> uniprotIds,
@@ -28,10 +28,10 @@ public record Docs(
     @JsonProperty("refseq_accession") List<String> refseqAccession,
     List<String> ena,
     String gencc,
-    @JsonProperty("date_approved_reserved") String dateApprovedReserved, // O Instant/LocalDate
+    @JsonProperty("date_approved_reserved") String dateApprovedReserved,
     String name,
     @JsonProperty("rgd_id") List<String> rgdId,
-    @JsonProperty("date_modified") String dateModified, // O Instant/LocalDate
+    @JsonProperty("date_modified") String dateModified,
     @JsonProperty("ucsc_id") String ucscId,
     @JsonProperty("ensembl_gene_id") String ensemblGeneId,
     @JsonProperty("hgnc_id") String hgncId

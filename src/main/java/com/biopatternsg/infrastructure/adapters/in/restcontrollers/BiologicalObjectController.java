@@ -1,12 +1,14 @@
 package com.biopatternsg.infrastructure.adapters.in.restcontrollers;
 
+import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.port.in.FindBiologicalObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @ApplicationScoped
 @Path("/biological-object")
@@ -24,8 +26,8 @@ public class BiologicalObjectController {
 
     @GET
     @Path("/hgnc/{label}")
-    public Response hgncFunction(@PathParam("label") String label){
-        return Response.ok(findBiologicalObject.execute(label)).build();
+    public List<BiologicalObject> find(@PathParam("label") String label){
+        return findBiologicalObject.execute(label);
     }
 
 }
