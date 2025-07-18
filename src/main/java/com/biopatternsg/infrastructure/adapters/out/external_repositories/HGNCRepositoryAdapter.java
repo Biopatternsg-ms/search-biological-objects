@@ -21,36 +21,39 @@ public class HGNCRepositoryAdapter implements HGNCRepository {
 
     @Override
     public List<HGNCResponse> findHGNCInformation(String geneSymbol) {
-        var hgncSymbol = queryHGNC.search(geneSymbol);
+        var symbols = getSymbols(geneSymbol);
+        return symbols.stream()
+                .map(this::getHgncResponse)
+                .toList();
+    }
 
-        var symbols = hgncSymbol.response().docs().stream()
-                .filter(doc -> doc.score() >= hgncSymbol.response().maxScore())
+    private HGNCResponse getHgncResponse(String symbol) {
+        var hgncInformation = queryHGNC.fetch(symbol);
+        var values = hgncInformation.response().docs().getFirst();
+
+        return HGNCResponse.builder()
+                .id(values.hgncId())
+                .name(values.name())
+                .symbol(values.symbol())
+                .ensemblGeneId(values.ensemblGeneId())
+                .locusType(values.locusType())
+                .synonym(getSynonyms(values))
+                .build();
+    }
+
+    private static List<String> getSynonyms(com.biopatternsg.infrastructure.external_services.dtos.hgnc.fetch.Docs values) {
+        List<String> combinedSynonyms = new ArrayList<>();
+        Optional.ofNullable(values.aliasName()).ifPresent(combinedSynonyms::addAll);
+        Optional.ofNullable(values.cosmic()).ifPresent(combinedSynonyms::add);
+        return combinedSynonyms;
+    }
+
+    private List<String> getSymbols(String geneSymbol) {
+        var symbols = queryHGNC.search(geneSymbol);
+        return symbols.response().docs().stream()
+                .filter(doc -> doc.score() >= symbols.response().maxScore())
                 .map(Docs::symbol)
                 .toList();
-
-        List<HGNCResponse> hgncResponses = new ArrayList<>();
-        symbols.forEach(symbol -> {
-
-            var hgncInformation = queryHGNC.fetch(symbol);
-            var values = hgncInformation.response().docs().get(0);
-
-            List<String> combinedSynonyms = new ArrayList<>();
-            Optional.ofNullable(values.aliasName()).ifPresent(combinedSynonyms::addAll);
-            Optional.ofNullable(values.cosmic()).ifPresent(combinedSynonyms::add);
-
-            HGNCResponse hgnc = HGNCResponse.builder()
-                    .id(values.hgncId())
-                    .name(values.name())
-                    .symbol(values.symbol())
-                    .ensemblGeneId(values.ensemblGeneId())
-                    .locusType(values.locusType())
-                    .synonym(combinedSynonyms)
-                    .build();
-
-            hgncResponses.add(hgnc);
-        });
-
-        return hgncResponses;
     }
 }
 
