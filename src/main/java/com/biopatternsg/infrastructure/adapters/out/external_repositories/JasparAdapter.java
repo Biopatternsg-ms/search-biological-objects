@@ -1,15 +1,17 @@
 package com.biopatternsg.infrastructure.adapters.out.external_repositories;
 
-import com.biopatternsg.infrastructure.dtos.JasparRegion;
-import com.biopatternsg.infrastructure.dtos.JasparRegionData;
 import com.biopatternsg.domain.models.TranscriptionFactor;
 import com.biopatternsg.domain.port.out.external_repositories.JasparRepository;
+import com.biopatternsg.infrastructure.dtos.JasparRegion;
+import com.biopatternsg.infrastructure.dtos.JasparRegionData;
 import com.biopatternsg.infrastructure.dtos.JasparRequest;
 import com.biopatternsg.infrastructure.external_services.QueryJaspar;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 @Slf4j
 @ApplicationScoped

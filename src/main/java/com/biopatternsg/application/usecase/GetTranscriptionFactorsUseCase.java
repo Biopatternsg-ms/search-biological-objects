@@ -1,8 +1,8 @@
 package com.biopatternsg.application.usecase;
 
 import com.biopatternsg.application.services.BuildTranscriptionFactorsService;
-import com.biopatternsg.domain.port.in.FindTranscriptionFactor;
 import com.biopatternsg.domain.models.TranscriptionFactor;
+import com.biopatternsg.domain.port.in.FindTranscriptionFactor;
 import com.biopatternsg.infrastructure.dtos.JasparRequest;
 import com.biopatternsg.infrastructure.dtos.PromoterRegionRequest;
 import jakarta.enterprise.context.ApplicationScoped;

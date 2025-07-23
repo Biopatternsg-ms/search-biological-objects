@@ -1,12 +1,12 @@
 package com.biopatternsg.infrastructure.external_services;
 
-import com.biopatternsg.infrastructure.external_services.dtos.hgnc.HGNCGeneInformation;
-import com.biopatternsg.infrastructure.external_services.dtos.hgnc.HGNCSymbol;
+import com.biopatternsg.infrastructure.external_services.dtos.hgnc.fetch.FetchResponse;
+import com.biopatternsg.infrastructure.external_services.dtos.hgnc.search.SearchResponse;
 
 public interface QueryHGNC {
 
-    HGNCSymbol search(String label);
+    SearchResponse search(String label);
 
-    HGNCGeneInformation fetch(String symbol);
+    FetchResponse fetch(String symbol);
 
 }

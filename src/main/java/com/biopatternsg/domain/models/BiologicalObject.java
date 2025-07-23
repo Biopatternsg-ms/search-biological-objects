@@ -2,13 +2,21 @@ package com.biopatternsg.domain.models;
 
 import lombok.*;
 
+import java.util.List;
+
 @AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 @Builder
+
 public class BiologicalObject {
+
     private String id;
+    private String symbol;
     private String name;
-    private TranscriptionFactor transcriptionFactor;
+    private String locusType;
+    private String ensemblGeneId;
+    private List<String> synonym;
+    private List<String> geneFamily;
+    private List<String> tissue;
 }

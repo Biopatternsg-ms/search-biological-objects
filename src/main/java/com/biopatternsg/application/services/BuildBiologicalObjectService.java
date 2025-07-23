@@ -1,12 +1,12 @@
 package com.biopatternsg.application.services;
 
 import com.biopatternsg.domain.models.BiologicalObject;
-import com.biopatternsg.domain.models.TranscriptionFactor;
+import java.util.List;
 
 public interface BuildBiologicalObjectService {
 
-    BiologicalObject execute(String geneSymbol);
+    List<BiologicalObject> execute(String geneSymbol);
 
-    BiologicalObject execute(TranscriptionFactor transcriptionFactor);
+    //BiologicalObject execute(TranscriptionFactor transcriptionFactor);
 
 }

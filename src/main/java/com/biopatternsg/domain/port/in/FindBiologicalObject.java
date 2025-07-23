@@ -1,9 +1,12 @@
 package com.biopatternsg.domain.port.in;
 
 import com.biopatternsg.domain.models.BiologicalObject;
-import com.biopatternsg.domain.models.TranscriptionFactor;
+
+import java.util.List;
 
 public interface FindBiologicalObject {
-    BiologicalObject execute(String geneSymbol);
-    BiologicalObject execute(TranscriptionFactor transcriptionFactor);
+
+    List<BiologicalObject> execute(String geneSymbol);
+
+    //BiologicalObject execute(TranscriptionFactor transcriptionFactor);
 }
