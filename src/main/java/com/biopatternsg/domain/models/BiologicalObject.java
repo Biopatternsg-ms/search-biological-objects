@@ -3,7 +3,6 @@ package com.biopatternsg.domain.models;
 import lombok.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -20,6 +19,6 @@ public class BiologicalObject {
     private Set<String> synonyms;
     private List<String> geneFamilies;
     private List<String> tissues;
-    private Map<String, List<String>> uniprotId;
+    private List<String> uniprotIds;
     private GeneOntology geneOntology;
 }
