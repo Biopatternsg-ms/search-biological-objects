@@ -2,6 +2,7 @@ package com.biopatternsg.application.services.impl;
 
 import com.biopatternsg.application.services.BuildBiologicalObjectService;
 import com.biopatternsg.domain.models.BiologicalObject;
+import com.biopatternsg.domain.models.GeneOntology;
 import com.biopatternsg.domain.models.external_entities.HGNCResponse;
 import com.biopatternsg.domain.port.out.external_repositories.HGNCRepository;
 import com.biopatternsg.domain.port.out.external_repositories.UniprotRepository;
@@ -10,9 +11,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @ApplicationScoped
@@ -54,10 +53,10 @@ public class BiologicalObjectServiceImpl implements BuildBiologicalObjectService
         var uniprotResponse = uniprotObject.findInfo(object.getUniprotIds().get(FIRST_VALUE));
         object.getSynonyms().addAll(uniprotResponse.getSynonyms());
 
-        Map<String, List<String>> uniprotLists = new HashMap<>();
-        uniprotLists.put("goBp",uniprotResponse.getGoBp());
-        uniprotLists.put("goCc",uniprotResponse.getGoCc());
-        uniprotLists.put("goMf",uniprotResponse.getGoMf());
+        GeneOntology ontologyLists = new GeneOntology();
+        ontologyLists.setBiologicalProcess(uniprotResponse.getGoBp());
+        ontologyLists.setMolecularFunction(uniprotResponse.getGoMf());
+        ontologyLists.setCellularComponent(uniprotResponse.getGoCc());
 
         return BiologicalObject.builder()
                 .id(object.getId())
@@ -66,7 +65,8 @@ public class BiologicalObjectServiceImpl implements BuildBiologicalObjectService
                 .locusType(object.getLocusType())
                 .ensemblGeneId(object.getEnsemblGeneId())
                 .synonyms(object.getSynonyms())
-                .uniprotId(uniprotLists)
+                .uniprotIds(object.getUniprotIds())
+                .geneOntology(ontologyLists)
                 .geneFamilies(object.getGeneFamilies())
                 .build();
     }
