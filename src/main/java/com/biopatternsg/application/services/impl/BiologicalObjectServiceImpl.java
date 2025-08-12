@@ -4,6 +4,7 @@ import com.biopatternsg.application.services.BuildBiologicalObjectService;
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.GeneOntology;
 import com.biopatternsg.domain.models.external_entities.HGNCResponse;
+import com.biopatternsg.domain.models.external_entities.UniprotResponse;
 import com.biopatternsg.domain.port.out.external_repositories.HGNCRepository;
 import com.biopatternsg.domain.port.out.external_repositories.UniprotRepository;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
@@ -19,7 +20,7 @@ public class BiologicalObjectServiceImpl implements BuildBiologicalObjectService
 
     private final HGNCRepository hgncRepository;
     private final BiologicalObjectRepository biologicalObjectRepository;
-    private final UniprotRepository uniprotObject;
+    private final UniprotRepository uniprotRepository;
     private static final int FIRST_VALUE = 0;
 
     @Override
@@ -28,46 +29,41 @@ public class BiologicalObjectServiceImpl implements BuildBiologicalObjectService
         return biologicalObjectRepository.save(biologicalObject);
     }
 
-    /*
-    @Override
-    public BiologicalObject execute(TranscriptionFactor transcriptionFactor) {
-        var biologicalObject = build(transcriptionFactor.name());
-        biologicalObject.setTranscriptionFactor(transcriptionFactor);
-        return biologicalObjectRepository.save(biologicalObject);
-    }
-    */
-
     private List<BiologicalObject> build(String geneSymbol) {
-        List<BiologicalObject> biologicalObject = new ArrayList<>();
+        var biologicalObjects = addHGNCInformation(geneSymbol);
+        biologicalObjects.forEach(biologicalObject -> addUniprotInformation(biologicalObject, biologicalObject.getUniprotIds().get(FIRST_VALUE)));
+        return biologicalObjects;
+    }
+
+    private List<BiologicalObject> addHGNCInformation(String geneSymbol) {
         var hgncResponse = hgncRepository.findHGNCInformation(geneSymbol);
 
-        if (hgncResponse != null) {
-            hgncResponse.forEach(object -> biologicalObject.add(addUniprotToBiologicalObject(object)));
-        }
-
-        return biologicalObject;
+        return hgncResponse.stream().map(hgnc ->
+                BiologicalObject.builder()
+                        .id(hgnc.getId())
+                        .symbol(hgnc.getSymbol())
+                        .name(hgnc.getName())
+                        .locusType(hgnc.getLocusType())
+                        .ensemblGeneId(hgnc.getEnsemblGeneId())
+                        .synonyms(hgnc.getSynonyms())
+                        .uniprotIds(hgnc.getUniprotIds())
+                        .geneFamilies(hgnc.getGeneFamilies())
+                        .build()
+        ).toList();
     }
 
-    private BiologicalObject addUniprotToBiologicalObject(HGNCResponse object) {
+    private void addUniprotInformation(BiologicalObject biologicalObject, String uniprotId) {
+        var uniprotResponse = uniprotRepository.findInfo(uniprotId);
+        biologicalObject.getSynonyms().addAll(uniprotResponse.getSynonyms());
+        addGOCodes(biologicalObject, uniprotResponse);
+    }
 
-        var uniprotResponse = uniprotObject.findInfo(object.getUniprotIds().get(FIRST_VALUE));
-        object.getSynonyms().addAll(uniprotResponse.getSynonyms());
-
+    private void addGOCodes(BiologicalObject biologicalObject, UniprotResponse uniprotResponse) {
         GeneOntology ontologyLists = new GeneOntology();
         ontologyLists.setBiologicalProcess(uniprotResponse.getGoBp());
         ontologyLists.setMolecularFunction(uniprotResponse.getGoMf());
         ontologyLists.setCellularComponent(uniprotResponse.getGoCc());
-
-        return BiologicalObject.builder()
-                .id(object.getId())
-                .symbol(object.getSymbol())
-                .name(object.getName())
-                .locusType(object.getLocusType())
-                .ensemblGeneId(object.getEnsemblGeneId())
-                .synonyms(object.getSynonyms())
-                .uniprotIds(object.getUniprotIds())
-                .geneOntology(ontologyLists)
-                .geneFamilies(object.getGeneFamilies())
-                .build();
+        biologicalObject.setGeneOntology(ontologyLists);
     }
+
 }
