@@ -10,8 +10,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @ApplicationScoped
@@ -53,6 +54,11 @@ public class BiologicalObjectServiceImpl implements BuildBiologicalObjectService
         var uniprotResponse = uniprotObject.findInfo(object.getUniprotIds().get(FIRST_VALUE));
         object.getSynonyms().addAll(uniprotResponse.getSynonyms());
 
+        Map<String, List<String>> uniprotLists = new HashMap<>();
+        uniprotLists.put("goBp",uniprotResponse.getGoBp());
+        uniprotLists.put("goCc",uniprotResponse.getGoCc());
+        uniprotLists.put("goMf",uniprotResponse.getGoMf());
+
         return BiologicalObject.builder()
                 .id(object.getId())
                 .symbol(object.getSymbol())
@@ -60,6 +66,7 @@ public class BiologicalObjectServiceImpl implements BuildBiologicalObjectService
                 .locusType(object.getLocusType())
                 .ensemblGeneId(object.getEnsemblGeneId())
                 .synonyms(object.getSynonyms())
+                .uniprotId(uniprotLists)
                 .geneFamilies(object.getGeneFamilies())
                 .build();
     }
