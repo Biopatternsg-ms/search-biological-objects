@@ -36,7 +36,7 @@ public class UniprotAdapter implements UniprotRepository {
     }
 
     private static Set<String> getSynonyms(ProteinDescription descriptions){
-        //proteinDescription tomo los fullName y alternativesName
+
         Set<String> synonyms = new HashSet<>();
 
         descriptions.alternativeNames().forEach(names -> synonyms.add(names.fullName().value()));
