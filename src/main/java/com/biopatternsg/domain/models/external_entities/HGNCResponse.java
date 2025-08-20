@@ -2,6 +2,7 @@ package com.biopatternsg.domain.models.external_entities;
 
 import lombok.*;
 import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @Getter
@@ -15,6 +16,7 @@ public class HGNCResponse {
     private String name;
     private String locusType;
     private String ensemblGeneId;
-    private List<String> synonym;
-    private List<String> geneFamily;
+    private String uniprotId;
+    private Set<String> synonyms;
+    private List<String> geneFamilies;
 }

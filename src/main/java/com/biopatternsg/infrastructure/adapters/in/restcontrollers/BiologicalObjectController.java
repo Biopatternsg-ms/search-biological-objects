@@ -25,7 +25,7 @@ public class BiologicalObjectController {
     }*/
 
     @GET
-    @Path("/hgnc/{label}")
+    @Path("/search/{label}")
     public List<BiologicalObject> find(@PathParam("label") String label){
         return findBiologicalObject.execute(label);
     }

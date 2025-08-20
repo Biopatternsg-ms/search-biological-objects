@@ -8,9 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @ApplicationScoped
@@ -18,6 +16,7 @@ import java.util.Optional;
 public class HGNCRepositoryAdapter implements HGNCRepository {
 
     private final QueryHGNC queryHGNC;
+    private static final int FIRST_VALUE = 0;
 
     @Override
     public List<HGNCResponse> findHGNCInformation(String geneSymbol) {
@@ -28,8 +27,9 @@ public class HGNCRepositoryAdapter implements HGNCRepository {
     }
 
     private HGNCResponse getHgncResponse(String symbol) {
+
         var hgncInformation = queryHGNC.fetch(symbol);
-        var values = hgncInformation.response().docs().getFirst();
+        var values = hgncInformation.response().docs().get(FIRST_VALUE);
 
         return HGNCResponse.builder()
                 .id(values.hgncId())
@@ -37,12 +37,13 @@ public class HGNCRepositoryAdapter implements HGNCRepository {
                 .symbol(values.symbol())
                 .ensemblGeneId(values.ensemblGeneId())
                 .locusType(values.locusType())
-                .synonym(getSynonyms(values))
+                .synonyms(getSynonyms(values))
+                .uniprotId(values.uniprotIds().get(FIRST_VALUE))
                 .build();
     }
 
-    private static List<String> getSynonyms(com.biopatternsg.infrastructure.external_services.dtos.hgnc.fetch.Docs values) {
-        List<String> combinedSynonyms = new ArrayList<>();
+    private Set<String> getSynonyms(com.biopatternsg.infrastructure.external_services.dtos.hgnc.fetch.Docs values) {
+        Set<String> combinedSynonyms = new HashSet<>();
         Optional.ofNullable(values.aliasName()).ifPresent(combinedSynonyms::addAll);
         Optional.ofNullable(values.cosmic()).ifPresent(combinedSynonyms::add);
         return combinedSynonyms;
