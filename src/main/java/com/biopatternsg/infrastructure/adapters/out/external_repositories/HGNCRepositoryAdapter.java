@@ -38,7 +38,7 @@ public class HGNCRepositoryAdapter implements HGNCRepository {
                 .ensemblGeneId(values.ensemblGeneId())
                 .locusType(values.locusType())
                 .synonyms(getSynonyms(values))
-                .uniprotIds(values.uniprotIds())
+                .uniprotId(values.uniprotIds().get(FIRST_VALUE))
                 .build();
     }
 
