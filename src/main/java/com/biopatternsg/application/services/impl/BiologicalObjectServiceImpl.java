@@ -31,7 +31,7 @@ public class BiologicalObjectServiceImpl implements BuildBiologicalObjectService
 
     private List<BiologicalObject> build(String geneSymbol) {
         var biologicalObjects = addHGNCInformation(geneSymbol);
-        biologicalObjects.forEach(biologicalObject -> addUniprotInformation(biologicalObject, biologicalObject.getUniprotIds().get(FIRST_VALUE)));
+        biologicalObjects.forEach(biologicalObject -> addUniprotInformation(biologicalObject, biologicalObject.getUniprotId()));
         return biologicalObjects;
     }
 
@@ -46,7 +46,7 @@ public class BiologicalObjectServiceImpl implements BuildBiologicalObjectService
                         .locusType(hgnc.getLocusType())
                         .ensemblGeneId(hgnc.getEnsemblGeneId())
                         .synonyms(hgnc.getSynonyms())
-                        .uniprotIds(hgnc.getUniprotIds())
+                        .uniprotId(hgnc.getUniprotId())
                         .geneFamilies(hgnc.getGeneFamilies())
                         .build()
         ).toList();

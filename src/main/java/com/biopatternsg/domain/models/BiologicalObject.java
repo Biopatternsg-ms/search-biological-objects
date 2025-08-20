@@ -16,9 +16,9 @@ public class BiologicalObject {
     private String name;
     private String locusType;
     private String ensemblGeneId;
+    private String uniprotId;
     private Set<String> synonyms;
     private List<String> geneFamilies;
     private List<String> tissues;
-    private List<String> uniprotIds;
     private GeneOntology geneOntology;
 }
