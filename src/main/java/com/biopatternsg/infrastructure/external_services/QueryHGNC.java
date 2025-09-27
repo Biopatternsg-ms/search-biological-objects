@@ -7,6 +7,7 @@ public interface QueryHGNC {
 
     SearchResponse search(String label);
 
-    FetchResponse fetch(String symbol);
-
+    FetchResponse fetchSymbol(String symbol);
+    FetchResponse fetchId(String hgncId);
+    FetchResponse fetchUniprotId(String uniprotId);
 }

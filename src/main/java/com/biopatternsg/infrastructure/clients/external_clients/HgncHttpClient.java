@@ -20,5 +20,15 @@ public interface HgncHttpClient {
     @GET
     @Path("fetch/symbol/{symbol}")
     @Produces(MediaType.APPLICATION_JSON)
-    FetchResponse fetch(@PathParam("symbol") String symbol);
+    FetchResponse fetchSymbol(@PathParam("symbol") String symbol);
+
+    @GET
+    @Path("fetch/hgnc_id/{hgncId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    FetchResponse fetchId(@PathParam("hgncId") String symbol);
+
+    @GET
+    @Path("fetch/uniprot_ids/{uniprotId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    FetchResponse fetchUniprotId(@PathParam("uniprotId") String uniprotId);
 }
