@@ -12,7 +12,9 @@ import java.util.Set;
 @Builder
 public class UniprotResponse {
 
-    private String geneSymbol;
+    private String id;
+    private String symbol;
+    private String name;
     private List<String> goCc;
     private List<String> goMf;
     private List<String> goBp;

@@ -8,8 +8,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-
 @ApplicationScoped
 @Path("/biological-object")
 @RequiredArgsConstructor
@@ -25,9 +23,8 @@ public class BiologicalObjectController {
     }*/
 
     @GET
-    @Path("/search/{label}")
-    public List<BiologicalObject> find(@PathParam("label") String label){
-        return findBiologicalObject.execute(label);
+    @Path("/search/{type}/{value}")
+    public BiologicalObject find(@PathParam("type") String type, @PathParam("value") String value){
+        return findBiologicalObject.execute(type, value);
     }
-
 }
