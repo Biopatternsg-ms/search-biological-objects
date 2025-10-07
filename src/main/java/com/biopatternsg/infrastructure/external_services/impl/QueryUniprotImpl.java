@@ -20,7 +20,7 @@ public class QueryUniprotImpl implements QueryUniprot{
 
     @Override
     public ListResponse search(String label) {
-        return uniprotHttpClient.search(label, UniprotHttpClient.DEFAULT_FIELDS, UniprotHttpClient.DEFAULT_SORT);
+        return uniprotHttpClient.search(label, UniprotHttpClient.DEFAULT_SORT);
     }
 
     @Override

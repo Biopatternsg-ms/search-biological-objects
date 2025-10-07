@@ -21,6 +21,10 @@ public class BuildBiologicalObjectByUniprotId implements BuildBiologicalObjectSt
     public BiologicalObject execute(String value) {
 
         var uniprotResponse = uniprotRepository.findInfo(value);
+        if(uniprotResponse == null){
+            //Replace by exception
+            return null;
+        }
         var biologicalObject = formatUniprotInformation(uniprotResponse);
         addHgncInformation(biologicalObject, value);
 
@@ -46,9 +50,11 @@ public class BuildBiologicalObjectByUniprotId implements BuildBiologicalObjectSt
     private void addHgncInformation(BiologicalObject biologicalObject, String uniprotId) {
 
         HGNCResponse hgncResponse = hgncRepository.findUniprotIdInformation(uniprotId);
-        biologicalObject.setId(hgncResponse.getId());
-        biologicalObject.setLocusType(hgncResponse.getLocusType());
-        biologicalObject.setEnsemblGeneId(hgncResponse.getEnsemblGeneId());
-        biologicalObject.getSynonyms().addAll(hgncResponse.getSynonyms());
+        if(hgncResponse != null){
+            biologicalObject.setId(hgncResponse.getId());
+            biologicalObject.setLocusType(hgncResponse.getLocusType());
+            biologicalObject.setEnsemblGeneId(hgncResponse.getEnsemblGeneId());
+            biologicalObject.getSynonyms().addAll(hgncResponse.getSynonyms());
+        }
     }
 }

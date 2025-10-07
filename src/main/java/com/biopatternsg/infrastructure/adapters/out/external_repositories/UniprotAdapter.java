@@ -26,8 +26,11 @@ public class UniprotAdapter implements UniprotRepository {
     @Override
     public UniprotResponse findInfo(String uniprotIds) {
 
-        var response = queryUniprot.get(uniprotIds);
-        return formatUniprotInformation(response);
+        var response = queryUniprot.search(uniprotIds);
+        if(response.results().isEmpty()){
+            return null;
+        }
+        return formatUniprotInformation(response.results().getFirst());
     }
 
     private UniprotResponse formatUniprotInformation(Response response){
@@ -69,10 +72,10 @@ public class UniprotAdapter implements UniprotRepository {
     private static void setSynonyms(UniprotResponse response, ProteinDescription descriptions){
 
         Set<String> synonyms = new HashSet<>();
-
-        descriptions.alternativeNames().forEach(names -> synonyms.add(names.fullName().value()));
-        synonyms.add(descriptions.recommendedName().fullName().value());
-
+        if(descriptions.alternativeNames() != null){
+            descriptions.alternativeNames().forEach(names -> synonyms.add(names.fullName().value()));
+            synonyms.add(descriptions.recommendedName().fullName().value());
+        }
         response.setSynonyms(synonyms);
     }
 }

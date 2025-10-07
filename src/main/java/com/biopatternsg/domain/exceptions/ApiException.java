@@ -1,6 +1,5 @@
 package com.biopatternsg.domain.exceptions;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

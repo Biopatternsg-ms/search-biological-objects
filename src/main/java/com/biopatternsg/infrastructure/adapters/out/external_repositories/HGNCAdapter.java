@@ -35,6 +35,9 @@ public class HGNCAdapter implements HGNCRepository {
 
     private HGNCResponse getGeneSymbolInformation(String symbol) {
 
+        if(symbol == null){
+            return null;
+        }
         var hgncInformation = queryHGNC.fetchSymbol(symbol);
         var values = hgncInformation.response().docs().getFirst();
         return formatHGNCInformation(values);
@@ -43,6 +46,9 @@ public class HGNCAdapter implements HGNCRepository {
     private HGNCResponse getHGNCIdInformation(String hgncId){
 
         var hgncInformation = queryHGNC.fetchId(hgncId);
+        if(hgncInformation.response().docs().isEmpty()){
+            return null;
+        }
         var values = hgncInformation.response().docs().getFirst();
         return formatHGNCInformation(values);
     }
@@ -50,11 +56,15 @@ public class HGNCAdapter implements HGNCRepository {
     private HGNCResponse getUniprotIdInformation(String uniprotId){
 
         var hgncInformation = queryHGNC.fetchUniprotId(uniprotId);
+        if(hgncInformation.response().docs().isEmpty()){
+            return null;
+        }
         var values = hgncInformation.response().docs().getFirst();
         return formatHGNCInformation(values);
     }
 
     private String searchSymbol(String geneSymbol) {
+
         var symbols = queryHGNC.search(geneSymbol);
         return symbols.response().docs().stream()
                 .filter(doc -> geneSymbol.equals(doc.symbol()))

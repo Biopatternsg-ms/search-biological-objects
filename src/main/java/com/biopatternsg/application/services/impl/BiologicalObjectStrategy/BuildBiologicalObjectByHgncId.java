@@ -18,17 +18,21 @@ public class BuildBiologicalObjectByHgncId implements BuildBiologicalObjectStrat
     private final UniprotRepository uniprotRepository;
 
     @Override
-    public BiologicalObject execute(String value) {
-
+    public BiologicalObject execute(String value)
+    {
         var hgncResponse = hgncRepository.findHgncIdInformation(value);
+        if(hgncResponse == null){
+            //Replace by exception
+            //throw new ApiException(GeneralError.UNPROCESSABLE_ENTITY);
+            return null;
+        }
         var biologicalObject = formatHGNCInformation(hgncResponse);
         addUniprotInformation(biologicalObject, biologicalObject.getUniprotId());
-
         return biologicalObject;
     }
 
-    private BiologicalObject formatHGNCInformation(HGNCResponse hgncResponse) {
-
+    private BiologicalObject formatHGNCInformation(HGNCResponse hgncResponse)
+    {
         return BiologicalObject.builder()
                         .id(hgncResponse.getId())
                         .symbol(hgncResponse.getSymbol())
@@ -41,13 +45,19 @@ public class BuildBiologicalObjectByHgncId implements BuildBiologicalObjectStrat
                         .build();
     }
 
-    private void addUniprotInformation(BiologicalObject biologicalObject, String uniprotId) {
-        var uniprotResponse = uniprotRepository.findInfo(uniprotId);
-        biologicalObject.getSynonyms().addAll(uniprotResponse.getSynonyms());
-        addGOCodes(biologicalObject, uniprotResponse);
+    private void addUniprotInformation(BiologicalObject biologicalObject, String uniprotId)
+    {
+        if(uniprotId != null){
+            var uniprotResponse = uniprotRepository.findInfo(uniprotId);
+            if(uniprotResponse.getSynonyms() != null && !uniprotResponse.getSynonyms().isEmpty()){
+                biologicalObject.getSynonyms().addAll(uniprotResponse.getSynonyms());
+                addGOCodes(biologicalObject, uniprotResponse);
+            }
+        }
     }
 
-    private void addGOCodes(BiologicalObject biologicalObject, UniprotResponse uniprotResponse) {
+    private void addGOCodes(BiologicalObject biologicalObject, UniprotResponse uniprotResponse)
+    {
         GeneOntology ontologyLists = new GeneOntology();
         ontologyLists.setBiologicalProcess(uniprotResponse.getGoBp());
         ontologyLists.setMolecularFunction(uniprotResponse.getGoMf());
