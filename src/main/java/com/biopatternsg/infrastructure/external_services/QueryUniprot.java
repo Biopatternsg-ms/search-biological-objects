@@ -1,8 +1,10 @@
 package com.biopatternsg.infrastructure.external_services;
 
 import com.biopatternsg.infrastructure.external_services.dtos.uniprot.Response;
+import com.biopatternsg.infrastructure.external_services.dtos.uniprot.ListResponse;
 
 public interface QueryUniprot {
 
-    Response search(String label);
+    ListResponse search(String label);
+    Response get(String label);
 }

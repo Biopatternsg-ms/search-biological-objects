@@ -5,6 +5,7 @@ import com.biopatternsg.domain.port.out.external_repositories.UniprotRepository;
 import com.biopatternsg.infrastructure.external_services.QueryUniprot;
 import com.biopatternsg.infrastructure.external_services.dtos.uniprot.KBCrossReference;
 import com.biopatternsg.infrastructure.external_services.dtos.uniprot.ProteinDescription;
+import com.biopatternsg.infrastructure.external_services.dtos.uniprot.Response;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,27 +26,30 @@ public class UniprotAdapter implements UniprotRepository {
     @Override
     public UniprotResponse findInfo(String uniprotIds) {
 
-        var values = queryUniprot.search(uniprotIds);
-        var references = values.results().get(FIRST_VALUE).uniProtKBCrossReferences();
-        var proteins = values.results().get(FIRST_VALUE).proteinDescription();
-        var uniprotData = getCodesGO(references);
-        var synonyms = getSynonyms(proteins);
-        uniprotData.setSynonyms(synonyms);
-
-        return uniprotData;
+        var response = queryUniprot.search(uniprotIds);
+        if(response.results().isEmpty()){
+            return null;
+        }
+        return formatUniprotInformation(response.results().getFirst());
     }
 
-    private static Set<String> getSynonyms(ProteinDescription descriptions){
+    private UniprotResponse formatUniprotInformation(Response response){
 
-        Set<String> synonyms = new HashSet<>();
+        var uniprotResponse = UniprotResponse.builder()
+                .id(response.primaryAccession())
+                .name(response.proteinDescription().recommendedName().fullName().value())
+                .symbol(response.genes().getFirst().geneName().value())
+                .build();
 
-        descriptions.alternativeNames().forEach(names -> synonyms.add(names.fullName().value()));
-        synonyms.add(descriptions.recommendedName().fullName().value());
+        var references = response.uniProtKBCrossReferences();
+        var proteins = response.proteinDescription();
+        setCodesGO(uniprotResponse, references);
+        setSynonyms(uniprotResponse, proteins);
 
-        return synonyms;
+        return uniprotResponse;
     }
 
-    private static UniprotResponse getCodesGO(List<KBCrossReference> references){
+    private static void setCodesGO(UniprotResponse response, List<KBCrossReference> references){
 
         List<String> goCc = new ArrayList<>();
         List<String> goMf = new ArrayList<>();
@@ -60,10 +64,18 @@ public class UniprotAdapter implements UniprotRepository {
             }
         }));
 
-        return UniprotResponse.builder()
-                .goCc(goCc)
-                .goMf(goMf)
-                .goBp(goBp)
-                .build();
+        response.setGoCc(goCc);
+        response.setGoMf(goMf);
+        response.setGoBp(goBp);
+    }
+
+    private static void setSynonyms(UniprotResponse response, ProteinDescription descriptions){
+
+        Set<String> synonyms = new HashSet<>();
+        if(descriptions.alternativeNames() != null){
+            descriptions.alternativeNames().forEach(names -> synonyms.add(names.fullName().value()));
+            synonyms.add(descriptions.recommendedName().fullName().value());
+        }
+        response.setSynonyms(synonyms);
     }
 }
