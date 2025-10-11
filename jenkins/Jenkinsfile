@@ -34,7 +34,9 @@ pipeline {
                 sh 'mvn package -DskipTests'
 
                 echo "--- Guardando artefactos para la siguiente etapa (stash) ---"
-                stash name: 'quarkus-app', includes: 'target/quarkus-app/**'
+
+                sh 'cp -R target/ /var/jenkins_home/workspace/${PIPELINE_NAME}/target'
+                //stash name: 'quarkus-app', includes: 'target/quarkus-app/**'
             }
         }
 
@@ -42,8 +44,8 @@ pipeline {
         stage('Build Local Docker Image') {
             steps {
                 script {
-                    echo "--- Recuperando artefactos (unstash) ---"
-                    unstash 'quarkus-app'
+                    //echo "--- Recuperando artefactos (unstash) ---"
+                   // unstash 'quarkus-app'
 
                     def localImageName = "${IMAGE_NAME}:${env.BUILD_NUMBER}"
 
