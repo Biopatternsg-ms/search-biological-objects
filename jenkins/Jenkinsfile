@@ -1,27 +1,17 @@
-// Jenkinsfile Corregido
-
 pipeline {
-    // 1. AGENTE DE EJECUCIÓN
-    // --- CAMBIO CLAVE ---
-    // Cambiamos la imagen por una oficial de Maven que es más completa.
-    // La imagen oficial 'maven' suele incluir herramientas comunes como git y, a veces, docker client.
-    // Usaremos una etiqueta específica para Java 21.
     agent {
         docker {
-            image 'mi-agente-jenkins-maven:1.0' // Imagen oficial de Maven con JDK 21
+            image 'mi-agente-jenkins-maven:1.0'
             args '-v /root/.m2:/root/.m2 -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
 
-    // 2. VARIABLES DE ENTORNO
     environment {
-        IMAGE_NAME = "${env.JOB_NAME.toLowerCase().replaceAll('%2f', '-')}" // Reemplaza slashes si usas carpetas en Jenkins
+        CONTAINER_NAME = "${env.JOB_NAME.toLowerCase().replaceAll('[^a-z0-9-]', '-')}"
     }
 
-    // 3. ETAPAS DEL PIPELINE
     stages {
 
-        // Etapa A: Probar el código
         stage('Test') {
             steps {
                 echo "--- Ejecutando Pruebas Unitarias ---"
@@ -29,39 +19,65 @@ pipeline {
             }
         }
 
-        // Etapa B: Empaquetar la aplicación
         stage('Package') {
             steps {
                 echo "--- Compilando y Empaquetando la Aplicación ---"
                 sh 'mvn package -DskipTests'
-
                 echo "--- Guardando artefactos para la siguiente etapa (stash) ---"
                 stash name: 'quarkus-app', includes: 'target/quarkus-app/**'
             }
         }
 
-        // Etapa C: Construir la imagen Docker
-        stage('Build Local Docker Image') {
+        stage('Build Docker Image') {
             steps {
                 script {
                     echo "--- Recuperando artefactos (unstash) ---"
                     unstash 'quarkus-app'
 
-                    def localImageName = "${IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    // Usaremos la etiqueta 'latest' para esta imagen.
+                    def localImageName = "${CONTAINER_NAME}:latest"
 
                     echo "--- Construyendo Imagen Docker Local: ${localImageName} ---"
-
-                    // ESTE COMANDO AHORA DEBERÍA FUNCIONAR
-                    // Si el 'docker.build' falla, podemos usar 'sh' como alternativa robusta.
                     sh "docker build -t ${localImageName} ."
-
                     echo "--- ¡Imagen Docker construida exitosamente! ---"
+                }
+            }
+        }
+
+        // --- NUEVA ETAPA DE DESPLIEGUE ---
+        stage('Deploy Application') {
+            steps {
+                script {
+                    def imageName = "${CONTAINER_NAME}:latest"
+
+                    echo "--- Desplegando el contenedor: ${CONTAINER_NAME} ---"
+
+                    // Detenemos el contenedor si ya existe.
+                    // '|| true' asegura que el pipeline no falle si el contenedor no existe la primera vez.
+                    echo "1/3 - Deteniendo contenedor antiguo (si existe)..."
+                    sh "docker stop ${CONTAINER_NAME} || true"
+
+                    // Eliminamos el contenedor antiguo para limpiar.
+                    echo "2/3 - Eliminando contenedor antiguo (si existe)..."
+                    sh "docker rm ${CONTAINER_NAME} || true"
+
+                    // Ejecutamos el nuevo contenedor con la imagen recién construida.
+                    echo "3/3 - Iniciando nuevo contenedor..."
+                    sh """
+                    docker run -d \\
+                        --name ${CONTAINER_NAME} \\
+                        -p 8080:8080 \\
+                        --restart always \\
+                        ${imageName}
+                    """
+
+                    echo "--- ¡Despliegue completado! La aplicación debería estar disponible en el puerto 8080. ---"
                 }
             }
         }
     }
 
-    // 4. ACCIONES POST-EJECUCIÓN
+    // Acciones Post-Ejecución.
     post {
         success {
             echo "--- Archivando artefactos de la compilación ---"
