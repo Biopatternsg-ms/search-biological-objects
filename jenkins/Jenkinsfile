@@ -1,3 +1,5 @@
+// Jenkinsfile Corregido
+
 pipeline {
     // 1. AGENTE DE EJECUCIÓN
     // --- CAMBIO CLAVE ---
@@ -13,7 +15,7 @@ pipeline {
 
     // 2. VARIABLES DE ENTORNO
     environment {
-       PIPELINE_NAME = "${env.JOB_NAME}"
+        IMAGE_NAME = "${env.JOB_NAME.toLowerCase().replaceAll('%2f', '-')}" // Reemplaza slashes si usas carpetas en Jenkins
     }
 
     // 3. ETAPAS DEL PIPELINE
@@ -33,7 +35,8 @@ pipeline {
                 echo "--- Compilando y Empaquetando la Aplicación ---"
                 sh 'mvn package -DskipTests'
 
-                //sh 'cp -R target/ /var/jenkins_home/workspace/${PIPELINE_NAME}/target'
+                echo "--- Guardando artefactos para la siguiente etapa (stash) ---"
+                stash name: 'quarkus-app', includes: 'target/quarkus-app/**'
             }
         }
 
@@ -41,7 +44,18 @@ pipeline {
         stage('Build Local Docker Image') {
             steps {
                 script {
-                   sh 'docker build -t biopatternsg/search-biological-objects .'
+                    echo "--- Recuperando artefactos (unstash) ---"
+                    unstash 'quarkus-app'
+
+                    def localImageName = "${IMAGE_NAME}:${env.BUILD_NUMBER}"
+
+                    echo "--- Construyendo Imagen Docker Local: ${localImageName} ---"
+
+                    // ESTE COMANDO AHORA DEBERÍA FUNCIONAR
+                    // Si el 'docker.build' falla, podemos usar 'sh' como alternativa robusta.
+                    sh "docker build -t ${localImageName} ."
+
+                    echo "--- ¡Imagen Docker construida exitosamente! ---"
                 }
             }
         }
@@ -51,6 +65,7 @@ pipeline {
     post {
         success {
             echo "--- Archivando artefactos de la compilación ---"
+            archiveArtifacts artifacts: 'target/quarkus-app/**', fingerprint: true
         }
         always {
             echo "--- Limpiando el workspace ---"
