@@ -33,7 +33,7 @@ pipeline {
                 echo "--- Compilando y Empaquetando la Aplicación ---"
                 sh 'mvn package -DskipTests'
 
-                sh 'cp -R target/ /var/jenkins_home/workspace/${PIPELINE_NAME}/target'
+                //sh 'cp -R target/ /var/jenkins_home/workspace/${PIPELINE_NAME}/target'
             }
         }
 
