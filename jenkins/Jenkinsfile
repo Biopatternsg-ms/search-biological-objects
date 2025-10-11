@@ -1,6 +1,9 @@
 pipeline{
     agent any
     stages{
+        environment {
+                PIPELINE_NAME = "${env.JOB_NAME}"
+        }
         stage('Test'){
               agent {
                   docker {
@@ -22,10 +25,10 @@ pipeline{
                    steps{
                     script {
                         sh 'mvn package -DskipTests'
-
+                        sh 'cp -R target/ /var/jenkins_home/workspace/${PIPELINE_NAME}/target'
                     }
                    }
-                }
+        }
 
     }
 }
