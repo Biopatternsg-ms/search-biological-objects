@@ -18,6 +18,7 @@ public class BiologicalObject {
     private String ensemblGeneId;
     private String uniprotId;
     private Set<String> synonyms;
+    private GeneOntology geneOntology;
     private List<String> geneFamilies;
     private List<String> tissues;
     private GeneOntology geneOntology;
