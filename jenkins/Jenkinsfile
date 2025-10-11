@@ -12,6 +12,20 @@ pipeline{
                    sh 'mvn test'
               }
         }
+        stage('package'){
+                   agent {
+                        docker {
+                            image 'jelastic/maven:3.9.5-openjdk-21'
+                            args '-v /root/.m2:/root/.m2'
+                        }
+                   }
+                   steps{
+                    script {
+                        sh 'mvn package -DskipTests'
+
+                    }
+                   }
+                }
 
     }
 }
