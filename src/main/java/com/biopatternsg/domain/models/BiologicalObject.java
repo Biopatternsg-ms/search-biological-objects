@@ -3,12 +3,12 @@ package com.biopatternsg.domain.models;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
-
 public class BiologicalObject {
 
     private String id;
@@ -16,7 +16,9 @@ public class BiologicalObject {
     private String name;
     private String locusType;
     private String ensemblGeneId;
-    private List<String> synonym;
-    private List<String> geneFamily;
-    private List<String> tissue;
+    private String uniprotId;
+    private Set<String> synonyms;
+    private List<String> geneFamilies;
+    private List<String> tissues;
+    private GeneOntology geneOntology;
 }

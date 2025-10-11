@@ -12,6 +12,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 @ApplicationScoped
 public class QueryHGNCImpl implements QueryHGNC {
 
+
     private final HgncHttpClient hgncHttpClient;
 
     public QueryHGNCImpl(@RestClient HgncHttpClient hgncHttpClient) {
@@ -24,8 +25,17 @@ public class QueryHGNCImpl implements QueryHGNC {
     }
 
     @Override
-    public FetchResponse fetch(String symbol) {
-        return hgncHttpClient.fetch(symbol);
+    public FetchResponse fetchSymbol(String symbol) {
+        return hgncHttpClient.fetchSymbol(symbol);
+    }
 
+    @Override
+    public FetchResponse fetchId(String hgncId) {
+        return hgncHttpClient.fetchId(hgncId);
+    }
+
+    @Override
+    public FetchResponse fetchUniprotId(String uniprotId) {
+        return hgncHttpClient.fetchUniprotId(uniprotId);
     }
 }
