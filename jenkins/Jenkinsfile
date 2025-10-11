@@ -1,28 +1,84 @@
 pipeline {
+    // 1. AGENTE DE EJECUCIÓN
+    // Usamos un contenedor Docker que tiene Maven y JDK 21.
+    // Crucial: '-v /var/run/docker.sock:/var/run/docker.sock' permite a este contenedor
+    // ejecutar comandos 'docker' en la máquina host.
     agent {
         docker {
             image 'jelastic/maven:3.9.5-openjdk-21'
-            args '-v /root/.m2:/root/.m2'
+            args '-v /root/.m2:/root/.m2 -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
 
+    // 2. VARIABLES DE ENTORNO
+    // Definimos el nombre base para nuestra imagen Docker.
+    // Usará el nombre del trabajo de Jenkins en minúsculas (ej: 'mi-proyecto-quarkus').
+    environment {
+        IMAGE_NAME = "${env.JOB_NAME.toLowerCase()}"
+    }
+
+    // 3. ETAPAS DEL PIPELINE
     stages {
+
+        // Etapa A: Probar el código
         stage('Test') {
             steps {
+                echo "--- Ejecutando Pruebas Unitarias ---"
                 sh 'mvn test'
             }
         }
 
+        // Etapa B: Empaquetar la aplicación
         stage('Package') {
             steps {
+                echo "--- Compilando y Empaquetando la Aplicación ---"
                 sh 'mvn package -DskipTests'
+
+                // Guardamos los artefactos generados (target/quarkus-app) en un
+                // almacenamiento temporal llamado 'quarkus-app' para usarlos en la siguiente etapa.
+                echo "--- Guardando artefactos para la siguiente etapa (stash) ---"
+                stash name: 'quarkus-app', includes: 'target/quarkus-app/**'
+            }
+        }
+
+        // Etapa C: Construir la imagen Docker
+        stage('Build Local Docker Image') {
+            steps {
+                script {
+                    // Recuperamos los artefactos del almacenamiento temporal.
+                    // Esto recrea el directorio 'target/quarkus-app' en el workspace actual.
+                    echo "--- Recuperando artefactos (unstash) ---"
+                    unstash 'quarkus-app'
+
+                    // Creamos el nombre completo de la imagen con una etiqueta única (el número de build).
+                    // Ejemplo: 'mi-proyecto-quarkus:37'
+                    def localImageName = "${IMAGE_NAME}:${env.BUILD_NUMBER}"
+
+                    echo "--- Construyendo Imagen Docker Local: ${localImageName} ---"
+
+                    // Construimos la imagen usando el Dockerfile del repositorio.
+                    // La imagen se creará en el Docker local del agente de Jenkins.
+                    docker.build(localImageName, '.')
+
+                    echo "--- ¡Imagen Docker construida exitosamente! ---"
+                }
             }
         }
     }
 
+    // 4. ACCIONES POST-EJECUCIÓN
     post {
+        // Si todo el pipeline tiene éxito...
         success {
-            archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+            // Guardamos una copia permanente de los artefactos en Jenkins para referencia.
+            echo "--- Archivando artefactos de la compilación ---"
+            archiveArtifacts artifacts: 'target/quarkus-app/**', fingerprint: true
+        }
+        // Siempre, al finalizar (haya éxito o fallo)...
+        always {
+            // Limpiamos el workspace para ahorrar espacio.
+            echo "--- Limpiando el workspace ---"
+            deleteDir()
         }
     }
 }
