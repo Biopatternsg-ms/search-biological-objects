@@ -6,7 +6,7 @@ pipeline {
     // Usaremos una etiqueta específica para Java 21.
     agent {
         docker {
-            image 'maven:3.9-sapmachine-21' // Imagen oficial de Maven con JDK 21
+            image 'mi-agente-jenkins-maven:1.0' // Imagen oficial de Maven con JDK 21
             args '-v /root/.m2:/root/.m2 -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
