@@ -68,9 +68,10 @@ pipeline {
                     docker run -d \\
                         --name ${CONTAINER_NAME} \\
                         -p 8001:8080 \\
+                        --network general-network \\
                         --restart always \\
-                        ${imageName} \\
-                        --network general-network
+                        ${imageName}
+
                     """
                     echo "--- Deployment completed! ---"
                 }
