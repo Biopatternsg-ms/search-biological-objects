@@ -69,7 +69,8 @@ pipeline {
                         --name ${CONTAINER_NAME} \\
                         -p 8001:8080 \\
                         --restart always \\
-                        ${imageName}
+                        ${imageName} \\
+                        --network general-network
                     """
                     echo "--- Deployment completed! ---"
                 }
