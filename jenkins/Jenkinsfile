@@ -60,6 +60,7 @@ pipeline {
 
                     echo "--- Deploying container: ${CONTAINER_NAME} ---"
                     // Stop and remove the old container if it exists to avoid conflicts.
+                    sh "docker network create general-network || true"
                     sh "docker stop ${CONTAINER_NAME} || true"
                     sh "docker rm ${CONTAINER_NAME} || true"
 
@@ -67,9 +68,11 @@ pipeline {
                     sh """
                     docker run -d \\
                         --name ${CONTAINER_NAME} \\
-                        -p 8080:8080 \\
+                        -p 8001:8080 \\
+                        --network general-network \\
                         --restart always \\
                         ${imageName}
+
                     """
                     echo "--- Deployment completed! ---"
                 }
