@@ -24,40 +24,31 @@ public class PdbAdapter implements PdbRepository {
     @Override
     public Map<String, List<String>> getParticipants(String uniprotId) {
 
-        Response response = queryPdbe.search(uniprotId);
-
-        Map<String, List<String>> pivotMap = new HashMap<>();
-        List<Data> dataList = response.uniprotIndex().get(uniprotId);
-        if (dataList != null && !dataList.isEmpty()) {
-            for (Data groupsList : dataList) {
-                Map<String, Group> participantsList = groupsList.group();
-                for (Map.Entry<String, Group> entry : participantsList.entrySet()) {
-                    String keyValue = entry.getKey();
-                    Group groupValue = entry.getValue();
-                    var participants = groupValue.participants().stream()
+        List<Data> dataList = getPdbResponse(uniprotId);
+        return Optional.ofNullable(dataList)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .flatMap(data -> data.group().entrySet().stream())
+                .flatMap(complexEntry -> {
+                    String complexId = complexEntry.getKey();
+                    Group group = complexEntry.getValue();
+                    return group.participants().stream()
                             .map(Participant::accession)
-                            .filter(accession -> !accession.equals(uniprotId))
-                            .toList();
-
-                    participants.forEach(item-> addComplexes(pivotMap,item,keyValue));
-                }
-            }
-        }
-
-        return pivotMap;
+                            .filter(participantId -> !participantId.equals(uniprotId))
+                            .map(participantId -> Map.entry(participantId, complexId));
+                })
+                .collect(Collectors.groupingBy(Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
     }
 
     @Override
     public List<Complex> getComplexes(String uniprotId) {
 
-        Response response = queryPdbe.search(uniprotId);
-        List<Data> dataList = response.uniprotIndex().get(uniprotId);
-
+        List<Data> dataList = getPdbResponse(uniprotId);
         return Stream.of(dataList)
                 .flatMap(List::stream)
                 .flatMap(data -> data.group().entrySet().stream())
                 .map(entry -> {
-
                     String complexId = entry.getKey();
                     Group group = entry.getValue();
                     List<String> participants = group.participants().stream()
@@ -70,7 +61,11 @@ public class PdbAdapter implements PdbRepository {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private static void addComplexes(Map<String, List<String>> map, String clave, String valor) {
-        map.computeIfAbsent(clave, k -> new ArrayList<>()).add(valor);
+    private List<Data> getPdbResponse(String uniprotId) {
+        Response response = queryPdbe.search(uniprotId);
+        return Optional.ofNullable(response)
+                .map(Response::uniprotIndex)
+                .map(map -> map.get(uniprotId))
+                .orElse(Collections.emptyList());
     }
 }
