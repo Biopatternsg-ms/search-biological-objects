@@ -1,9 +1,9 @@
 pipeline {
-    // Agent setup using a custom Docker image containing Java 21, Maven, and Docker CLI.
-    // The Docker socket is mounted to allow the agent to run Docker commands on the host.
+    // 1. CAMBIO PRINCIPAL: Apuntamos al nuevo agente que construimos con GraalVM.
     agent {
         docker {
-            image 'agent-jenkins-java-21'
+            // Reemplaza 'quarkus-native-builder-agent:latest' con el nombre y tag que le diste a tu imagen.
+            image 'quarkus-native-builder-agent:latest'
             args '-v /root/.m2:/root/.m2 -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
@@ -14,7 +14,7 @@ pipeline {
 
     stages {
 
-        // Stage A: Run unit tests.
+        // ETAPA A: Las pruebas se ejecutan en la JVM. ¡Esto no cambia y es la mejor práctica!
         stage('Test') {
             steps {
                 echo "--- Running Unit Tests ---"
@@ -22,48 +22,55 @@ pipeline {
             }
         }
 
-        // Stage B: Package the application and archive the results.
-        stage('Package & Archive') {
+        // ETAPA B: Esta es la etapa que más cambia.
+        stage('Build Native Executable') { // Renombrada para mayor claridad
             steps {
-                echo "--- Compiling and Packaging the Application ---"
-                sh 'mvn package -DskipTests'
+                echo "--- Compiling Native Executable ---"
+                // 2. CAMBIO CLAVE: Usamos el perfil 'native' de Maven.
+                //    -Pnative: Activa la compilación nativa de Quarkus.
+                //    -Dquarkus.native.container-build=false: ¡MUY IMPORTANTE! Le dice a Quarkus
+                //    que no intente usar otro Docker para compilar, porque nuestro agente YA
+                //    es el entorno de compilación nativa perfecto.
+                sh 'mvn package -Pnative -DskipTests -Dquarkus.native.container-build=false'
 
-                echo "--- Stashing artifacts for the next stage ---"
-                stash name: 'quarkus-app', includes: 'target/quarkus-app/**'
+                echo "--- Stashing native executable for the next stage ---"
+                // 3. CAMBIO DE ARTEFACTO: El resultado ya no es 'target/quarkus-app',
+                //    sino un único ejecutable en 'target/' que termina en '-runner'.
+                stash name: 'quarkus-native-app', includes: 'target/*-runner'
 
                 echo "--- Archiving build artifacts ---"
-                archiveArtifacts artifacts: 'target/quarkus-app/**', fingerprint: true
+                archiveArtifacts artifacts: 'target/*-runner', fingerprint: true
             }
         }
 
-        // Stage C: Build the Docker image.
+        // ETAPA C: La lógica no cambia, solo el nombre del 'unstash'.
         stage('Build Docker Image') {
             steps {
                 script {
                     echo "--- Unstashing artifacts ---"
-                    unstash 'quarkus-app'
+                    // 4. Usamos el nuevo nombre del stash.
+                    unstash 'quarkus-native-app'
 
                     def localImageName = "${CONTAINER_NAME}:latest"
 
                     echo "--- Building Local Docker Image: ${localImageName} ---"
+                    // Este comando no cambia. Docker usará el nuevo Dockerfile nativo que creaste.
                     sh "docker build -t ${localImageName} ."
                     echo "--- Docker image built successfully! ---"
                 }
             }
         }
 
-        // Stage D: Deploy the application as a Docker container.
+        // ETAPA D: El despliegue es EXACTAMENTE IGUAL. La belleza de los contenedores.
         stage('Deploy Application') {
             steps {
                 script {
                     def imageName = "${CONTAINER_NAME}:latest"
 
                     echo "--- Deploying container: ${CONTAINER_NAME} ---"
-                    // Stop and remove the old container if it exists to avoid conflicts.
                     sh "docker stop ${CONTAINER_NAME} || true"
                     sh "docker rm ${CONTAINER_NAME} || true"
 
-                    // Run the new container.
                     sh """
                     docker run -d \\
                         --name ${CONTAINER_NAME} \\
@@ -77,9 +84,7 @@ pipeline {
         }
     }
 
-    // Post-build actions that run after all stages are completed.
     post {
-        // This block runs always, regardless of the pipeline's success or failure.
         always {
             echo "--- Cleaning up the workspace ---"
             deleteDir()

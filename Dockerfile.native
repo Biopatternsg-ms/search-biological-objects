@@ -1,0 +1,25 @@
+# ETAPA 1: Imagen base
+# Usamos una imagen MÍNIMA. No se necesita JVM.
+# ubi-minimal de Red Hat es una opción excelente: es diminuta, segura y proporciona
+# las librerías base (como glibc) que el ejecutable nativo necesita para funcionar.
+FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
+
+# Establecemos un directorio de trabajo.
+WORKDIR /work/
+
+# ETAPA 2: Copiar el artefacto
+# Copiamos ÚNICAMENTE el ejecutable nativo. Su nombre siempre termina en '-runner'.
+# Lo renombramos a 'application' por convención, para tener un nombre genérico.
+COPY target/*-runner /work/application
+
+# Nos aseguramos de que el archivo tenga permisos de ejecución.
+RUN chmod 755 /work/application
+
+# Exponemos el puerto en el que Quarkus escucha.
+EXPOSE 8080
+
+# ETAPA 3: Comando de ejecución
+# Ejecutamos el binario directamente. ¡No más 'java -jar'!
+# El argumento '-Dquarkus.http.host=0.0.0.0' es CRUCIAL para que la aplicación
+# sea accesible desde fuera del contenedor.
+CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
