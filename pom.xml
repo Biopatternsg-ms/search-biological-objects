@@ -171,6 +171,30 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.21.2</version> <!-- Usa la versión más reciente disponible -->
+                <configuration>
+                    <!-- Define qué reglas de PMD quieres usar -->
+                    <rulesets>
+                        <ruleset>/rulesets/java/bestpractices.xml</ruleset>
+                        <ruleset>/rulesets/java/codestyle.xml</ruleset>
+                    </rulesets>
+                    <!-- Evita que el build de Maven falle. Dejaremos que Jenkins decida. -->
+                    <failOnViolation>false</failOnViolation>
+                    <printFailingErrors>true</printFailingErrors>
+                    <linkXRef>false</linkXRef>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase> <!-- Se ejecuta durante la fase 'verify' de Maven -->
+                        <goals>
+                            <goal>pmd</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
