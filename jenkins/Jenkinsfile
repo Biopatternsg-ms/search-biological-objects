@@ -22,6 +22,29 @@ pipeline {
             }
         }
 
+        // NUEVA ETAPA: Análisis de Calidad de Código
+        stage('Code Quality Analysis') {
+            steps {
+                echo "--- Running Static Code Analysis ---"
+                // Ejecuta la fase 'verify' para activar el plugin PMD. Se usa '-DskipTests' para no repetir los tests.
+                // Se añade '|| true' para que el pipeline no se detenga si se encuentran advertencias.
+                sh 'mvn verify -DskipTests || true'
+
+                echo "--- Recording issues with Warnings NG Plugin ---"
+                recordIssues(
+                    tools: [
+                        // Indica la herramienta (PMD) y la ubicación del archivo de reporte.
+                        pmdParser(pattern: 'target/pmd.xml')
+                    ],
+                    // Opcional: Define "Quality Gates" para controlar el estado del build.
+                    // En este ejemplo, si hay 1 o más advertencias, el build se marcará como "inestable".
+                    qualityGates: [
+                        [threshold: 1, type: 'TOTAL', unstable: true]
+                    ]
+                )
+            }
+        }
+
         // Stage B: Package the application and archive the results.
         stage('Package & Archive') {
             steps {
