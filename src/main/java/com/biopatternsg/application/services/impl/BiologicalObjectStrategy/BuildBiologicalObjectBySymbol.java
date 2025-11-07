@@ -18,8 +18,8 @@ public class BuildBiologicalObjectBySymbol implements BuildBiologicalObjectStrat
     private final UniprotRepository uniprotRepository;
 
     @Override
-    public BiologicalObject execute(String value)
-    {
+    public BiologicalObject execute(String value) {
+
         var hgncResponse = hgncRepository.findSymbolInformation(value);
         var biologicalObject = formatHGNCInformation(hgncResponse, value);
         addUniprotInformation(biologicalObject, biologicalObject.getUniprotId());
@@ -27,8 +27,8 @@ public class BuildBiologicalObjectBySymbol implements BuildBiologicalObjectStrat
         return biologicalObject;
     }
 
-    private BiologicalObject formatHGNCInformation(HGNCResponse hgncResponse, String symbol)
-    {
+    private BiologicalObject formatHGNCInformation(HGNCResponse hgncResponse, String symbol) {
+
         if(hgncResponse == null){
             return BiologicalObject.builder()
                     .symbol(symbol)
@@ -36,7 +36,7 @@ public class BuildBiologicalObjectBySymbol implements BuildBiologicalObjectStrat
                     .build();
         }
         return BiologicalObject.builder()
-                        .id(hgncResponse.getId())
+                        .hgncId(hgncResponse.getId())
                         .symbol(hgncResponse.getSymbol())
                         .name(hgncResponse.getName())
                         .locusType(hgncResponse.getLocusType())
@@ -47,8 +47,8 @@ public class BuildBiologicalObjectBySymbol implements BuildBiologicalObjectStrat
                         .build();
     }
 
-    private void addUniprotInformation(BiologicalObject biologicalObject, String uniprotId)
-    {
+    private void addUniprotInformation(BiologicalObject biologicalObject, String uniprotId) {
+
         if(uniprotId != null){
             var uniprotResponse = uniprotRepository.findInfo(uniprotId);
             if(uniprotResponse.getSynonyms() != null && !uniprotResponse.getSynonyms().isEmpty()){
@@ -58,8 +58,8 @@ public class BuildBiologicalObjectBySymbol implements BuildBiologicalObjectStrat
         }
     }
 
-    private void addGOCodes(BiologicalObject biologicalObject, UniprotResponse uniprotResponse)
-    {
+    private void addGOCodes(BiologicalObject biologicalObject, UniprotResponse uniprotResponse) {
+
         GeneOntology ontologyLists = new GeneOntology();
         ontologyLists.setBiologicalProcess(uniprotResponse.getGoBp());
         ontologyLists.setMolecularFunction(uniprotResponse.getGoMf());

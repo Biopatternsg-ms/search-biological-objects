@@ -51,7 +51,7 @@ public class BuildBiologicalObjectByUniprotId implements BuildBiologicalObjectSt
 
         HGNCResponse hgncResponse = hgncRepository.findUniprotIdInformation(uniprotId);
         if(hgncResponse != null){
-            biologicalObject.setId(hgncResponse.getId());
+            biologicalObject.setHgncId(hgncResponse.getId());
             biologicalObject.setLocusType(hgncResponse.getLocusType());
             biologicalObject.setEnsemblGeneId(hgncResponse.getEnsemblGeneId());
             biologicalObject.getSynonyms().addAll(hgncResponse.getSynonyms());

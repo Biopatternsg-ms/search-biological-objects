@@ -34,7 +34,7 @@ public class BuildBiologicalObjectByHgncId implements BuildBiologicalObjectStrat
     private BiologicalObject formatHGNCInformation(HGNCResponse hgncResponse)
     {
         return BiologicalObject.builder()
-                        .id(hgncResponse.getId())
+                        .hgncId(hgncResponse.getId())
                         .symbol(hgncResponse.getSymbol())
                         .name(hgncResponse.getName())
                         .locusType(hgncResponse.getLocusType())
