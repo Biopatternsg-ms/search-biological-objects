@@ -1,16 +1,14 @@
-package com.biopatternsg.infrastructure.model_mongo;
+package com.biopatternsg.infrastructure.mongo_db.collections;
 
 import com.biopatternsg.domain.models.GeneOntology;
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.common.MongoEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 import java.util.Set;
 
+@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
@@ -28,8 +26,4 @@ public class BiologicalObjectCollection extends PanacheMongoEntity {
     private GeneOntology geneOntology;
     private List<String> geneFamilies;
     private List<String> tissues;
-
-    public BiologicalObjectCollection() {
-
-    }
 }

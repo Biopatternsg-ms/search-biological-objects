@@ -3,31 +3,54 @@ package com.biopatternsg.infrastructure.adapters.out.repositories;
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
 import com.biopatternsg.infrastructure.dtos.ExpertObjectsData;
-import com.biopatternsg.infrastructure.model_mongo.BiologicalObjectCollection;
-import com.biopatternsg.infrastructure.model_mongo.mappers.BiologicalObjectMapper;
+import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectCollection;
+import com.biopatternsg.infrastructure.mongo_db.mappers.BiologicalObjectMapper;
+import com.biopatternsg.infrastructure.session.SessionUtil;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Random;
 
 @Slf4j
 @ApplicationScoped
+@RequiredArgsConstructor
 public class BiologicalObjectRepositoryImpl implements BiologicalObjectRepository {
 
-    @Override
-    public BiologicalObject save(BiologicalObject biologicalObject, Long userId) {
+    private final SessionUtil sessionUtil;
 
+    @Override
+    public BiologicalObject save(BiologicalObject biologicalObject) {
+
+        /*
         if(biologicalObject != null){
             var mongoObject = saveBiologicalObject(biologicalObject, userId);
             return BiologicalObjectMapper.toBiologicalObject(mongoObject);
-        }
+        }*/
 
         return null;
     }
 
     @Override
-    public BiologicalObjectCollection searchDB(Long userId, ExpertObjectsData expertObjectsData) {
+    public BiologicalObject findByUniprotId(String uniprotId) {
+        return null;
+    }
+
+    @Override
+    public BiologicalObject findByHgncId(String hgncId) {
+        return null;
+    }
+
+    @Override
+    public BiologicalObject findBySymbol(String symbol) {
+        return null;
+    }
+
+    /*
+    @Override
+    public BiologicalObjectCollection searchDB(ExpertObjectsData expertObjectsData) {
+
+        //Aca buscaria por el userId que llega del header
+        SessionUtil.
 
         StringBuilder queryBuilder = new StringBuilder("{'userId': :userId");
         Parameters parameters = Parameters.with("userId", userId);
@@ -57,20 +80,13 @@ public class BiologicalObjectRepositoryImpl implements BiologicalObjectRepositor
         return BiologicalObjectCollection
                 .find(queryBuilder.toString(), parameters)
                 .firstResult();
-    }
+    }*/
 
     private BiologicalObjectCollection saveBiologicalObject(BiologicalObject biologicalObject, Long userId){
 
         BiologicalObjectCollection mongoObject = new BiologicalObjectCollection();
 
-        //This is temporal, I need this to assign a random userId when I create a register with the search by type function
-        if(userId == null){
-            Random random = new Random();
-            mongoObject.setUserId(random.nextLong(1,10));
-        }else{
-            mongoObject.setUserId(userId);
-        }
-
+        mongoObject.setUserId(userId);
         mongoObject.setSymbol(biologicalObject.getSymbol());
         mongoObject.setName(biologicalObject.getName());
         mongoObject.setLocusType(biologicalObject.getLocusType());

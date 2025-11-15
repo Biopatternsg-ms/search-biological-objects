@@ -1,7 +1,7 @@
-package com.biopatternsg.infrastructure.model_mongo.mappers;
+package com.biopatternsg.infrastructure.mongo_db.mappers;
 
 import com.biopatternsg.domain.models.BiologicalObject;
-import com.biopatternsg.infrastructure.model_mongo.BiologicalObjectCollection;
+import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectCollection;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -26,6 +26,7 @@ public class BiologicalObjectMapper {
     public static BiologicalObjectCollection toBiologicalObjectCollection(BiologicalObject biologicalObject){
 
         return BiologicalObjectCollection.builder()
+                //TODO chequearID
                 .symbol(biologicalObject.getSymbol())
                 .locusType(biologicalObject.getLocusType())
                 .uniprotId(biologicalObject.getUniprotId())

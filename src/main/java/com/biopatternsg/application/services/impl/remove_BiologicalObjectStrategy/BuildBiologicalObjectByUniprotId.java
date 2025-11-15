@@ -1,6 +1,6 @@
-package com.biopatternsg.application.services.impl.BiologicalObjectStrategy;
+package com.biopatternsg.application.services.impl.remove_BiologicalObjectStrategy;
 
-import com.biopatternsg.application.services.BuildBiologicalObjectStrategy;
+import com.biopatternsg.application.services.impl.biological_object_strategy.BuildBiologicalObjectStrategy;
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.GeneOntology;
 import com.biopatternsg.domain.models.external_entities.HGNCResponse;

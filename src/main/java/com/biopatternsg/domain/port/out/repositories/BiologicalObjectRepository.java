@@ -2,12 +2,13 @@ package com.biopatternsg.domain.port.out.repositories;
 
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.infrastructure.dtos.ExpertObjectsData;
-import com.biopatternsg.infrastructure.model_mongo.BiologicalObjectCollection;
-
-import java.util.List;
+import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectCollection;
 
 public interface BiologicalObjectRepository {
 
-    BiologicalObject save(BiologicalObject biologicalObject, Long userId);
-    BiologicalObjectCollection searchDB(Long userId, ExpertObjectsData expertObjectsData);
+    BiologicalObject save(BiologicalObject biologicalObject);
+    //BiologicalObjectCollection searchDB(ExpertObjectsData expertObjectsData);
+    BiologicalObject findByUniprotId(String uniprotId);
+    BiologicalObject findByHgncId(String hgncId);
+    BiologicalObject findBySymbol(String symbol);
 }

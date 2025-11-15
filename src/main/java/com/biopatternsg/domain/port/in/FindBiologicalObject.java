@@ -8,6 +8,5 @@ import java.util.List;
 public interface FindBiologicalObject {
 
     BiologicalObject execute(String type, String value);
-    List<BiologicalObject> experiment(ExpertObjects expertObjects);
     //BiologicalObject execute(TranscriptionFactor transcriptionFactor);
 }

@@ -1,4 +1,4 @@
-package com.biopatternsg.application.services.impl.BiologicalObjectStrategy;
+package com.biopatternsg.application.services.impl.remove_BiologicalObjectStrategy;
 
 import java.util.Objects;
 

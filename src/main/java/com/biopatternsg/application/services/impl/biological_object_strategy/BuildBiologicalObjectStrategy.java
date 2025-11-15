@@ -1,4 +1,4 @@
-package com.biopatternsg.application.services;
+package com.biopatternsg.application.services.impl.biological_object_strategy;
 
 import com.biopatternsg.domain.models.BiologicalObject;
 
