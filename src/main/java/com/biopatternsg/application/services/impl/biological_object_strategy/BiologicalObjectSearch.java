@@ -1,23 +1,29 @@
 package com.biopatternsg.application.services.impl.biological_object_strategy;
 
-
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
 import jakarta.enterprise.context.ApplicationScoped;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @ApplicationScoped
 @RequiredArgsConstructor
 public class BiologicalObjectSearch implements ChainResponsibility {
 
-    private final BiologicalObjectBySymbol biologicalObjectBySymbol;
-    private final BiologicalObjectByHgncId biologicalObjectByHgncId;
-    private final BiologicalObjectByUniprotId biologicalObjectByUniprotId;
-    private final BiologicalObjectByUserUniprotId biologicalObjectByUserUniprotId;
-    private final BiologicalObjectByUserHgncId biologicalObjectByUserHgncId;
-    private final BiologicalObjectByUserSymbol biologicalObjectByUserSymbol;
+    @NonNull
+    public BiologicalObjectBySymbol biologicalObjectBySymbol;
+    @NonNull
+    public BiologicalObjectByHgncId biologicalObjectByHgncId;
+    @NonNull
+    public BiologicalObjectByUniprotId biologicalObjectByUniprotId;
+    @NonNull
+    public BiologicalObjectByUserUniprotId biologicalObjectByUserUniprotId;
+    @NonNull
+    public BiologicalObjectByUserHgncId biologicalObjectByUserHgncId;
+    @NonNull
+    public BiologicalObjectByUserSymbol biologicalObjectByUserSymbol;
 
-    private ChainResponsibility next;
+    public ChainResponsibility next;
 
     @Override
     public void setNext(ChainResponsibility chainResponsibility) {
@@ -32,14 +38,11 @@ public class BiologicalObjectSearch implements ChainResponsibility {
     @Override
     public BiologicalObject request(BiologicalObjectConfig biologicalObjectConfig) {
 
-        this.setNext(biologicalObjectByUserUniprotId);
-
+        setNext(biologicalObjectByUserUniprotId);
+        biologicalObjectByUserUniprotId.setNext(biologicalObjectByUserHgncId);
         biologicalObjectByUserHgncId.setNext(biologicalObjectByUserSymbol);
-
         biologicalObjectByUserSymbol.setNext(biologicalObjectByUniprotId);
-
         biologicalObjectByUniprotId.setNext(biologicalObjectByHgncId);
-
         biologicalObjectByHgncId.setNext(biologicalObjectBySymbol);
 
         return next.request(biologicalObjectConfig);

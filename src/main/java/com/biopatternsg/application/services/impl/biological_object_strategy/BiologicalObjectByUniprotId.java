@@ -67,12 +67,12 @@ public class BiologicalObjectByUniprotId implements BuildBiologicalObjectStrateg
     public BiologicalObject request(BiologicalObjectConfig biologicalObjectConfig) {
 
         if(biologicalObjectConfig.getUniprotId() == null || biologicalObjectConfig.getUniprotId().isEmpty()){
-            this.next.request(biologicalObjectConfig);
+            return next.request(biologicalObjectConfig);
         }
 
         var biologicalObject = execute(biologicalObjectConfig.getUniprotId());
         if(biologicalObject == null){
-            this.next.request(biologicalObjectConfig);
+            return next.request(biologicalObjectConfig);
         }
 
         return biologicalObject;

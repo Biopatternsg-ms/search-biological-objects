@@ -32,12 +32,12 @@ public class BiologicalObjectByUserSymbol implements BuildBiologicalObjectStrate
     public BiologicalObject request(BiologicalObjectConfig biologicalObjectConfig) {
 
         if(biologicalObjectConfig.getSymbol() == null || biologicalObjectConfig.getSymbol().isEmpty()){
-            this.next.request(biologicalObjectConfig);
+            return next.request(biologicalObjectConfig);
         }
 
         var biologicalObject = execute(biologicalObjectConfig.getSymbol());
         if(biologicalObject == null){
-            this.next.request(biologicalObjectConfig);
+            return next.request(biologicalObjectConfig);
         }
 
         return biologicalObject;

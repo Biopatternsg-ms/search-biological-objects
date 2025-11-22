@@ -20,24 +20,24 @@ public class BiologicalObjectByUserHgncId implements BuildBiologicalObjectStrate
 
     @Override
     public void setNext(ChainResponsibility chainResponsibility) {
-
+        this.next = chainResponsibility;
     }
 
     @Override
     public ChainResponsibility getNext() {
-        return null;
+        return this.next;
     }
 
     @Override
     public BiologicalObject request(BiologicalObjectConfig biologicalObjectConfig) {
 
         if(biologicalObjectConfig.getHgncId() == null || biologicalObjectConfig.getHgncId().isEmpty()){
-            this.next.request(biologicalObjectConfig);
+            return next.request(biologicalObjectConfig);
         }
 
         var biologicalObject = execute(biologicalObjectConfig.getHgncId());
         if(biologicalObject == null){
-            this.next.request(biologicalObjectConfig);
+            return next.request(biologicalObjectConfig);
         }
 
         return biologicalObject;

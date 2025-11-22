@@ -11,17 +11,11 @@ import lombok.RequiredArgsConstructor;
 public class BiologicalObjectByUserUniprotId implements BuildBiologicalObjectStrategy, ChainResponsibility {
 
     private final BiologicalObjectRepository biologicalObjectRepository;
-    private final BiologicalObjectByUserHgncId biologicalObjectByUserHgncId;
     private ChainResponsibility next;
 
     @Override
     public BiologicalObject execute(String value) {
-        var result = biologicalObjectRepository.findByUniprotId(value);
-        if(result == null){
-            setNext(biologicalObjectByUserHgncId);
-        }
-
-        return result;
+        return biologicalObjectRepository.findByUniprotId(value);
     }
 
     @Override
@@ -38,12 +32,12 @@ public class BiologicalObjectByUserUniprotId implements BuildBiologicalObjectStr
     public BiologicalObject request(BiologicalObjectConfig biologicalObjectConfig) {
 
         if(biologicalObjectConfig.getUniprotId() == null || biologicalObjectConfig.getUniprotId().isEmpty()){
-            this.next.request(biologicalObjectConfig);
+            return next.request(biologicalObjectConfig);
         }
 
         var biologicalObject = execute(biologicalObjectConfig.getUniprotId());
         if(biologicalObject == null){
-            this.next.request(biologicalObjectConfig);
+            return next.request(biologicalObjectConfig);
         }
 
         return biologicalObject;
