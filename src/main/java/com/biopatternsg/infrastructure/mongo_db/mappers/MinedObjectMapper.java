@@ -16,7 +16,7 @@ public class MinedObjectMapper {
                 .build();
     }
 
-    public static MinedObjectCollection toMinedObject(MinedObject minedObject){
+    public static MinedObjectCollection toMinedObjectCollection(MinedObject minedObject){
 
         return MinedObjectCollection.builder()
                 //TODO chequearID

@@ -34,7 +34,10 @@ public class FindExpertObjectsServiceImpl implements ExpertObjectService {
             biologicalObject = biologicalObjectRepository.save(biologicalObject);
         }
 
-        minedObjectRepository.save(buildMinedObject(biologicalObject, pipelineId));
+        MinedObject minedObject = minedObjectRepository.find(biologicalObject.getId());
+        if(minedObject == null){
+            minedObjectRepository.save(buildMinedObject(biologicalObject, pipelineId));
+        }
 
         //TODO search ontologies
     }
@@ -43,10 +46,10 @@ public class FindExpertObjectsServiceImpl implements ExpertObjectService {
 
         return MinedObject.builder()
                 .pipelineId(pipelineId)
+                .userId(biologicalObject.getUserId())
                 .biologicalObjectId(biologicalObject.getId())
                 .level(1)
                 .build();
-
     }
 
 }

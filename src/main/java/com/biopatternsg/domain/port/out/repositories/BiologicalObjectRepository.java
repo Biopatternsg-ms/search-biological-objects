@@ -7,7 +7,6 @@ import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectColl
 public interface BiologicalObjectRepository {
 
     BiologicalObject save(BiologicalObject biologicalObject);
-    //BiologicalObjectCollection searchDB(ExpertObjectsData expertObjectsData);
     BiologicalObject findByUniprotId(String uniprotId);
     BiologicalObject findByHgncId(String hgncId);
     BiologicalObject findBySymbol(String symbol);
