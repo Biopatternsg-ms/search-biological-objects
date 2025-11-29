@@ -85,51 +85,30 @@ pipeline {
                         passwordVariable: 'MONGO_PASSWORD'
                     )
                 ]) {
-                    def imageName = "${CONTAINER_NAME}:latest"
+                    script {
+                        def imageName = "${CONTAINER_NAME}:latest"
 
-                    echo "--- Deploying container: ${CONTAINER_NAME} ---"
-                    // Stop and remove the old container if it exists to avoid conflicts.
-                    sh "docker network create general-network || true"
-                    sh "docker stop ${CONTAINER_NAME} || true"
-                    sh "docker rm ${CONTAINER_NAME} || true"
+                        echo "--- Deploying container: ${CONTAINER_NAME} ---"
+                        // Stop and remove the old container if it exists to avoid conflicts.
+                        sh "docker network create general-network || true"
+                        sh "docker stop ${CONTAINER_NAME} || true"
+                        sh "docker rm ${CONTAINER_NAME} || true"
 
-                    // Run the new container.
-                    sh """
-                    docker run -d \\
-                        -e QUARKUS_MONGODB_USERNAME=${MONGO_USER} \
-                        -e QUARKUS_MONGODB_PASSWORD=${MONGO_PASSWORD} \
-                        --name ${CONTAINER_NAME} \\
-                        -p 8001:8080 \\
-                        --network general-network \\
-                        --restart always \\
-                        ${imageName}
+                        // Run the new container.
+                        sh """
+                        docker run -d \\
+                            -e QUARKUS_MONGODB_USERNAME=${MONGO_USER} \
+                            -e QUARKUS_MONGODB_PASSWORD=${MONGO_PASSWORD} \
+                            --name ${CONTAINER_NAME} \\
+                            -p 8001:8080 \\
+                            --network general-network \\
+                            --restart always \\
+                            ${imageName}
 
-                    """
-                    echo "--- Deployment completed! ---"
+                        """
+                        echo "--- Deployment completed! ---"
+                    }
                 }
-                /*
-                script {
-                    def imageName = "${CONTAINER_NAME}:latest"
-
-                    echo "--- Deploying container: ${CONTAINER_NAME} ---"
-                    // Stop and remove the old container if it exists to avoid conflicts.
-                    sh "docker network create general-network || true"
-                    sh "docker stop ${CONTAINER_NAME} || true"
-                    sh "docker rm ${CONTAINER_NAME} || true"
-
-                    // Run the new container.
-                    sh """
-                    docker run -d \\
-                        --name ${CONTAINER_NAME} \\
-                        -p 8001:8080 \\
-                        --network general-network \\
-                        --restart always \\
-                        ${imageName}
-
-                    """
-                    echo "--- Deployment completed! ---"
-                }
-                */
             }
         }
     }
