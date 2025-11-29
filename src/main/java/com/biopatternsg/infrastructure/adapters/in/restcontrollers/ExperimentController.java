@@ -8,7 +8,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
 @Slf4j
@@ -18,17 +18,16 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 public class ExperimentController {
 
     @Inject
-    @ConfigProperty(name = "quarkus.mongodb.credentials.username")
-    private final String mongoUser;
-    @Inject
-    @ConfigProperty(name = "quarkus.mongodb.credentials.password")
-    private final String mongoPassword;
+    Config config;
 
     private final LaunchPipeline launchExperiment;
 
     @POST
     @Path("/launch-experiment")
     public void experiment(@RequestBody PipelineConfig launchExperimentRequest){
+
+        String mongoUser = config.getOptionalValue("quarkus.mongodb.credentials.username", String.class).orElse("N/A");
+        String mongoPassword = config.getOptionalValue("quarkus.mongodb.credentials.password", String.class).orElse("N/A");
 
         log.error("MONGO USER: {} - PASSWORD: {}", mongoUser, mongoPassword);
 
