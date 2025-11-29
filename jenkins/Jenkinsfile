@@ -97,8 +97,8 @@ pipeline {
                         // Run the new container.
                         sh """
                         docker run -d \\
-                            -e QUARKUS_MONGODB_USERNAME=${MONGO_USER} \
-                            -e QUARKUS_MONGODB_PASSWORD=${MONGO_PASSWORD} \
+                            -e QUARKUS_MONGODB_USERNAME='${MONGO_USER}' \
+                            -e QUARKUS_MONGODB_PASSWORD='${MONGO_PASSWORD}' \
                             --name ${CONTAINER_NAME} \\
                             -p 8001:8080 \\
                             --network general-network \\
