@@ -28,7 +28,7 @@ public class ExperimentController {
 
         String mongoUser = config.getOptionalValue("quarkus.mongodb.credentials.username", String.class).orElse("N/A");
         String mongoPassword = config.getOptionalValue("quarkus.mongodb.credentials.password", String.class).orElse("N/A");
-        String mongoAuth = config.getOptionalValue("quarkus.mongodb.auth-source", String.class).orElse("N/A");
+        String mongoAuth = config.getOptionalValue("quarkus.mongodb.credentials.authentication-database", String.class).orElse("N/A");
 
         log.error("MONGO USER: {} - PASSWORD: {} - AUTH: {}", mongoUser, mongoPassword, mongoAuth);
 
