@@ -78,6 +78,36 @@ pipeline {
         // Stage D: Deploy the application as a Docker container.
         stage('Deploy Application') {
             steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: '06a41492-8765-49c4-91f6-b759260140f0',
+                        usernameVariable: 'MONGO_USER',
+                        passwordVariable: 'MONGO_PASSWORD'
+                    )
+                ]) {
+                    def imageName = "${CONTAINER_NAME}:latest"
+
+                    echo "--- Deploying container: ${CONTAINER_NAME} ---"
+                    // Stop and remove the old container if it exists to avoid conflicts.
+                    sh "docker network create general-network || true"
+                    sh "docker stop ${CONTAINER_NAME} || true"
+                    sh "docker rm ${CONTAINER_NAME} || true"
+
+                    // Run the new container.
+                    sh """
+                    docker run -d \\
+                        -e QUARKUS_MONGODB_USERNAME=${MONGO_USER} \
+                        -e QUARKUS_MONGODB_PASSWORD=${MONGO_PASSWORD} \
+                        --name ${CONTAINER_NAME} \\
+                        -p 8001:8080 \\
+                        --network general-network \\
+                        --restart always \\
+                        ${imageName}
+
+                    """
+                    echo "--- Deployment completed! ---"
+                }
+                /*
                 script {
                     def imageName = "${CONTAINER_NAME}:latest"
 
@@ -99,6 +129,7 @@ pipeline {
                     """
                     echo "--- Deployment completed! ---"
                 }
+                */
             }
         }
     }
