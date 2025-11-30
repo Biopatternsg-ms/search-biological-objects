@@ -97,9 +97,12 @@ pipeline {
                         // Run the new container.
                         sh """
                         docker run -d \\
-                            -e QUARKUS_MONGODB_CREDENTIALS_USERNAME=${MONGO_USER} \\
-                            -e QUARKUS_MONGODB_CREDENTIALS_PASSWORD=${MONGO_PASSWORD} \\
-                            -e QUARKUS_MONGODB_AUTH_SOURCE=tesis \\
+                            -e QUARKUS_MONGODB_CREDENTIALS_USERNAME='${MONGO_USER}' \\
+                            -e QUARKUS_MONGODB_CREDENTIALS_PASSWORD='${MONGO_PASSWORD}' \\
+                            -e QUARKUS_MONGODB_CREDENTIALS_AUTHENTICATION_DATABASE='admin' \\
+                            -e QUARKUS_MONGODB_AUTH_SOURCE='admin' \\
+                            -e QUARKUS_MONGODB_HOSTS='mongo-db-prod:27017' \\
+                            -e QUARKUS_MONGODB_DATABASE='tesis' \\
                             --name ${CONTAINER_NAME} \\
                             -p 8001:8080 \\
                             --network general-network \\
