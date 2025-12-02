@@ -12,6 +12,8 @@ public class MinedObjectMapper {
                 .userId(minedObjectCollection.getUserId())
                 .pipelineId(minedObjectCollection.getPipelineId())
                 .biologicalObjectId(minedObjectCollection.getBiologicalObjectId())
+                .uniprotId(minedObjectCollection.getUniprotId())
+                .uniprotIdFather(minedObjectCollection.getUniprotIdFather())
                 .level(minedObjectCollection.getLevel())
                 .build();
     }
@@ -23,6 +25,8 @@ public class MinedObjectMapper {
                 .userId(minedObject.getUserId())
                 .pipelineId(minedObject.getPipelineId())
                 .biologicalObjectId(minedObject.getBiologicalObjectId())
+                .uniprotId(minedObject.getUniprotId())
+                .uniprotIdFather(minedObject.getUniprotIdFather())
                 .level(minedObject.getLevel())
                 .build();
     }

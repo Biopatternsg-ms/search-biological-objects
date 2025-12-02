@@ -1,9 +1,9 @@
 package com.biopatternsg.application.services;
 
 import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
-import java.util.List;
+import com.biopatternsg.domain.models.pipeline_config.ExpertObjectConfig;
 
 public interface ExpertObjectService {
 
-    void execute(List<BiologicalObjectConfig> expertObjects, String pipelineId);
+    void execute(BiologicalObjectConfig expertObject, ExpertObjectConfig expertObjectConfig);
 }

@@ -47,10 +47,12 @@ public class BiologicalObjectByUniprotId implements BuildBiologicalObjectStrateg
     private void addHgncInformation(BiologicalObject biologicalObject, String uniprotId) {
 
         HGNCResponse hgncResponse = hgncRepository.findUniprotIdInformation(uniprotId);
-        biologicalObject.setHgncId(hgncResponse.getId());
-        biologicalObject.setLocusType(hgncResponse.getLocusType());
-        biologicalObject.setEnsemblGeneId(hgncResponse.getEnsemblGeneId());
-        biologicalObject.getSynonyms().addAll(hgncResponse.getSynonyms());
+        if(hgncResponse != null){
+            biologicalObject.setHgncId(hgncResponse.getId());
+            biologicalObject.setLocusType(hgncResponse.getLocusType());
+            biologicalObject.setEnsemblGeneId(hgncResponse.getEnsemblGeneId());
+            biologicalObject.getSynonyms().addAll(hgncResponse.getSynonyms());
+        }
     }
 
     @Override

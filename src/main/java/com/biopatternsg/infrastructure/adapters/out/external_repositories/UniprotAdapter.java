@@ -3,9 +3,7 @@ package com.biopatternsg.infrastructure.adapters.out.external_repositories;
 import com.biopatternsg.domain.models.external_entities.UniprotResponse;
 import com.biopatternsg.domain.port.out.external_repositories.UniprotRepository;
 import com.biopatternsg.infrastructure.external_services.QueryUniprot;
-import com.biopatternsg.infrastructure.external_services.dtos.uniprot.KBCrossReference;
-import com.biopatternsg.infrastructure.external_services.dtos.uniprot.ProteinDescription;
-import com.biopatternsg.infrastructure.external_services.dtos.uniprot.Response;
+import com.biopatternsg.infrastructure.external_services.dtos.uniprot.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,14 +35,12 @@ public class UniprotAdapter implements UniprotRepository {
 
         var uniprotResponse = UniprotResponse.builder()
                 .id(response.primaryAccession())
-                .name(response.proteinDescription().recommendedName().fullName().value())
-                .symbol(response.genes().getFirst().geneName().value())
                 .build();
 
-        var references = response.uniProtKBCrossReferences();
-        var proteins = response.proteinDescription();
-        setCodesGO(uniprotResponse, references);
-        setSynonyms(uniprotResponse, proteins);
+        setName(uniprotResponse, response.proteinDescription().recommendedName());
+        setGeneName(uniprotResponse, response.genes());
+        setCodesGO(uniprotResponse, response.uniProtKBCrossReferences());
+        setSynonyms(uniprotResponse, response.proteinDescription());
 
         return uniprotResponse;
     }
@@ -77,5 +73,19 @@ public class UniprotAdapter implements UniprotRepository {
             synonyms.add(descriptions.recommendedName().fullName().value());
         }
         response.setSynonyms(synonyms);
+    }
+
+    private static void setGeneName(UniprotResponse response, List<Gene> gene){
+
+        if(gene != null && gene.getFirst().geneName() != null){
+            response.setSymbol(gene.getFirst().geneName().value());
+        }
+    }
+
+    private static void setName(UniprotResponse response, RecommendedName recommendedName){
+
+        if(recommendedName != null){
+            response.setName(recommendedName.fullName().value());
+        }
     }
 }

@@ -1,8 +1,6 @@
 package com.biopatternsg.domain.port.out.repositories;
 
 import com.biopatternsg.domain.models.BiologicalObject;
-import com.biopatternsg.infrastructure.dtos.ExpertObjectsData;
-import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectCollection;
 
 public interface BiologicalObjectRepository {
 
