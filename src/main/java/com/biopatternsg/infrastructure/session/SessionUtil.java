@@ -1,17 +1,19 @@
 package com.biopatternsg.infrastructure.session;
 
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.MultivaluedMap;
+import lombok.Getter;
+import lombok.Setter;
 
-@RequestScoped
+@Setter
+@Getter
+@ApplicationScoped
 public class SessionUtil {
 
-    @Context
-    HttpHeaders httpHeaders;
+    private MultivaluedMap<String, String> context;
 
     public Long getUserId(){
-
-        return Long.parseLong(httpHeaders.getRequestHeader("userId").getFirst());
+        return Long.parseLong(this.context.get("userId").getFirst());
     }
+
 }
