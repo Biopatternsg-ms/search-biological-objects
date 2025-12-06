@@ -57,15 +57,20 @@ public class PdbAdapter implements PdbRepository {
                             .toList();
 
                     return new Complex(complexId, participants);
-                })
-                .collect(Collectors.toCollection(ArrayList::new));
+                }).toList();
     }
 
     private List<Data> getPdbResponse(String uniprotId) {
-        Response response = queryPdbe.search(uniprotId);
-        return Optional.ofNullable(response)
-                .map(Response::uniprotIndex)
-                .map(map -> map.get(uniprotId))
-                .orElse(Collections.emptyList());
+
+        try{
+            Response response = queryPdbe.search(uniprotId);
+            return Optional.ofNullable(response)
+                    .map(Response::uniprotIndex)
+                    .map(map -> map.get(uniprotId))
+                    .orElse(Collections.emptyList());
+
+        } catch (Exception e) {
+            return List.of();
+        }
     }
 }
