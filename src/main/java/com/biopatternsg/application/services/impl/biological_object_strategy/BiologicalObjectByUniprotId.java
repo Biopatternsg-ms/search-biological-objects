@@ -9,7 +9,9 @@ import com.biopatternsg.domain.port.out.external_repositories.HGNCRepository;
 import com.biopatternsg.domain.port.out.external_repositories.UniprotRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ApplicationScoped
 @RequiredArgsConstructor
 public class BiologicalObjectByUniprotId implements BuildBiologicalObjectStrategy, ChainResponsibility {
@@ -72,11 +74,18 @@ public class BiologicalObjectByUniprotId implements BuildBiologicalObjectStrateg
             return next.request(biologicalObjectConfig);
         }
 
-        var biologicalObject = execute(biologicalObjectConfig.getUniprotId());
-        if(biologicalObject == null){
+        try {
+            var biologicalObject = execute(biologicalObjectConfig.getUniprotId());
+            if(biologicalObject == null){
+                return next.request(biologicalObjectConfig);
+            }
+
+            return biologicalObject;
+
+        } catch (Exception e) {
+
+            log.error(e.getMessage(),e);
             return next.request(biologicalObjectConfig);
         }
-
-        return biologicalObject;
     }
 }

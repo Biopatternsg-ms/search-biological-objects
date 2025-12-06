@@ -69,6 +69,10 @@ public class BiologicalObjectBySymbol implements BuildBiologicalObjectStrategy, 
     @Override
     public BiologicalObject request(BiologicalObjectConfig biologicalObjectConfig) {
 
-        return execute(biologicalObjectConfig.getSymbol());
+        try{
+            return execute(biologicalObjectConfig.getSymbol());
+        } catch (Exception e) {
+            return BiologicalObject.builder().symbol(biologicalObjectConfig.getSymbol()).build();
+        }
     }
 }
