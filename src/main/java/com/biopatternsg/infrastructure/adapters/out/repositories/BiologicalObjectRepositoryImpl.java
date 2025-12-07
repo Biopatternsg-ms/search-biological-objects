@@ -2,16 +2,101 @@ package com.biopatternsg.infrastructure.adapters.out.repositories;
 
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
+import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectCollection;
+import com.biopatternsg.infrastructure.mongo_db.mappers.BiologicalObjectMapper;
+import com.biopatternsg.infrastructure.session.SessionUtil;
+import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import java.util.List;
 
 @Slf4j
 @ApplicationScoped
+@RequiredArgsConstructor
 public class BiologicalObjectRepositoryImpl implements BiologicalObjectRepository {
 
+    private final SessionUtil sessionUtil;
+
     @Override
-    public List<BiologicalObject> save(List<BiologicalObject> biologicalObject) {
-        return biologicalObject;
+    public BiologicalObject save(BiologicalObject biologicalObject) {
+
+        if(biologicalObject == null){return null;}
+
+        var mongoObject = saveBiologicalObject(biologicalObject);
+        return BiologicalObjectMapper.toBiologicalObject(mongoObject);
+    }
+
+    @Override
+    public BiologicalObject findByUniprotId(String uniprotId) {
+
+        StringBuilder queryBuilder = new StringBuilder("{'userId': :userId");
+        Parameters parameters = Parameters.with("userId", sessionUtil.getUserId());
+        queryBuilder.append(", '").append("uniprotId").append("': :fieldValue");
+        parameters.and("fieldValue", uniprotId);
+        queryBuilder.append("}");
+
+        BiologicalObjectCollection mongoObject = BiologicalObjectCollection
+                .find(queryBuilder.toString(), parameters)
+                .firstResult();
+
+        if(mongoObject == null){return null;}
+
+        return BiologicalObjectMapper.toBiologicalObject(mongoObject);
+    }
+
+    @Override
+    public BiologicalObject findByHgncId(String hgncId) {
+
+        StringBuilder queryBuilder = new StringBuilder("{'userId': :userId");
+        Parameters parameters = Parameters.with("userId", sessionUtil.getUserId());
+        queryBuilder.append(", '").append("hgncId").append("': :fieldValue");
+        parameters.and("fieldValue", hgncId);
+        queryBuilder.append("}");
+
+        BiologicalObjectCollection mongoObject = BiologicalObjectCollection
+                .find(queryBuilder.toString(), parameters)
+                .firstResult();
+
+        if(mongoObject == null){return null;}
+
+        return BiologicalObjectMapper.toBiologicalObject(mongoObject);
+    }
+
+    @Override
+    public BiologicalObject findBySymbol(String symbol) {
+
+        StringBuilder queryBuilder = new StringBuilder("{'userId': :userId");
+        Parameters parameters = Parameters.with("userId", sessionUtil.getUserId());
+        queryBuilder.append(", '").append("symbol").append("': :fieldValue");
+        parameters.and("fieldValue", symbol);
+        queryBuilder.append("}");
+
+        BiologicalObjectCollection mongoObject = BiologicalObjectCollection
+                .find(queryBuilder.toString(), parameters)
+                .firstResult();
+
+        if(mongoObject == null){return null;}
+
+        return BiologicalObjectMapper.toBiologicalObject(mongoObject);
+    }
+
+    private BiologicalObjectCollection saveBiologicalObject(BiologicalObject biologicalObject){
+
+        BiologicalObjectCollection mongoObject = new BiologicalObjectCollection();
+
+        mongoObject.setUserId(sessionUtil.getUserId());
+        mongoObject.setSymbol(biologicalObject.getSymbol());
+        mongoObject.setName(biologicalObject.getName());
+        mongoObject.setLocusType(biologicalObject.getLocusType());
+        mongoObject.setHgncId(biologicalObject.getHgncId());
+        mongoObject.setUniprotId(biologicalObject.getUniprotId());
+        mongoObject.setSynonyms(biologicalObject.getSynonyms());
+        mongoObject.setGeneOntology(biologicalObject.getGeneOntology());
+        mongoObject.setTissues(biologicalObject.getTissues());
+        mongoObject.setGeneFamilies(biologicalObject.getGeneFamilies());
+
+        mongoObject.persist();
+
+        return mongoObject;
     }
 }

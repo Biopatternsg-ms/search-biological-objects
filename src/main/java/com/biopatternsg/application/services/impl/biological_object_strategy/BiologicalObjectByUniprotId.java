@@ -1,30 +1,29 @@
-package com.biopatternsg.application.services.impl.BiologicalObjectStrategy;
+package com.biopatternsg.application.services.impl.biological_object_strategy;
 
-import com.biopatternsg.application.services.BuildBiologicalObjectStrategy;
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.GeneOntology;
 import com.biopatternsg.domain.models.external_entities.HGNCResponse;
 import com.biopatternsg.domain.models.external_entities.UniprotResponse;
+import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
 import com.biopatternsg.domain.port.out.external_repositories.HGNCRepository;
 import com.biopatternsg.domain.port.out.external_repositories.UniprotRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ApplicationScoped
 @RequiredArgsConstructor
-public class BuildBiologicalObjectByUniprotId implements BuildBiologicalObjectStrategy {
+public class BiologicalObjectByUniprotId implements BuildBiologicalObjectStrategy, ChainResponsibility {
 
     private final HGNCRepository hgncRepository;
     private final UniprotRepository uniprotRepository;
+    private ChainResponsibility next;
 
     @Override
     public BiologicalObject execute(String value) {
 
         var uniprotResponse = uniprotRepository.findInfo(value);
-        if(uniprotResponse == null){
-            //Replace by exception
-            return null;
-        }
         var biologicalObject = formatUniprotInformation(uniprotResponse);
         addHgncInformation(biologicalObject, value);
 
@@ -51,10 +50,42 @@ public class BuildBiologicalObjectByUniprotId implements BuildBiologicalObjectSt
 
         HGNCResponse hgncResponse = hgncRepository.findUniprotIdInformation(uniprotId);
         if(hgncResponse != null){
-            biologicalObject.setId(hgncResponse.getId());
+            biologicalObject.setHgncId(hgncResponse.getId());
             biologicalObject.setLocusType(hgncResponse.getLocusType());
             biologicalObject.setEnsemblGeneId(hgncResponse.getEnsemblGeneId());
             biologicalObject.getSynonyms().addAll(hgncResponse.getSynonyms());
+        }
+    }
+
+    @Override
+    public void setNext(ChainResponsibility chainResponsibility) {
+        this.next = chainResponsibility;
+    }
+
+    @Override
+    public ChainResponsibility getNext() {
+        return this.next;
+    }
+
+    @Override
+    public BiologicalObject request(BiologicalObjectConfig biologicalObjectConfig) {
+
+        if(biologicalObjectConfig.getUniprotId() == null || biologicalObjectConfig.getUniprotId().isEmpty()){
+            return next.request(biologicalObjectConfig);
+        }
+
+        try {
+            var biologicalObject = execute(biologicalObjectConfig.getUniprotId());
+            if(biologicalObject == null){
+                return next.request(biologicalObjectConfig);
+            }
+
+            return biologicalObject;
+
+        } catch (Exception e) {
+
+            log.error(e.getMessage(),e);
+            return next.request(biologicalObjectConfig);
         }
     }
 }

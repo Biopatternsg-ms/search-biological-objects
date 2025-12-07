@@ -1,20 +1,24 @@
-package com.biopatternsg.application.services.impl.buildBiologicalObjectStrategy;
+package com.biopatternsg.application.services.impl.biological_object_strategy;
 
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.GeneOntology;
 import com.biopatternsg.domain.models.external_entities.HGNCResponse;
 import com.biopatternsg.domain.models.external_entities.UniprotResponse;
+import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
 import com.biopatternsg.domain.port.out.external_repositories.HGNCRepository;
 import com.biopatternsg.domain.port.out.external_repositories.UniprotRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ApplicationScoped
 @RequiredArgsConstructor
-public class BiologicalObjectByHgncId implements BiologicalObjectStrategy{
+public class BiologicalObjectByHgncId implements BuildBiologicalObjectStrategy, ChainResponsibility {
 
     private final HGNCRepository hgncRepository;
     private final UniprotRepository uniprotRepository;
+    private ChainResponsibility next;
 
     @Override
     public BiologicalObject execute(String value) {
@@ -29,7 +33,7 @@ public class BiologicalObjectByHgncId implements BiologicalObjectStrategy{
     private BiologicalObject formatHGNCInformation(HGNCResponse hgncResponse) {
 
         return BiologicalObject.builder()
-                        .id(hgncResponse.getId())
+                        .hgncId(hgncResponse.getId())
                         .symbol(hgncResponse.getSymbol())
                         .name(hgncResponse.getName())
                         .locusType(hgncResponse.getLocusType())
@@ -54,4 +58,35 @@ public class BiologicalObjectByHgncId implements BiologicalObjectStrategy{
         biologicalObject.setGeneOntology(ontologyLists);
     }
 
+    @Override
+    public void setNext(ChainResponsibility chainResponsibility) {
+        this.next = chainResponsibility;
+    }
+
+    @Override
+    public ChainResponsibility getNext() {
+        return this.next;
+    }
+
+    @Override
+    public BiologicalObject request(BiologicalObjectConfig biologicalObjectConfig) {
+
+        if(biologicalObjectConfig.getHgncId() == null || biologicalObjectConfig.getHgncId().isEmpty()){
+            return next.request(biologicalObjectConfig);
+        }
+
+        try{
+
+            var biologicalObject = execute(biologicalObjectConfig.getHgncId());
+            if(biologicalObject == null){
+                return next.request(biologicalObjectConfig);
+            }
+
+            return biologicalObject;
+        } catch (Exception e) {
+
+            log.error(e.getMessage(),e);
+            return next.request(biologicalObjectConfig);
+        }
+    }
 }

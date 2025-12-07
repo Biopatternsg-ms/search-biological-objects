@@ -1,21 +1,25 @@
-package com.biopatternsg.domain.models;
+package com.biopatternsg.infrastructure.mongo_db.collections;
 
+import com.biopatternsg.domain.models.GeneOntology;
+import io.quarkus.mongodb.panache.PanacheMongoEntity;
+import io.quarkus.mongodb.panache.common.MongoEntity;
 import lombok.*;
+
 import java.util.List;
 import java.util.Set;
 
+@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
-public class BiologicalObject {
+@MongoEntity(collection = "biologicalObjects")
+public class BiologicalObjectCollection extends PanacheMongoEntity {
 
-    private String id;
     private Long userId;
     private String symbol;
     private String name;
     private String locusType;
-    private String ensemblGeneId;
     private String hgncId;
     private String uniprotId;
     private Set<String> synonyms;

@@ -1,6 +1,6 @@
 package com.biopatternsg.application.usecase;
 
-import com.biopatternsg.application.services.impl.BiologicalObjectStrategy.BiologicalObjectContext;
+import com.biopatternsg.application.services.impl.biological_object_strategy.BiologicalObjectContext;
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.port.in.FindBiologicalObject;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -17,12 +17,7 @@ public class FindBiologicalObjectUseCase implements FindBiologicalObject {
 
         var context = biologicalObjectContext.load(type);
         return context.execute(value);
+        //var biologicalObject = context.execute(value);
+        //return biologicalObjectRepository.save(biologicalObject);
     }
-
-    /*
-    @Override
-    public BiologicalObject execute(TranscriptionFactor transcriptionFactor) {
-        return buildBiologicalObjectService.execute(transcriptionFactor);
-    }
-    */
 }
