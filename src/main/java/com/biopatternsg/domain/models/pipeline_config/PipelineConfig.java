@@ -14,6 +14,7 @@ import java.util.List;
 public class PipelineConfig {
 
     private String pipelineId;
+    private Integer levels;
     private List<BiologicalObjectConfig> expertObjects;
     private TranscriptionFactorConfig transcriptionFactorConfig;
 }

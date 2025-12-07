@@ -9,9 +9,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class ExpertObjectConfig {
+public class MinedObjectConfig {
 
     private int level;
     private String pipelineId;
-    private String IdFather;
+    private String parentId;
 }

@@ -15,7 +15,6 @@ public class MinedObjectCollection extends PanacheMongoEntity {
     private Long userId;
     private String pipelineId;
     private String biologicalObjectId;
-    private String uniprotId;
-    private String uniprotIdFather;
+    private String biologicalObjectParentId;
     private int level;
 }

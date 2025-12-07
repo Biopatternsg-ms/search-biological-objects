@@ -2,7 +2,6 @@ package com.biopatternsg.infrastructure.adapters.in.restcontrollers;
 
 import com.biopatternsg.domain.models.pipeline_config.PipelineConfig;
 import com.biopatternsg.domain.port.in.LaunchPipeline;
-import com.biopatternsg.infrastructure.session.SessionUtil;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.ManagedContext;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 @ApplicationScoped
 @Path("/biological-object")
 @RequiredArgsConstructor
-public class ExperimentController {
+public class PipelineController {
 
     private final LaunchPipeline launchExperiment;
     private final ManagedExecutor executor;

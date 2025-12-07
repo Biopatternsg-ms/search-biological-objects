@@ -1,8 +1,8 @@
 package com.biopatternsg.application.services;
 
-import com.biopatternsg.domain.models.pipeline_config.DiscoveryObjectConfig;
+import com.biopatternsg.domain.models.pipeline_config.PipelineConfig;
 
 public interface DiscoveryObjectService {
 
-    void execute (DiscoveryObjectConfig discoveryObjectConfig, String pipelineId);
+    void execute (PipelineConfig pipelineConfig);
 }

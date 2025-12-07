@@ -11,6 +11,7 @@ public class BiologicalObjectMapper {
 
         return BiologicalObject.builder()
                 .id(biologicalObjectCollection.id.toString())
+                .userId(biologicalObjectCollection.getUserId())
                 .hgncId(biologicalObjectCollection.getHgncId())
                 .uniprotId(biologicalObjectCollection.getUniprotId())
                 .symbol(biologicalObjectCollection.getSymbol())
@@ -27,11 +28,16 @@ public class BiologicalObjectMapper {
 
         return BiologicalObjectCollection.builder()
                 //TODO chequearID
-                .symbol(biologicalObject.getSymbol())
-                .locusType(biologicalObject.getLocusType())
+                .userId(biologicalObject.getUserId())
+                .hgncId(biologicalObject.getHgncId())
                 .uniprotId(biologicalObject.getUniprotId())
+                .symbol(biologicalObject.getSymbol())
+                .name(biologicalObject.getName())
+                .locusType(biologicalObject.getLocusType())
                 .synonyms(biologicalObject.getSynonyms())
                 .geneOntology(biologicalObject.getGeneOntology())
+                .geneFamilies(biologicalObject.getGeneFamilies())
+                .tissues(biologicalObject.getTissues())
                 .build();
     }
 }

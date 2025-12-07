@@ -7,7 +7,5 @@ import java.util.List;
 public interface MinedObjectRepository {
 
     MinedObject save(MinedObject minedObject);
-    MinedObject find(String biologicalObjectId);
-    List<MinedObject> findLevelList(int levels, String pipelineId);
-    List<MinedObject> findPipelineList(String pipelineId);
+    MinedObject find(String biologicalObjectId, String pipelineId);
 }
