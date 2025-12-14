@@ -17,7 +17,5 @@ public class FindBiologicalObjectUseCase implements FindBiologicalObject {
 
         var context = biologicalObjectContext.load(type);
         return context.execute(value);
-        //var biologicalObject = context.execute(value);
-        //return biologicalObjectRepository.save(biologicalObject);
     }
 }

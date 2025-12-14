@@ -2,11 +2,9 @@ package com.biopatternsg.application.services.impl;
 
 import com.biopatternsg.application.services.DiscoveryObjectService;
 import com.biopatternsg.application.services.PipelineService;
-import com.biopatternsg.domain.models.Complex;
-import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
+import com.biopatternsg.application.services.impl.discovery_object_strategy.DiscoveryObjectContext;
 import com.biopatternsg.domain.models.pipeline_config.MinedObjectConfig;
 import com.biopatternsg.domain.models.pipeline_config.PipelineConfig;
-import com.biopatternsg.domain.port.out.external_repositories.PdbRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 
@@ -17,7 +15,7 @@ import java.util.*;
 public class DiscoveryObjectServiceImpl implements DiscoveryObjectService {
 
     private final PipelineService pipelineService;
-    private final PdbRepository pdbRepository;
+    private final DiscoveryObjectContext discoveryObjectContext;
     private String pipelineId = null;
     private int searchLevel = 0;
 
@@ -44,7 +42,9 @@ public class DiscoveryObjectServiceImpl implements DiscoveryObjectService {
         MinedObjectConfig minedObjectConfig = buildMinedObjectConfig(1, this.pipelineId, null);
         pipelineConfig.getExpertObjects().forEach(expertObject -> {
             var biologicalObject = pipelineService.execute(expertObject, minedObjectConfig);
-            firstLevel.putIfAbsent(biologicalObject.getId(), biologicalObject.getUniprotId());
+            if(biologicalObject.getUniprotId() != null){
+                firstLevel.putIfAbsent(biologicalObject.getId(), biologicalObject.getUniprotId());
+            }
         });
 
         return firstLevel;
@@ -57,22 +57,20 @@ public class DiscoveryObjectServiceImpl implements DiscoveryObjectService {
             //Explore uniprotId parents
             uniprotParents.forEach((parentId, uniprotId) ->{
                 //Search complexes
-                List<Complex> complexes = pdbRepository.getComplexes(uniprotId);
-                complexes.forEach(group -> {
-                    group.getParticipants().forEach(participantId-> {
-                        //Build biologicalConfig and minedConfig to save object
-                        var newBiologicalObjectConfig = new BiologicalObjectConfig(participantId, null, null);
-                        var newMinedObjectConfig = buildMinedObjectConfig(levelPivot, this.pipelineId, parentId);
-                        var biologicalObject = pipelineService.execute(newBiologicalObjectConfig, newMinedObjectConfig);
-                        //Add biological object to pipelineList
-                        if(pipelineBiologicalObjects.add(biologicalObject.getId())){
-                            //Build objects config to next level
-                            nextLevelObjects.put(biologicalObject.getId(), biologicalObject.getUniprotId());
-                        }
-                    });
+                var discoveryContext = discoveryObjectContext.load("pdb");
+                var complexes = discoveryContext.execute(uniprotId);
+                complexes.forEach(biologicalObjectConfig -> {
+                    //Build minedConfig to save object
+                    var newMinedObjectConfig = buildMinedObjectConfig(levelPivot, this.pipelineId, parentId);
+                    var biologicalObject = pipelineService.execute(biologicalObjectConfig, newMinedObjectConfig);
+                    // Add biological object to pipelineList
+                    if(biologicalObject.getUniprotId() != null && pipelineBiologicalObjects.add(biologicalObject.getId())){
+                        //Build objects config to next level
+                        nextLevelObjects.put(biologicalObject.getId(), biologicalObject.getUniprotId());
+
+                    }
                 });
             });
-
             //Build entry values to nextLevel
             searchBiologicalObjectsLevels(pipelineBiologicalObjects, nextLevelObjects, levelPivot+1);
         }
