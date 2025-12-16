@@ -39,6 +39,7 @@ public class BlatController {
             )
         )
     )
+    @Deprecated
     public Response getByPromoterJasparRegion(
             @Valid PromoterRegionRequest promoterRegion) {
         return Response

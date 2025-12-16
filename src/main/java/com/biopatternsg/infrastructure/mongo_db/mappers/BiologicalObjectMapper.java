@@ -21,6 +21,7 @@ public class BiologicalObjectMapper {
                 .geneOntology(biologicalObjectCollection.getGeneOntology())
                 .geneFamilies(biologicalObjectCollection.getGeneFamilies())
                 .tissues(biologicalObjectCollection.getTissues())
+                .transcriptionFactor(biologicalObjectCollection.getTranscriptionFactor())
                 .build();
     }
     
@@ -38,6 +39,7 @@ public class BiologicalObjectMapper {
                 .geneOntology(biologicalObject.getGeneOntology())
                 .geneFamilies(biologicalObject.getGeneFamilies())
                 .tissues(biologicalObject.getTissues())
+                .transcriptionFactor(biologicalObject.getTranscriptionFactor())
                 .build();
     }
 }

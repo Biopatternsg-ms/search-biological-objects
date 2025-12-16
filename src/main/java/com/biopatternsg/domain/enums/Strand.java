@@ -1,12 +1,12 @@
 package com.biopatternsg.domain.enums;
 
-public enum TranscriptionFactorSource {
-    TFBIND("TFBIND"),
-    JASPAR("JASPAR");
+public enum Strand {
+    POSITIVE("+"),
+    NEGATIVE("-");
 
     private final String value;
 
-    TranscriptionFactorSource(String value) {
+    Strand(String value) {
         this.value = value;
     }
 

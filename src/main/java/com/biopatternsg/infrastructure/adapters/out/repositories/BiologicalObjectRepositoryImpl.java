@@ -94,6 +94,7 @@ public class BiologicalObjectRepositoryImpl implements BiologicalObjectRepositor
         mongoObject.setGeneOntology(biologicalObject.getGeneOntology());
         mongoObject.setTissues(biologicalObject.getTissues());
         mongoObject.setGeneFamilies(biologicalObject.getGeneFamilies());
+        mongoObject.setTranscriptionFactor(biologicalObject.getTranscriptionFactor());
 
         mongoObject.persist();
 

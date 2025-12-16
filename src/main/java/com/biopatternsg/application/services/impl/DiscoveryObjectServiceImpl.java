@@ -2,7 +2,9 @@ package com.biopatternsg.application.services.impl;
 
 import com.biopatternsg.application.services.DiscoveryObjectService;
 import com.biopatternsg.application.services.PipelineService;
+import com.biopatternsg.application.services.TranscriptionFactorsService;
 import com.biopatternsg.domain.models.Complex;
+import com.biopatternsg.domain.models.TranscriptionFactor;
 import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
 import com.biopatternsg.domain.models.pipeline_config.MinedObjectConfig;
 import com.biopatternsg.domain.models.pipeline_config.PipelineConfig;
@@ -16,6 +18,7 @@ import java.util.*;
 @ApplicationScoped
 public class DiscoveryObjectServiceImpl implements DiscoveryObjectService {
 
+    private final TranscriptionFactorsService transcriptionFactorService;
     private final PipelineService pipelineService;
     private final PdbRepository pdbRepository;
     private String pipelineId = null;
@@ -42,12 +45,25 @@ public class DiscoveryObjectServiceImpl implements DiscoveryObjectService {
         Map<String, String> firstLevel = new LinkedHashMap<>();
 
         MinedObjectConfig minedObjectConfig = buildMinedObjectConfig(1, this.pipelineId, null);
+        searchExpertObjets(pipelineConfig, minedObjectConfig, firstLevel);
+        searchTranscriptionFactors(pipelineConfig, minedObjectConfig, firstLevel);
+
+        return firstLevel;
+    }
+
+    private void searchTranscriptionFactors(PipelineConfig pipelineConfig, MinedObjectConfig minedObjectConfig, Map<String, String> firstLevel){
+        List<TranscriptionFactor> transcriptionFactors = transcriptionFactorService.execute(pipelineConfig.getTranscriptionFactorConfig());
+        transcriptionFactors.forEach(transcriptionFactor -> {
+            var biologicalObject = pipelineService.execute(transcriptionFactor, minedObjectConfig);
+            firstLevel.putIfAbsent(biologicalObject.getId(), biologicalObject.getUniprotId());
+        });
+    }
+
+    private void searchExpertObjets(PipelineConfig pipelineConfig, MinedObjectConfig minedObjectConfig, Map<String, String> firstLevel) {
         pipelineConfig.getExpertObjects().forEach(expertObject -> {
             var biologicalObject = pipelineService.execute(expertObject, minedObjectConfig);
             firstLevel.putIfAbsent(biologicalObject.getId(), biologicalObject.getUniprotId());
         });
-
-        return firstLevel;
     }
 
     private void searchBiologicalObjectsLevels(Set<String> pipelineBiologicalObjects, Map<String, String> uniprotParents, int levelPivot){

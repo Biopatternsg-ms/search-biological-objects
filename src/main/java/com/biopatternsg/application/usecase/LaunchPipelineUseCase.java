@@ -16,8 +16,5 @@ public class LaunchPipelineUseCase implements LaunchPipeline {
     public void execute(PipelineConfig pipelineConfig) {
 
         discoveryObjectService.execute(pipelineConfig);
-        //TODO call TranscriptionFactorService
-
-        //TODO call ObjectDiscoveryService
     }
 }
