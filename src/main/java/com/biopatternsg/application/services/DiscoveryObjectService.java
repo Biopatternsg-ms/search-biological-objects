@@ -4,5 +4,5 @@ import com.biopatternsg.domain.models.pipeline_config.PipelineConfig;
 
 public interface DiscoveryObjectService {
 
-    void execute (PipelineConfig pipelineConfig);
+    void execute (PipelineConfig pipelineConfig, String context);
 }

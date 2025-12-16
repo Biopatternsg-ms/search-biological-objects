@@ -15,7 +15,7 @@ public class LaunchPipelineUseCase implements LaunchPipeline {
     @Override
     public void execute(PipelineConfig pipelineConfig) {
 
-        discoveryObjectService.execute(pipelineConfig);
+        discoveryObjectService.execute(pipelineConfig, "pdb");
         //TODO call TranscriptionFactorService
 
         //TODO call ObjectDiscoveryService
