@@ -29,6 +29,37 @@ public class MinedObjectRepositoryImpl implements MinedObjectRepository {
     }
 
     @Override
+    public List<MinedObject> save(List<MinedObject> minedObjects) {
+
+        List<MinedObjectCollection> listMinedObjectsCollection = minedObjects.stream().map(minedObject ->
+                MinedObjectCollection.builder()
+                        .userId(sessionUtil.getUserId())
+                        .pipelineId(minedObject.getPipelineId())
+                        .biologicalObjectId(minedObject.getBiologicalObjectId())
+                        .biologicalObjectParentId(minedObject.getBiologicalObjectParentId())
+                        .level(minedObject.getLevel())
+                        .build()
+                ).toList();
+
+        MinedObjectCollection.persist(listMinedObjectsCollection);
+
+        return MinedObjectMapper.toMinedObjects(listMinedObjectsCollection);
+    }
+
+    @Override
+    public List<MinedObject> find(List<String> ids, String pipelineId) {
+
+        List<MinedObjectCollection> response = new ArrayList<>(MinedObjectCollection.list("id IN ?1 and pipelineId = ?2", ids, pipelineId));
+        return MinedObjectMapper.toMinedObjects(response);
+    }
+
+    @Override
+    public List<MinedObject> findByLevel(int level, String pipelineId) {
+        List<MinedObjectCollection> response = new ArrayList<>(MinedObjectCollection.list("level = ?1 and pipelineId = ?2", level, pipelineId));
+        return MinedObjectMapper.toMinedObjects(response);
+    }
+
+    @Override
     public MinedObject find(String biologicalObjectId, String pipelineId) {
 
         StringBuilder queryBuilder = new StringBuilder("{'biologicalObjectId': :objectId");

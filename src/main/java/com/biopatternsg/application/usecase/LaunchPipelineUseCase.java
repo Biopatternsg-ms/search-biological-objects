@@ -1,6 +1,7 @@
 package com.biopatternsg.application.usecase;
 
 import com.biopatternsg.application.services.DiscoveryObjectService;
+import com.biopatternsg.application.services.PipelineService;
 import com.biopatternsg.domain.models.pipeline_config.PipelineConfig;
 import com.biopatternsg.domain.port.in.LaunchPipeline;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -11,11 +12,12 @@ import lombok.RequiredArgsConstructor;
 public class LaunchPipelineUseCase implements LaunchPipeline {
 
     private final DiscoveryObjectService discoveryObjectService;
+    private final PipelineService pipelineService;
 
     @Override
     public void execute(PipelineConfig pipelineConfig) {
 
-        discoveryObjectService.execute(pipelineConfig, "pdb");
+        pipelineService.execute(pipelineConfig);
         //TODO call TranscriptionFactorService
 
         //TODO call ObjectDiscoveryService
