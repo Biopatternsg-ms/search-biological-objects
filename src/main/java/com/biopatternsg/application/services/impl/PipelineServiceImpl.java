@@ -24,12 +24,12 @@ public class PipelineServiceImpl implements PipelineService {
 
     public void execute(PipelineConfig pipelineConfig) {
 
-        var firstLevelIds = firstLevel(pipelineConfig);
-        findLevels(pipelineConfig.getPipelineId(), firstLevelIds, pipelineConfig.getLevels());
+        firstLevel(pipelineConfig);
+        findLevels(pipelineConfig.getPipelineId(), pipelineConfig.getLevels());
     }
 
 
-    private List<String> firstLevel(PipelineConfig pipelineConfig){
+    private List<String> firstLevel(PipelineConfig pipelineConfig) {
 
         var biologicalObjectIds = expertObjectService.execute(pipelineConfig.getExpertObjects());
 
@@ -44,28 +44,30 @@ public class PipelineServiceImpl implements PipelineService {
         return biologicalObjectIds;
     }
 
-    private void findLevels(String pipelineId, List<String> biologicalObjectIds, int levels){
+    private void findLevels(String pipelineId, int levels) {
 
         log.info("findLevels");
 
-        for (int i = 2; i <= levels; i++) {
+        for (int level = 2; level <= levels; level++) {
 
-            List<MinedObject> newMinedObjects = new ArrayList<>();
-            log.info("Level {}",i);
+            var minedObjects = getObjectsLastLevel(level, pipelineId); // Se consultan los objetos del nivel Anterior
 
-            for(String value: biologicalObjectIds){
-                var newObjectIds = discoveryObjectService.execute(value);
-                var newObjectsToSave = newObjects(newObjectIds, pipelineId, value, i);
-                newMinedObjects.addAll(minedObjectRepository.save(newObjectsToSave));
-
-                log.info("value: {}",value);
+            for (var value : minedObjects) {
+                var newObjectIds = discoveryObjectService.execute(value.getBiologicalObjectId());
+                var newObjectsToSave = newObjects(newObjectIds, pipelineId, value.getBiologicalObjectId(), level);
+                minedObjectRepository.save(newObjectsToSave);
+                log.info("value: {}", value);
             }
-            biologicalObjectIds = newMinedObjects.stream().map(MinedObject::getBiologicalObjectId).toList();
+
         }
 
     }
 
-    private List<MinedObject> newObjects(List<String> newObjectIds, String pipelineId, String parentId, int level){
+    private List<MinedObject> getObjectsLastLevel(int level, String pipelineId) {
+        return minedObjectRepository.findByLevel(level - 1, pipelineId);
+    }
+
+    private List<MinedObject> newObjects(List<String> newObjectIds, String pipelineId, String parentId, int level) {
 
         var minedObjects = minedObjectRepository.find(newObjectIds, pipelineId)
                 .stream()
@@ -80,7 +82,7 @@ public class PipelineServiceImpl implements PipelineService {
     }
 
 
-    private MinedObject buildMinedObject(String biologicalObjectId, String pipelineId, String parentId, int level){
+    private MinedObject buildMinedObject(String biologicalObjectId, String pipelineId, String parentId, int level) {
 
         return MinedObject.builder()
                 .pipelineId(pipelineId)
