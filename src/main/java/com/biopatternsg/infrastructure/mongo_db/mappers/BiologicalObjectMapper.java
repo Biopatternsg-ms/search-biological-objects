@@ -4,6 +4,8 @@ import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectCollection;
 import lombok.experimental.UtilityClass;
 
+import java.util.List;
+
 @UtilityClass
 public class BiologicalObjectMapper {
     
@@ -39,5 +41,10 @@ public class BiologicalObjectMapper {
                 .geneFamilies(biologicalObject.getGeneFamilies())
                 .tissues(biologicalObject.getTissues())
                 .build();
+    }
+
+    public static List<BiologicalObject> toBiologicalObjects(List<BiologicalObjectCollection> biologicalObjectCollections){
+
+        return biologicalObjectCollections.stream().map(BiologicalObjectMapper::toBiologicalObject).toList();
     }
 }

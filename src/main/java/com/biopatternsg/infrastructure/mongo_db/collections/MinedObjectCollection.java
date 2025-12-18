@@ -12,7 +12,7 @@ import lombok.*;
 @MongoEntity(collection = "minedObjects")
 public class MinedObjectCollection extends PanacheMongoEntity {
 
-    private Long userId;
+    private String userId;
     private String pipelineId;
     private String biologicalObjectId;
     private String biologicalObjectParentId;

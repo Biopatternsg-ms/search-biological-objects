@@ -12,8 +12,6 @@ public class SessionUtil {
 
     private MultivaluedMap<String, String> context;
 
-    public Long getUserId(){
-        return Long.parseLong(this.context.get("userId").getFirst());
-    }
-
+    public String getUserId(){ return this.context.get("userId").getFirst(); }
+    //public Long getUserId(){ return Long.parseLong(this.context.get("userId").getFirst()); }
 }

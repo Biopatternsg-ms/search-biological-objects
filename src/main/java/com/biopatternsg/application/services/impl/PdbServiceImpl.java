@@ -5,6 +5,7 @@ import com.biopatternsg.domain.models.Complex;
 import com.biopatternsg.domain.port.out.external_repositories.PdbRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 
 @RequiredArgsConstructor

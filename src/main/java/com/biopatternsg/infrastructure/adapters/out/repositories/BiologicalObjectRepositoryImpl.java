@@ -4,11 +4,14 @@ import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
 import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectCollection;
 import com.biopatternsg.infrastructure.mongo_db.mappers.BiologicalObjectMapper;
+import com.biopatternsg.infrastructure.mongo_db.repositories.BiologicalObjectRepositoryDB;
 import com.biopatternsg.infrastructure.session.SessionUtil;
-import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
+
+import java.util.List;
 
 @Slf4j
 @ApplicationScoped
@@ -16,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 public class BiologicalObjectRepositoryImpl implements BiologicalObjectRepository {
 
     private final SessionUtil sessionUtil;
+    private final BiologicalObjectRepositoryDB biologicalObjectRepositoryDB;
 
     @Override
     public BiologicalObject save(BiologicalObject biologicalObject) {
@@ -27,57 +31,39 @@ public class BiologicalObjectRepositoryImpl implements BiologicalObjectRepositor
     }
 
     @Override
+    public BiologicalObject findById(String id) {
+
+        var mongoObject = biologicalObjectRepositoryDB.findById(new ObjectId(id));
+        return BiologicalObjectMapper.toBiologicalObject(mongoObject);
+    }
+
+    @Override
+    public List<BiologicalObject> findByIds(List<String> ids) {
+
+        var mongoObjects = biologicalObjectRepositoryDB.findByIds(ids);
+        return BiologicalObjectMapper.toBiologicalObjects(mongoObjects);
+
+    }
+
+    @Override
     public BiologicalObject findByUniprotId(String uniprotId) {
 
-        StringBuilder queryBuilder = new StringBuilder("{'userId': :userId");
-        Parameters parameters = Parameters.with("userId", sessionUtil.getUserId());
-        queryBuilder.append(", '").append("uniprotId").append("': :fieldValue");
-        parameters.and("fieldValue", uniprotId);
-        queryBuilder.append("}");
-
-        BiologicalObjectCollection mongoObject = BiologicalObjectCollection
-                .find(queryBuilder.toString(), parameters)
-                .firstResult();
-
-        if(mongoObject == null){return null;}
-
-        return BiologicalObjectMapper.toBiologicalObject(mongoObject);
+        var mongoObject = biologicalObjectRepositoryDB.findByUniprotId(uniprotId, sessionUtil.getUserId());
+        return mongoObject.map(BiologicalObjectMapper::toBiologicalObject).orElse(null);
     }
 
     @Override
     public BiologicalObject findByHgncId(String hgncId) {
 
-        StringBuilder queryBuilder = new StringBuilder("{'userId': :userId");
-        Parameters parameters = Parameters.with("userId", sessionUtil.getUserId());
-        queryBuilder.append(", '").append("hgncId").append("': :fieldValue");
-        parameters.and("fieldValue", hgncId);
-        queryBuilder.append("}");
-
-        BiologicalObjectCollection mongoObject = BiologicalObjectCollection
-                .find(queryBuilder.toString(), parameters)
-                .firstResult();
-
-        if(mongoObject == null){return null;}
-
-        return BiologicalObjectMapper.toBiologicalObject(mongoObject);
+        var mongoObject = biologicalObjectRepositoryDB.findByHgncId(hgncId, sessionUtil.getUserId());
+        return mongoObject.map(BiologicalObjectMapper::toBiologicalObject).orElse(null);
     }
 
     @Override
     public BiologicalObject findBySymbol(String symbol) {
 
-        StringBuilder queryBuilder = new StringBuilder("{'userId': :userId");
-        Parameters parameters = Parameters.with("userId", sessionUtil.getUserId());
-        queryBuilder.append(", '").append("symbol").append("': :fieldValue");
-        parameters.and("fieldValue", symbol);
-        queryBuilder.append("}");
-
-        BiologicalObjectCollection mongoObject = BiologicalObjectCollection
-                .find(queryBuilder.toString(), parameters)
-                .firstResult();
-
-        if(mongoObject == null){return null;}
-
-        return BiologicalObjectMapper.toBiologicalObject(mongoObject);
+        var mongoObject = biologicalObjectRepositoryDB.findBySymbol(symbol, sessionUtil.getUserId());
+        return mongoObject.map(BiologicalObjectMapper::toBiologicalObject).orElse(null);
     }
 
     private BiologicalObjectCollection saveBiologicalObject(BiologicalObject biologicalObject){

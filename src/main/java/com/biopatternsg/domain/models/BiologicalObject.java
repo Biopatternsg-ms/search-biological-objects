@@ -1,6 +1,10 @@
 package com.biopatternsg.domain.models;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 import java.util.Set;
 
@@ -11,7 +15,7 @@ import java.util.Set;
 public class BiologicalObject {
 
     private String id;
-    private Long userId;
+    private String userId;
     private String symbol;
     private String name;
     private String locusType;
