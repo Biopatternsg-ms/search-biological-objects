@@ -42,9 +42,9 @@ public class PipelineServiceImpl implements PipelineService {
             //Explore biologicalObjectIds previous level
             parentIds.forEach(parentId ->{
                 //Discover new biological objects
-                var discoveredIds = discoveryObjectService.execute(parentId);
+                var discoveredObjects = discoveryObjectService.execute(parentId);
                 //Build biologicalObjectConfig classes to save in collection
-                var biologicalObjectConfigList = discoveryObjectService.buildBiologicalObjectConfig(discoveredIds);
+                var biologicalObjectConfigList = discoveryObjectService.buildBiologicalObjectConfig(discoveredObjects);
                 //Explore biologicalObjectConfig
                 biologicalObjectConfigList.forEach(biologicalObjectConfig -> {
                     //Build minedConfig to save minedObject too

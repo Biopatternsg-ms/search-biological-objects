@@ -8,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,9 +21,9 @@ public class DiscoveryObjectByPdb implements DiscoveryObjectStrategy{
     private final BiologicalObjectRepository biologicalObjectRepository;
 
     @Override
-    public  Set<String> execute(String biologicalObjectId) {
+    public  List<String> execute(String biologicalObjectId) {
 
-        Set<String> uniprotIds = new LinkedHashSet<>();
+        Set<String> uniprotIds = new HashSet<>();
         var biologicalObject = biologicalObjectRepository.findById(biologicalObjectId);
         if(biologicalObject != null && biologicalObject.getUniprotId() != null){
 
@@ -31,7 +31,7 @@ public class DiscoveryObjectByPdb implements DiscoveryObjectStrategy{
             complexes.forEach(group -> uniprotIds.addAll(group.getParticipants()));
         }
 
-        return uniprotIds;
+        return uniprotIds.stream().toList();
     }
 
     @Override

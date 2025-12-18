@@ -18,7 +18,7 @@ public class DiscoveryObjectServiceImpl implements DiscoveryObjectService {
     public List<String> execute(String id) {
 
         var discoveryContext = discoveryObjectContext.load("pdb");
-        return discoveryContext.execute(id).stream().toList();
+        return discoveryContext.execute(id);
     }
 
     @Override
