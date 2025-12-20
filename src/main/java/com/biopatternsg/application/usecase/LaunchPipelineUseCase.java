@@ -17,7 +17,13 @@ public class LaunchPipelineUseCase implements LaunchPipeline {
     @Override
     public void execute(PipelineConfig pipelineConfig) {
 
+        long init = System.nanoTime();
         pipelineService.execute(pipelineConfig);
+        long end = System.nanoTime();
+
+        double milisegundos = (end-init) / 1000000.0;
+        System.out.println("Tiempo de ejecución: " + milisegundos + " ms");
+
         //TODO call TranscriptionFactorService
 
         //TODO call ObjectDiscoveryService

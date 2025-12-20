@@ -33,8 +33,6 @@ public class PipelineServiceImpl implements PipelineService {
 
         var biologicalObjectIds = expertObjectService.execute(pipelineConfig.getExpertObjects());
 
-        log.info("firstLevel");
-
         //TODO Add transaction factors
 
         var minedObjects = newObjects(biologicalObjectIds, pipelineConfig.getPipelineId(), null, 1);
@@ -46,8 +44,6 @@ public class PipelineServiceImpl implements PipelineService {
 
     private void findLevels(String pipelineId, int levels) {
 
-        log.info("findLevels");
-
         for (int level = 2; level <= levels; level++) {
 
             var minedObjects = getObjectsLastLevel(level, pipelineId); // Se consultan los objetos del nivel Anterior
@@ -56,7 +52,6 @@ public class PipelineServiceImpl implements PipelineService {
                 var newObjectIds = discoveryObjectService.execute(value.getBiologicalObjectId());
                 var newObjectsToSave = newObjects(newObjectIds, pipelineId, value.getBiologicalObjectId(), level);
                 minedObjectRepository.save(newObjectsToSave);
-                log.info("value: {}", value);
             }
 
         }
@@ -71,7 +66,7 @@ public class PipelineServiceImpl implements PipelineService {
 
         var minedObjects = minedObjectRepository.find(newObjectIds, pipelineId)
                 .stream()
-                .map(MinedObject::getId)
+                .map(MinedObject::getBiologicalObjectId)
                 .toList();
 
         return newObjectIds

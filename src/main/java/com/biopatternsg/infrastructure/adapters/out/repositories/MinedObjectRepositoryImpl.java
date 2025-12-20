@@ -49,7 +49,7 @@ public class MinedObjectRepositoryImpl implements MinedObjectRepository {
     @Override
     public List<MinedObject> find(List<String> ids, String pipelineId) {
 
-        List<MinedObjectCollection> response = new ArrayList<>(MinedObjectCollection.list("id IN ?1 and pipelineId = ?2", ids, pipelineId));
+        List<MinedObjectCollection> response = new ArrayList<>(MinedObjectCollection.list("biologicalObjectId IN ?1 and pipelineId = ?2", ids, pipelineId));
         return MinedObjectMapper.toMinedObjects(response);
     }
 
