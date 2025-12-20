@@ -2,8 +2,8 @@ package com.biopatternsg.infrastructure.external_services.impl;
 
 import com.biopatternsg.infrastructure.clients.external_clients.UniprotHttpClient;
 import com.biopatternsg.infrastructure.external_services.QueryUniprot;
-import com.biopatternsg.infrastructure.external_services.dtos.uniprot.Response;
 import com.biopatternsg.infrastructure.external_services.dtos.uniprot.ListResponse;
+import com.biopatternsg.infrastructure.external_services.dtos.uniprot.Response;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.rest.client.inject.RestClient;

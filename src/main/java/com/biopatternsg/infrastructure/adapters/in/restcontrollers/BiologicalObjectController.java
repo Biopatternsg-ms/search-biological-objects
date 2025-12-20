@@ -15,13 +15,6 @@ public class BiologicalObjectController {
 
     private final FindBiologicalObject findBiologicalObject;
 
-    /*
-    @GET
-    @Path("/build/{label}")
-    BiologicalObject find(@PathParam("label") String label) {
-        return findBiologicalObject.execute(label);
-    }*/
-
     @GET
     @Path("/search/{type}/{value}")
     public BiologicalObject find(@PathParam("type") String type, @PathParam("value") String value){

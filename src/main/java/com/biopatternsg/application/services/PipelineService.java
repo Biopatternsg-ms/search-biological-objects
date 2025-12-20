@@ -1,10 +1,8 @@
 package com.biopatternsg.application.services;
 
-import com.biopatternsg.domain.models.BiologicalObject;
-import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
-import com.biopatternsg.domain.models.pipeline_config.MinedObjectConfig;
+import com.biopatternsg.domain.models.pipeline_config.PipelineConfig;
 
 public interface PipelineService {
 
-    BiologicalObject execute(BiologicalObjectConfig expertObject, MinedObjectConfig minedObjectConfig);
+    void execute(PipelineConfig pipelineConfig);
 }
