@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface TranscriptionFactorsService {
 
-    List<TranscriptionFactor> execute(TranscriptionFactorConfig transcriptionFactorConfig);
+    List<String> execute(TranscriptionFactorConfig transcriptionFactorConfig);
 }
