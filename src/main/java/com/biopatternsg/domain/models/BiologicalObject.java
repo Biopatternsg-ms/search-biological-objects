@@ -26,4 +26,5 @@ public class BiologicalObject {
     private GeneOntology geneOntology;
     private List<String> geneFamilies;
     private List<String> tissues;
+    private TranscriptionFactor transcriptionFactor;
 }

@@ -12,6 +12,7 @@ public record TranscriptionFactor(
         int number,
         String sign,
         String chain,
+        String matrix,
         TranscriptionFactorSource source
 ) {
     public static TranscriptionFactor of(
@@ -23,6 +24,7 @@ public record TranscriptionFactor(
                 .reliability(jasparTranscriptionFactor.score() * ((float) 100 / maxScore))
                 .source(TranscriptionFactorSource.JASPAR)
                 .sign("(" + jasparTranscriptionFactor.strand() + ")")
+                .matrix(jasparTranscriptionFactor.name())
                 .build();
     }
 }

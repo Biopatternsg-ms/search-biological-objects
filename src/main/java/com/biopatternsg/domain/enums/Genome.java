@@ -1,12 +1,12 @@
 package com.biopatternsg.domain.enums;
 
-public enum TranscriptionFactorSource {
-    TFBIND("TFBIND"),
-    JASPAR("JASPAR");
+public enum Genome {
+    HG38("hg38"),
+    HG19("hg19");
 
     private final String value;
 
-    TranscriptionFactorSource(String value) {
+    Genome(String value) {
         this.value = value;
     }
 

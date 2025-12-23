@@ -1,6 +1,7 @@
 package com.biopatternsg.infrastructure.mongo_db.collections;
 
 import com.biopatternsg.domain.models.GeneOntology;
+import com.biopatternsg.domain.models.TranscriptionFactor;
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import lombok.*;
@@ -26,4 +27,5 @@ public class BiologicalObjectCollection extends PanacheMongoEntity {
     private GeneOntology geneOntology;
     private List<String> geneFamilies;
     private List<String> tissues;
+    private TranscriptionFactor transcriptionFactor;
 }

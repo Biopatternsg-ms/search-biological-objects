@@ -1,8 +1,6 @@
 package com.biopatternsg.application.services.impl;
 
-import com.biopatternsg.application.services.DiscoveryObjectService;
-import com.biopatternsg.application.services.ExpertObjectService;
-import com.biopatternsg.application.services.PipelineService;
+import com.biopatternsg.application.services.*;
 import com.biopatternsg.domain.models.MinedObject;
 import com.biopatternsg.domain.models.pipeline_config.PipelineConfig;
 import com.biopatternsg.domain.port.out.repositories.MinedObjectRepository;
@@ -12,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @ApplicationScoped
@@ -21,6 +20,7 @@ public class PipelineServiceImpl implements PipelineService {
     private final MinedObjectRepository minedObjectRepository;
     private final ExpertObjectService expertObjectService;
     private final DiscoveryObjectService discoveryObjectService;
+    private final TranscriptionFactorsService transcriptionFactorsService;
 
     public void execute(PipelineConfig pipelineConfig) {
 
@@ -29,17 +29,24 @@ public class PipelineServiceImpl implements PipelineService {
     }
 
 
-    private List<String> firstLevel(PipelineConfig pipelineConfig) {
+    void firstLevel(PipelineConfig pipelineConfig) {
 
-        var biologicalObjectIds = expertObjectService.execute(pipelineConfig.getExpertObjects());
+        List<String> biologicalObjectIdsFromTranscriptionFactors = new ArrayList<>();
 
-        //TODO Add transaction factors
+        if (pipelineConfig.getTranscriptionFactorConfig() != null){
+             biologicalObjectIdsFromTranscriptionFactors = transcriptionFactorsService.execute(pipelineConfig.getTranscriptionFactorConfig());
+        }
+
+        var biologicalObjectIdsFromExpertObjects = expertObjectService.execute(pipelineConfig.getExpertObjects());
+
+        var biologicalObjectIds = Stream.concat(
+                biologicalObjectIdsFromTranscriptionFactors.stream(),
+                biologicalObjectIdsFromExpertObjects.stream()
+        ).toList();
 
         var minedObjects = newObjects(biologicalObjectIds, pipelineConfig.getPipelineId(), null, 1);
 
         minedObjectRepository.save(minedObjects);
-
-        return biologicalObjectIds;
     }
 
     private void findLevels(String pipelineId, int levels) {

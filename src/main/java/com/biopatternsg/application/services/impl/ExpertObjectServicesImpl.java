@@ -1,6 +1,7 @@
 package com.biopatternsg.application.services.impl;
 
 import com.biopatternsg.application.services.ExpertObjectService;
+import com.biopatternsg.application.services.OntologiesService;
 import com.biopatternsg.application.services.impl.biological_object_strategy.BiologicalObjectSearch;
 import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
@@ -16,6 +17,7 @@ public class ExpertObjectServicesImpl implements ExpertObjectService {
 
     private final BiologicalObjectSearch biologicalObjectSearch;
     private final BiologicalObjectRepository biologicalObjectRepository;
+    private final OntologiesService ontologiesService;
 
     @Override
     public List<String> execute(List<BiologicalObjectConfig> expertObjects) {
@@ -26,6 +28,7 @@ public class ExpertObjectServicesImpl implements ExpertObjectService {
             var biologicalObject = biologicalObjectSearch.request(expertObject);
             if(biologicalObject.getId() == null){
                 biologicalObject = biologicalObjectRepository.save(biologicalObject);
+                ontologiesService.buildGeneOntologyTree(biologicalObject.getGeneOntology());
             }
 
             response.add(biologicalObject.getId());

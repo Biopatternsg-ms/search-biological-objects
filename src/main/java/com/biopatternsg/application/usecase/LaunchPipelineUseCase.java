@@ -23,9 +23,5 @@ public class LaunchPipelineUseCase implements LaunchPipeline {
 
         double milisegundos = (end-init) / 1000000.0;
         System.out.println("Tiempo de ejecución: " + milisegundos + " ms");
-
-        //TODO call TranscriptionFactorService
-
-        //TODO call ObjectDiscoveryService
     }
 }
