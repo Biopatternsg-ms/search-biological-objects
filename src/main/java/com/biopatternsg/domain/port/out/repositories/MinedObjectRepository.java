@@ -8,4 +8,7 @@ public interface MinedObjectRepository {
 
     MinedObject save(MinedObject minedObject);
     MinedObject find(String biologicalObjectId, String pipelineId);
+    List<MinedObject> save(List<MinedObject> minedObjects);
+    List<MinedObject> find(List<String> ids, String pipelineId);
+    List<MinedObject> findByLevel(int level, String pipelineId) ;
 }

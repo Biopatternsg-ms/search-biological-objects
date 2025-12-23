@@ -1,68 +1,89 @@
 package com.biopatternsg.application.services.impl;
 
-import com.biopatternsg.application.services.OntologiesService;
+import com.biopatternsg.application.services.DiscoveryObjectService;
+import com.biopatternsg.application.services.ExpertObjectService;
 import com.biopatternsg.application.services.PipelineService;
-import com.biopatternsg.application.services.impl.biological_object_strategy.BiologicalObjectSearch;
-import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.MinedObject;
-import com.biopatternsg.domain.models.TranscriptionFactor;
-import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
-import com.biopatternsg.domain.models.pipeline_config.MinedObjectConfig;
-import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
+import com.biopatternsg.domain.models.pipeline_config.PipelineConfig;
 import com.biopatternsg.domain.port.out.repositories.MinedObjectRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @ApplicationScoped
+@Slf4j
 public class PipelineServiceImpl implements PipelineService {
 
-    private final BiologicalObjectSearch biologicalObjectSearch;
-    private final BiologicalObjectRepository biologicalObjectRepository;
     private final MinedObjectRepository minedObjectRepository;
-    private final OntologiesService ontologiesService;
+    private final ExpertObjectService expertObjectService;
+    private final DiscoveryObjectService discoveryObjectService;
 
-    public BiologicalObject execute(BiologicalObjectConfig expertObject, MinedObjectConfig minedObjectConfig) {
+    public void execute(PipelineConfig pipelineConfig) {
 
-        var biologicalObject = biologicalObjectSearch.request(expertObject);
-        return save(biologicalObject, minedObjectConfig);
+        firstLevel(pipelineConfig);
+        findLevels(pipelineConfig.getPipelineId(), pipelineConfig.getLevels());
     }
 
-    @Override
-    public BiologicalObject execute(TranscriptionFactor transcriptionFactor, MinedObjectConfig minedObjectConfig) {
-        var biologicalObjectConfig = BiologicalObjectConfig.builder()
-                .symbol(transcriptionFactor.name())
-                .build();
 
-        var biologicalObject = biologicalObjectSearch.request(biologicalObjectConfig);
-        biologicalObject.setTranscriptionFactor(transcriptionFactor);
+    private List<String> firstLevel(PipelineConfig pipelineConfig) {
 
-        return save(biologicalObject, minedObjectConfig);
+        var biologicalObjectIds = expertObjectService.execute(pipelineConfig.getExpertObjects());
+
+        //TODO Add transaction factors
+
+        var minedObjects = newObjects(biologicalObjectIds, pipelineConfig.getPipelineId(), null, 1);
+
+        minedObjectRepository.save(minedObjects);
+
+        return biologicalObjectIds;
     }
 
-    private BiologicalObject save(BiologicalObject biologicalObject, MinedObjectConfig minedObjectConfig){
+    private void findLevels(String pipelineId, int levels) {
 
-        if(biologicalObject.getId() == null){
-            biologicalObject = biologicalObjectRepository.save(biologicalObject);
-            ontologiesService.buildGeneOntologyTree(biologicalObject.getGeneOntology());
+        for (int level = 2; level <= levels; level++) {
+
+            var minedObjects = getObjectsLastLevel(level, pipelineId); // Se consultan los objetos del nivel Anterior
+
+            for (var value : minedObjects) {
+                var newObjectIds = discoveryObjectService.execute(value.getBiologicalObjectId());
+                var newObjectsToSave = newObjects(newObjectIds, pipelineId, value.getBiologicalObjectId(), level);
+                minedObjectRepository.save(newObjectsToSave);
+            }
+
         }
 
-        MinedObject minedObject = minedObjectRepository.find(biologicalObject.getId(), minedObjectConfig.getPipelineId());
-        if(minedObject == null){
-            minedObjectRepository.save(buildMinedObject(biologicalObject, minedObjectConfig));
-        }
-
-        return biologicalObject;
     }
 
-    private MinedObject buildMinedObject(BiologicalObject biologicalObject, MinedObjectConfig minedObjectConfig){
+    private List<MinedObject> getObjectsLastLevel(int level, String pipelineId) {
+        return minedObjectRepository.findByLevel(level - 1, pipelineId);
+    }
+
+    private List<MinedObject> newObjects(List<String> newObjectIds, String pipelineId, String parentId, int level) {
+
+        var minedObjects = minedObjectRepository.find(newObjectIds, pipelineId)
+                .stream()
+                .map(MinedObject::getBiologicalObjectId)
+                .toList();
+
+        return newObjectIds
+                .stream()
+                .filter(newObject -> !minedObjects.contains(newObject))
+                .map(id -> buildMinedObject(id, pipelineId, parentId, level))
+                .toList();
+    }
+
+
+    private MinedObject buildMinedObject(String biologicalObjectId, String pipelineId, String parentId, int level) {
 
         return MinedObject.builder()
-                .pipelineId(minedObjectConfig.getPipelineId())
-                .userId(biologicalObject.getUserId())
-                .biologicalObjectId(biologicalObject.getId())
-                .biologicalObjectParentId(minedObjectConfig.getParentId())
-                .level(minedObjectConfig.getLevel())
+                .pipelineId(pipelineId)
+                .biologicalObjectId(biologicalObjectId)
+                .biologicalObjectParentId(parentId)
+                .level(level)
                 .build();
     }
 

@@ -3,6 +3,8 @@ package com.biopatternsg.infrastructure.mongo_db.mappers;
 import com.biopatternsg.domain.models.MinedObject;
 import com.biopatternsg.infrastructure.mongo_db.collections.MinedObjectCollection;
 
+import java.util.List;
+
 public class MinedObjectMapper {
 
     public static MinedObject toMinedObject(MinedObjectCollection minedObjectCollection){
@@ -27,5 +29,10 @@ public class MinedObjectMapper {
                 .biologicalObjectParentId(minedObject.getBiologicalObjectParentId())
                 .level(minedObject.getLevel())
                 .build();
+    }
+
+    public static List<MinedObject> toMinedObjects(List<MinedObjectCollection> minedObjectCollections){
+
+        return minedObjectCollections.stream().map(MinedObjectMapper::toMinedObject).toList();
     }
 }

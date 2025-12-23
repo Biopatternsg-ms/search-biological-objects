@@ -9,6 +9,9 @@ public class BiologicalObjectMapper {
     
     public static BiologicalObject toBiologicalObject(BiologicalObjectCollection biologicalObjectCollection){
 
+        if(biologicalObjectCollection == null){
+            return null;
+        }
         return BiologicalObject.builder()
                 .id(biologicalObjectCollection.id.toString())
                 .userId(biologicalObjectCollection.getUserId())

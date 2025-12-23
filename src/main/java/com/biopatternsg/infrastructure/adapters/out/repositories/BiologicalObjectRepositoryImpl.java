@@ -4,18 +4,24 @@ import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
 import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectCollection;
 import com.biopatternsg.infrastructure.mongo_db.mappers.BiologicalObjectMapper;
+import com.biopatternsg.infrastructure.mongo_db.repositories.BiologicalObjectRepositoryDB;
 import com.biopatternsg.infrastructure.session.SessionUtil;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 
 @Slf4j
 @ApplicationScoped
 @RequiredArgsConstructor
 public class BiologicalObjectRepositoryImpl implements BiologicalObjectRepository {
 
-    private final SessionUtil sessionUtil;
+    @Inject
+    private BiologicalObjectRepositoryDB biologicalObjectRepositoryDB;
+    @Inject
+    private SessionUtil sessionUtil;
 
     @Override
     public BiologicalObject save(BiologicalObject biologicalObject) {
@@ -27,20 +33,16 @@ public class BiologicalObjectRepositoryImpl implements BiologicalObjectRepositor
     }
 
     @Override
+    public BiologicalObject findById(String id) {
+
+        var mongoObject = biologicalObjectRepositoryDB.findById(new ObjectId(id));
+        return BiologicalObjectMapper.toBiologicalObject(mongoObject);
+    }
+
+    @Override
     public BiologicalObject findByUniprotId(String uniprotId) {
 
-        StringBuilder queryBuilder = new StringBuilder("{'userId': :userId");
-        Parameters parameters = Parameters.with("userId", sessionUtil.getUserId());
-        queryBuilder.append(", '").append("uniprotId").append("': :fieldValue");
-        parameters.and("fieldValue", uniprotId);
-        queryBuilder.append("}");
-
-        BiologicalObjectCollection mongoObject = BiologicalObjectCollection
-                .find(queryBuilder.toString(), parameters)
-                .firstResult();
-
-        if(mongoObject == null){return null;}
-
+        var mongoObject = biologicalObjectRepositoryDB.findByUniprotId(uniprotId, sessionUtil.getUserId());
         return BiologicalObjectMapper.toBiologicalObject(mongoObject);
     }
 

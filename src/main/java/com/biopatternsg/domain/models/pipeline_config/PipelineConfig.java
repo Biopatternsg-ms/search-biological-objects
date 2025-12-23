@@ -1,9 +1,6 @@
 package com.biopatternsg.domain.models.pipeline_config;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -13,8 +10,11 @@ import java.util.List;
 @Builder
 public class PipelineConfig {
 
+    @NonNull
     private String pipelineId;
+    @NonNull
     private Integer levels;
+    @NonNull
     private List<BiologicalObjectConfig> expertObjects;
     private TranscriptionFactorConfig transcriptionFactorConfig;
 }

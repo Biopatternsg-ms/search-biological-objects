@@ -1,5 +1,6 @@
 package com.biopatternsg.infrastructure.adapters.in.restcontrollers;
 
+import com.biopatternsg.domain.models.external_entities.BlatSearchOptionsResponse;
 import com.biopatternsg.domain.port.in.FindBlatOption;
 import com.biopatternsg.infrastructure.dtos.PromoterRegionRequest;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -9,11 +10,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
-import com.biopatternsg.domain.models.external_entities.BlatSearchOptionsResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
 @ApplicationScoped
 @Path("/blat")
