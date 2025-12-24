@@ -5,8 +5,10 @@ import com.biopatternsg.infrastructure.clients.internal_clients.OntologiesHttpCl
 import com.biopatternsg.infrastructure.internal_services.QueryOntologies;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+@Slf4j
 @ApplicationScoped
 public class QueryOntologiesImpl implements QueryOntologies {
 
@@ -18,6 +20,11 @@ public class QueryOntologiesImpl implements QueryOntologies {
 
     @Override
     public Response buildGeneOntologyTree(GeneOntology geneOntology) {
-        return ontologiesHttpClient.buildGeneOntologyTree(geneOntology);
+        try {
+            return ontologiesHttpClient.buildGeneOntologyTree(geneOntology);
+        } catch (Exception e) {
+            log.error("Error building gene ontology tree", e.getMessage());
+            return Response.serverError().build();
+        }
     }
 }
