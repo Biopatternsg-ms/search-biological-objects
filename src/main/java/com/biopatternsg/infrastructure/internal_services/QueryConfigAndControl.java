@@ -1,9 +1,10 @@
 package com.biopatternsg.infrastructure.internal_services;
 
+import com.biopatternsg.domain.enums.PipelineSteps;
 import com.biopatternsg.domain.models.PipelineUpdate;
 import jakarta.ws.rs.core.Response;
 
 public interface QueryConfigAndControl {
 
-    Response updatePipelineStatus(PipelineUpdate pipelineUpdate);
+    Response updatePipelineStep(String pipelineId, PipelineSteps pipelineStep);
 }

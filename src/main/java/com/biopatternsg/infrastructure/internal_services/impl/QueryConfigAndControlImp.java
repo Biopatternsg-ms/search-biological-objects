@@ -1,5 +1,6 @@
 package com.biopatternsg.infrastructure.internal_services.impl;
 
+import com.biopatternsg.domain.enums.PipelineSteps;
 import com.biopatternsg.infrastructure.clients.internal_clients.ConfigAndControlHttpClient;
 import com.biopatternsg.domain.models.PipelineUpdate;
 import com.biopatternsg.infrastructure.internal_services.QueryConfigAndControl;
@@ -17,7 +18,7 @@ public class QueryConfigAndControlImp implements QueryConfigAndControl {
     }
 
     @Override
-    public Response updatePipelineStatus(PipelineUpdate pipelineUpdate) {
-        return configAndControlHttpClient.updatePipelineStatus(pipelineUpdate);
+    public Response updatePipelineStep(String pipelineId, PipelineSteps pipelineStep) {
+        return configAndControlHttpClient.updatePipelineStep(pipelineId, pipelineStep);
     }
 }

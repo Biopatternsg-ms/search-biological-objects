@@ -1,4 +1,4 @@
-package com.biopatternsg.infrastructure.adapters.in.filters;
+package com.biopatternsg.infrastructure.config.interceptors;
 
 import com.biopatternsg.infrastructure.session.SessionUtil;
 import jakarta.ws.rs.container.ContainerRequestContext;
