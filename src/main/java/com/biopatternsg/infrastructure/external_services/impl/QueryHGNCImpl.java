@@ -6,6 +6,7 @@ import com.biopatternsg.infrastructure.external_services.dtos.hgnc.fetch.FetchRe
 import com.biopatternsg.infrastructure.external_services.dtos.hgnc.search.SearchResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @Slf4j
@@ -20,21 +21,25 @@ public class QueryHGNCImpl implements QueryHGNC {
     }
 
     @Override
+    @Retry
     public SearchResponse search(String label) {
         return hgncHttpClient.search(label);
     }
 
     @Override
+    @Retry
     public FetchResponse fetchSymbol(String symbol) {
         return hgncHttpClient.fetchSymbol(symbol);
     }
 
     @Override
+    @Retry
     public FetchResponse fetchId(String hgncId) {
         return hgncHttpClient.fetchId(hgncId);
     }
 
     @Override
+    @Retry
     public FetchResponse fetchUniprotId(String uniprotId) {
         return hgncHttpClient.fetchUniprotId(uniprotId);
     }

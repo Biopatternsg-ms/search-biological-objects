@@ -19,7 +19,8 @@ public class OntologiesServiceImpl implements OntologiesService {
     public void buildGeneOntologyTree(GeneOntology geneOntology) {
         if (geneOntology != null) {
             Response response = ontologiesRepository.buildGeneOntologyTree(geneOntology);
-            log.info(response.readEntity(String.class));
+            //TODO genera un error al ejecutar el flujo en local
+            //log.info(response.readEntity(String.class));
         }
     }
 }

@@ -10,7 +10,7 @@ import lombok.*;
 public class MinedObject {
 
     private String id;
-    private Long userId;
+    private String userId;
     private String pipelineId;
     private String biologicalObjectId;
     private String biologicalObjectParentId;

@@ -5,6 +5,7 @@ import com.biopatternsg.infrastructure.external_services.QueryPdb;
 import com.biopatternsg.infrastructure.external_services.dtos.pdbe.Response;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @Slf4j
@@ -18,6 +19,7 @@ public class QueryPdbImpl implements QueryPdb {
     }
 
     @Override
+    @Retry
     public Response search(String label) {
         return pdbeHttpClient.search(label);
     }

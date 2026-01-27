@@ -6,5 +6,5 @@ import jakarta.ws.rs.core.Response;
 
 public interface QueryConfigAndControl {
 
-    Response updatePipelineStep(String pipelineId, PipelineSteps pipelineStep);
+    void updatePipelineStep(String pipelineId, PipelineSteps pipelineStep, String userId);
 }

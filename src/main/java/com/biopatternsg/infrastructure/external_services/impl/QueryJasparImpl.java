@@ -5,6 +5,7 @@ import com.biopatternsg.infrastructure.dtos.JasparRegion;
 import com.biopatternsg.infrastructure.dtos.JasparRegionData;
 import com.biopatternsg.infrastructure.external_services.QueryJaspar;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @ApplicationScoped
@@ -17,6 +18,7 @@ public class QueryJasparImpl implements QueryJaspar {
     }
 
     @Override
+    @Retry
     public JasparRegionData getDataFromJasparSource(JasparRegion jasparRequest) {
         return jasparHttpClient.getRegionData(jasparRequest);
     }

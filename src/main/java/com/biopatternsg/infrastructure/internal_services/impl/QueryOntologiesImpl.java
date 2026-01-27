@@ -6,6 +6,7 @@ import com.biopatternsg.infrastructure.internal_services.QueryOntologies;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @Slf4j
@@ -19,6 +20,7 @@ public class QueryOntologiesImpl implements QueryOntologies {
     }
 
     @Override
+    @Retry
     public Response buildGeneOntologyTree(GeneOntology geneOntology) {
         try {
             return ontologiesHttpClient.buildGeneOntologyTree(geneOntology);
