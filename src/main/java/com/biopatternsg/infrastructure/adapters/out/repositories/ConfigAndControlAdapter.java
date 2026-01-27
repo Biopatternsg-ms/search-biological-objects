@@ -2,6 +2,7 @@ package com.biopatternsg.infrastructure.adapters.out.repositories;
 
 import com.biopatternsg.domain.enums.PipelineSteps;
 import com.biopatternsg.domain.port.out.repositories.ConfigAndControlRepository;
+import com.biopatternsg.infrastructure.dtos.PipelineStepRequest;
 import com.biopatternsg.infrastructure.internal_services.QueryConfigAndControl;
 import com.biopatternsg.infrastructure.session.SessionUtil;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -17,6 +18,6 @@ public class ConfigAndControlAdapter implements ConfigAndControlRepository {
     @Override
     public void updatePipelineStep(String pipelineId, PipelineSteps pipelineStep) {
 
-        queryConfigAndControl.updatePipelineStep(pipelineId, pipelineStep, sessionUtil.getUserId());
+        queryConfigAndControl.updatePipelineStep(pipelineId, new PipelineStepRequest(pipelineStep), sessionUtil.getUserId());
     }
 }
