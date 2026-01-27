@@ -4,8 +4,8 @@ import com.biopatternsg.application.services.*;
 import com.biopatternsg.domain.enums.PipelineSteps;
 import com.biopatternsg.domain.models.MinedObject;
 import com.biopatternsg.domain.models.pipeline_config.PipelineConfig;
+import com.biopatternsg.domain.port.out.repositories.ConfigAndControlRepository;
 import com.biopatternsg.domain.port.out.repositories.MinedObjectRepository;
-import com.biopatternsg.infrastructure.adapters.out.repositories.ConfigAndControlAdapter;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ public class PipelineServiceImpl implements PipelineService {
     private final ExpertObjectService expertObjectService;
     private final DiscoveryObjectService discoveryObjectService;
     private final TranscriptionFactorsService transcriptionFactorsService;
-    private final ConfigAndControlAdapter configAndControlAdapter;
+    private final ConfigAndControlRepository configAndControlRepository;
 
     public void execute(PipelineConfig pipelineConfig) {
 
@@ -38,7 +38,7 @@ public class PipelineServiceImpl implements PipelineService {
 
         if (pipelineConfig.getTranscriptionFactorConfig() != null){
              biologicalObjectIdsFromTranscriptionFactors = transcriptionFactorsService.execute(pipelineConfig.getTranscriptionFactorConfig());
-             configAndControlAdapter.updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR);
+             configAndControlRepository.updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR);
         }
 
         var biologicalObjectIdsFromExpertObjects = expertObjectService.execute(pipelineConfig.getExpertObjects());
@@ -51,7 +51,7 @@ public class PipelineServiceImpl implements PipelineService {
         var minedObjects = newObjects(biologicalObjectIds, pipelineConfig.getPipelineId(), null, 1);
 
         minedObjectRepository.save(minedObjects);
-        configAndControlAdapter.updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS);
+        configAndControlRepository.updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS);
     }
 
     private void findLevels(String pipelineId, int levels) {
@@ -67,7 +67,7 @@ public class PipelineServiceImpl implements PipelineService {
             }
 
         }
-        configAndControlAdapter.updatePipelineStep(pipelineId, PipelineSteps.SEARCH_LEVELS);
+        configAndControlRepository.updatePipelineStep(pipelineId, PipelineSteps.SEARCH_LEVELS);
     }
 
     private List<MinedObject> getObjectsLastLevel(int level, String pipelineId) {

@@ -14,7 +14,7 @@ import org.bson.types.ObjectId;
 
 @ApplicationScoped
 @RequiredArgsConstructor
-public class BiologicalObjectRepositoryImpl implements BiologicalObjectRepository {
+public class BiologicalObjectRepositoryAdapter implements BiologicalObjectRepository {
 
     @Inject
     private BiologicalObjectRepositoryDB biologicalObjectRepositoryDB;
