@@ -1,6 +1,5 @@
 package com.biopatternsg.infrastructure.internal_services.impl;
 
-import com.biopatternsg.domain.enums.PipelineSteps;
 import com.biopatternsg.infrastructure.clients.internal_clients.ConfigAndControlHttpClient;
 import com.biopatternsg.infrastructure.dtos.PipelineStepRequest;
 import com.biopatternsg.infrastructure.internal_services.QueryConfigAndControl;
