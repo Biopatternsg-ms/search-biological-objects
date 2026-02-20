@@ -6,6 +6,7 @@ import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectColl
 import com.biopatternsg.infrastructure.mongo_db.mappers.BiologicalObjectMapper;
 import com.biopatternsg.infrastructure.mongo_db.repositories.BiologicalObjectRepositoryDB;
 import com.biopatternsg.infrastructure.session.SessionUtil;
+import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -16,7 +17,7 @@ import org.bson.types.ObjectId;
 @Slf4j
 @ApplicationScoped
 @RequiredArgsConstructor
-public class BiologicalObjectRepositoryImpl implements BiologicalObjectRepository {
+public class BiologicalObjectRepositoryImpl implements BiologicalObjectRepository, PanacheMongoRepository<BiologicalObjectCollection> {
 
     @Inject
     private BiologicalObjectRepositoryDB biologicalObjectRepositoryDB;
@@ -80,6 +81,14 @@ public class BiologicalObjectRepositoryImpl implements BiologicalObjectRepositor
         if(mongoObject == null){return null;}
 
         return BiologicalObjectMapper.toBiologicalObject(mongoObject);
+    }
+
+    @Override
+    public void update(BiologicalObject biologicalObject) {
+        BiologicalObjectCollection mongoObject = BiologicalObjectMapper.toBiologicalObjectCollection(biologicalObject);
+        mongoObject.id = new ObjectId(biologicalObject.getId());
+
+        persistOrUpdate(mongoObject);
     }
 
     private BiologicalObjectCollection saveBiologicalObject(BiologicalObject biologicalObject){

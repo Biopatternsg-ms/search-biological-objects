@@ -22,6 +22,7 @@ public class BiologicalObject {
     private String ensemblGeneId;
     private String hgncId;
     private String uniprotId;
+    private String meshId;
     private Set<String> synonyms;
     private GeneOntology geneOntology;
     private List<String> geneFamilies;

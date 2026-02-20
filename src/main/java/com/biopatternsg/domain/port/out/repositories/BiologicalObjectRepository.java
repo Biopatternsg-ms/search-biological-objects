@@ -9,4 +9,5 @@ public interface BiologicalObjectRepository {
     BiologicalObject findByUniprotId(String uniprotId);
     BiologicalObject findByHgncId(String hgncId);
     BiologicalObject findBySymbol(String symbol);
+    void update(BiologicalObject biologicalObject);
 }
