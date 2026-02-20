@@ -3,14 +3,13 @@ package com.biopatternsg.infrastructure.adapters.in.restcontrollers;
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.port.in.FindBiologicalObject;
 import com.biopatternsg.domain.port.in.UpdateBiologicalObjectMeshId;
+import com.biopatternsg.infrastructure.adapters.dtos.UpdateMeshIdRequest;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
 @Slf4j
 @ApplicationScoped
@@ -27,14 +26,11 @@ public class BiologicalObjectController {
         return findBiologicalObject.execute(type, value);
     }
 
-    @PUT
-    @Path("/update-mesh-id/{biologicalObjectId}/{meshId}")
-    public Response updateMeshId(
-            @PathParam("biologicalObjectId") String biologicalObjectId,
-            @PathParam("meshId") String meshId
-    ){
+    @PATCH
+    @Path("/update-mesh-id")
+    public Response updateMeshId(@RequestBody UpdateMeshIdRequest updateMeshIdRequest){
         try {
-            updateBiologicalObjectMeshId.execute(biologicalObjectId, meshId);
+            updateBiologicalObjectMeshId.execute(updateMeshIdRequest.biologicalObjectId(), updateMeshIdRequest.meshId());
         } catch (Exception e) {
             log.error("Error updating mesh id", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
