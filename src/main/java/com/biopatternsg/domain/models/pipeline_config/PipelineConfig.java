@@ -1,5 +1,6 @@
 package com.biopatternsg.domain.models.pipeline_config;
 
+import com.biopatternsg.domain.enums.PipelineSteps;
 import lombok.*;
 
 import java.util.List;

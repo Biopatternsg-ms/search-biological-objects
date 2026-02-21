@@ -11,13 +11,11 @@ import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 
-@Slf4j
 @ApplicationScoped
 @RequiredArgsConstructor
-public class BiologicalObjectRepositoryImpl implements BiologicalObjectRepository, PanacheMongoRepository<BiologicalObjectCollection> {
+public class BiologicalObjectRepositoryAdapter implements BiologicalObjectRepository, PanacheMongoRepository<BiologicalObjectCollection> {
 
     @Inject
     private BiologicalObjectRepositoryDB biologicalObjectRepositoryDB;

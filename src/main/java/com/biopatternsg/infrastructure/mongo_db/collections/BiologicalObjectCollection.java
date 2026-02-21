@@ -17,7 +17,7 @@ import java.util.Set;
 @MongoEntity(collection = "biologicalObjects")
 public class BiologicalObjectCollection extends PanacheMongoEntity {
 
-    private Long userId;
+    private String userId;
     private String symbol;
     private String name;
     private String locusType;

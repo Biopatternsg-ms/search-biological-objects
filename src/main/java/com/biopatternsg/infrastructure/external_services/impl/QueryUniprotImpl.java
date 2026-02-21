@@ -6,6 +6,7 @@ import com.biopatternsg.infrastructure.external_services.dtos.uniprot.ListRespon
 import com.biopatternsg.infrastructure.external_services.dtos.uniprot.Response;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @Slf4j
@@ -19,11 +20,13 @@ public class QueryUniprotImpl implements QueryUniprot{
     }
 
     @Override
+    @Retry
     public ListResponse search(String label) {
         return uniprotHttpClient.search(label, UniprotHttpClient.DEFAULT_SORT);
     }
 
     @Override
+    @Retry
     public Response get(String uniprotId) {
         return uniprotHttpClient.get(uniprotId);
     }

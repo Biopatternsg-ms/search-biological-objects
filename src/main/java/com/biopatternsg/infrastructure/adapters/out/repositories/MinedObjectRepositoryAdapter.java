@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 @ApplicationScoped
 @RequiredArgsConstructor
-public class MinedObjectRepositoryImpl implements MinedObjectRepository {
+public class MinedObjectRepositoryAdapter implements MinedObjectRepository {
 
     private final SessionUtil sessionUtil;
     @Override

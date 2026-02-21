@@ -7,7 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class BiologicalObjectRepositoryDB implements PanacheMongoRepository<BiologicalObjectCollection> {
 
-    public BiologicalObjectCollection findByUniprotId(String uniprotId, Long userId){
+    public BiologicalObjectCollection findByUniprotId(String uniprotId, String userId){
 
         //return find("{uniprotId: :id, userId: :user}", Parameters.with("id", uniprotId).and("user", userId)).firstResult();
         return find("{'uniprotId': ?1, 'userId': ?2}",uniprotId, userId).firstResult();
