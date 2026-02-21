@@ -1,5 +1,6 @@
 package com.biopatternsg.infrastructure.internal_services.impl;
 
+import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.GeneOntology;
 import com.biopatternsg.infrastructure.clients.internal_clients.OntologiesHttpClient;
 import com.biopatternsg.infrastructure.internal_services.QueryOntologies;
@@ -25,7 +26,17 @@ public class QueryOntologiesImpl implements QueryOntologies {
         try {
             return ontologiesHttpClient.buildGeneOntologyTree(geneOntology);
         } catch (Exception e) {
-            log.error("Error building gene ontology tree", e.getMessage());
+            log.error("Error building gene ontology tree: {}", e.getMessage());
+            return Response.serverError().build();
+        }
+    }
+
+    @Override
+    public Response buildMeshOntologyTree(BiologicalObject biologicalObject) {
+        try {
+            return ontologiesHttpClient.buildMeshOntologyTree(biologicalObject);
+        } catch (Exception e) {
+            log.error("Error building mesh ontology tree: {}", e.getMessage());
             return Response.serverError().build();
         }
     }

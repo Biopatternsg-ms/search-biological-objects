@@ -1,6 +1,7 @@
 package com.biopatternsg.application.services.impl;
 
 import com.biopatternsg.application.services.OntologiesService;
+import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.GeneOntology;
 import com.biopatternsg.domain.port.out.external_repositories.OntologiesRepository;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -19,8 +20,15 @@ public class OntologiesServiceImpl implements OntologiesService {
     public void buildGeneOntologyTree(GeneOntology geneOntology) {
         if (geneOntology != null) {
             Response response = ontologiesRepository.buildGeneOntologyTree(geneOntology);
-            //TODO genera un error al ejecutar el flujo en local
-            //log.info(response.readEntity(String.class));
+            log.info(response.readEntity(String.class));
+        }
+    }
+
+    @Override
+    public void buildMeshOntologyTree(BiologicalObject biologicalObject) {
+        if (biologicalObject != null) {
+            Response response = ontologiesRepository.buildMeshOntologyTree(biologicalObject);
+            log.info(response.readEntity(String.class));
         }
     }
 }

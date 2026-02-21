@@ -23,6 +23,7 @@ public class BiologicalObjectCollection extends PanacheMongoEntity {
     private String locusType;
     private String hgncId;
     private String uniprotId;
+    private String meshId;
     private Set<String> synonyms;
     private GeneOntology geneOntology;
     private List<String> geneFamilies;

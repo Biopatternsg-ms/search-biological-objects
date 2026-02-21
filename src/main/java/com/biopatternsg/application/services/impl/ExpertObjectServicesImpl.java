@@ -29,6 +29,7 @@ public class ExpertObjectServicesImpl implements ExpertObjectService {
             if(biologicalObject.getId() == null){
                 biologicalObject = biologicalObjectRepository.save(biologicalObject);
                 ontologiesService.buildGeneOntologyTree(biologicalObject.getGeneOntology());
+                ontologiesService.buildMeshOntologyTree(biologicalObject);
             }
 
             response.add(biologicalObject.getId());

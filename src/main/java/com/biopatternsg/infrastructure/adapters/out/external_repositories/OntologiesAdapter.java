@@ -1,5 +1,6 @@
 package com.biopatternsg.infrastructure.adapters.out.external_repositories;
 
+import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.GeneOntology;
 import com.biopatternsg.domain.port.out.external_repositories.OntologiesRepository;
 import com.biopatternsg.infrastructure.internal_services.QueryOntologies;
@@ -16,5 +17,10 @@ public class OntologiesAdapter implements OntologiesRepository {
     @Override
     public Response buildGeneOntologyTree(GeneOntology geneOntology) {
         return queryOntologies.buildGeneOntologyTree(geneOntology);
+    }
+
+    @Override
+    public Response buildMeshOntologyTree(BiologicalObject biologicalObject) {
+        return queryOntologies.buildMeshOntologyTree(biologicalObject);
     }
 }
