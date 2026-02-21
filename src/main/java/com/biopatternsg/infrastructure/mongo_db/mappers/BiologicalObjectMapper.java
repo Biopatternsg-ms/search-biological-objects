@@ -31,10 +31,10 @@ public class BiologicalObjectMapper {
     public static BiologicalObjectCollection toBiologicalObjectCollection(BiologicalObject biologicalObject){
 
         return BiologicalObjectCollection.builder()
-                //TODO chequearID
                 .userId(biologicalObject.getUserId())
                 .hgncId(biologicalObject.getHgncId())
                 .uniprotId(biologicalObject.getUniprotId())
+                .meshId(biologicalObject.getMeshId())
                 .symbol(biologicalObject.getSymbol())
                 .name(biologicalObject.getName())
                 .locusType(biologicalObject.getLocusType())
