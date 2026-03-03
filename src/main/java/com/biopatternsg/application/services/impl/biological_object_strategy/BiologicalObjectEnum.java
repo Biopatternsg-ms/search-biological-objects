@@ -15,7 +15,7 @@ public enum BiologicalObjectEnum {
     }
 
     public static BiologicalObjectEnum getValue(String value) {
-        for (BiologicalObjectEnum headerEnum : BiologicalObjectEnum.values()) {
+        for (BiologicalObjectEnum headerEnum : values()) {
             if (Objects.equals(headerEnum.value, value)) {
                 return headerEnum;
             }

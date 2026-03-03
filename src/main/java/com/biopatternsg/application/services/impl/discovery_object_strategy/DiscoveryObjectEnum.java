@@ -14,7 +14,7 @@ public enum DiscoveryObjectEnum {
 
     public static DiscoveryObjectEnum getValue(String value){
 
-        for (DiscoveryObjectEnum headerEnum : DiscoveryObjectEnum.values()){
+        for (DiscoveryObjectEnum headerEnum : values()){
             if (Objects.equals(headerEnum.value, value)) {
                 return headerEnum;
             }
