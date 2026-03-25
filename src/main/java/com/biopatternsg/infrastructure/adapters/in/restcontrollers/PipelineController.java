@@ -12,7 +12,12 @@ import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.context.ManagedExecutor;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -28,6 +33,21 @@ public class PipelineController {
     @POST
     @Path("/launch-pipeline")
     @ActivateRequestContext
+    @Operation(
+        summary = "Launch biological pipeline",
+        description = "Launches a biological data processing pipeline asynchronously based on the provided configuration."
+    )
+    @APIResponse(
+        responseCode = "202",
+        description = "Pipeline launch accepted and processing started",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(
+                type = SchemaType.STRING,
+                description = "Success message with pipeline ID"
+            )
+        )
+    )
     public Response experiment(@RequestBody PipelineConfig launchExperimentRequest) {
 
         CompletableFuture.runAsync(() -> {
