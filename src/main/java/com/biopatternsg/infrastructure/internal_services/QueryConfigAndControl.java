@@ -1,8 +1,8 @@
 package com.biopatternsg.infrastructure.internal_services;
 
-import com.biopatternsg.infrastructure.dtos.PipelineStepRequest;
+import com.biopatternsg.infrastructure.dtos.PipelineStepInternalRequest;
 
 public interface QueryConfigAndControl {
 
-    void updatePipelineStep(String pipelineId, PipelineStepRequest pipelineStep, String userId);
+    void updatePipelineStep(PipelineStepInternalRequest updatePipelineStep, String userId);
 }
