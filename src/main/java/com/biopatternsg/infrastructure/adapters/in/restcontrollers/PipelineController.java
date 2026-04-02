@@ -64,8 +64,10 @@ public class PipelineController {
 
         CompletableFuture.runAsync(() -> {
             ManagedContext requestContext = Arc.container().requestContext();
+            boolean newlyActivated = false;
             if (!requestContext.isActive()) {
                 requestContext.activate();
+                newlyActivated = true;
             }
             try {
                 // Set the copied context into the new request scope
@@ -76,13 +78,14 @@ public class PipelineController {
             } catch (Exception e) {
                 log.error("Error launch pipeline", e);
             } finally {
-                requestContext.terminate();
+                if (newlyActivated) {
+                    requestContext.terminate();
+                }
             }
-        }, executor);
+        }); // Removing 'executor' so it uses the common pool and doesn't inherit the parent RequestContext
 
         return Response.accepted()
                 .entity("{\"message\": \"successful launch pipeline " + launchExperimentRequest.getPipelineId() + "\"}")
                 .build();
     }
-
 }
