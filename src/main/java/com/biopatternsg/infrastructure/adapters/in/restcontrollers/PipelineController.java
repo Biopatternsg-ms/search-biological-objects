@@ -20,6 +20,9 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
 import java.util.concurrent.CompletableFuture;
+import com.biopatternsg.infrastructure.session.SessionUtil;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 
 @Slf4j
 @ApplicationScoped
@@ -29,6 +32,7 @@ public class PipelineController {
 
     private final LaunchPipeline launchExperiment;
     private final ManagedExecutor executor;
+    private final SessionUtil sessionUtil;
 
     @POST
     @Path("/launch-pipeline")
@@ -50,12 +54,24 @@ public class PipelineController {
     )
     public Response experiment(@RequestBody PipelineConfig launchExperimentRequest) {
 
+        // Get the context from the current request scope before going async
+        // We create a copy to avoid issues if the original request ends and the map is cleared/recycled
+        MultivaluedMap<String, String> currentContext = null;
+        if (sessionUtil.getContext() != null) {
+            currentContext = new MultivaluedHashMap<>(sessionUtil.getContext());
+        }
+        final MultivaluedMap<String, String> contextToPropagate = currentContext;
+
         CompletableFuture.runAsync(() -> {
             ManagedContext requestContext = Arc.container().requestContext();
             if (!requestContext.isActive()) {
                 requestContext.activate();
             }
             try {
+                // Set the copied context into the new request scope
+                if (contextToPropagate != null) {
+                    sessionUtil.setContext(contextToPropagate);
+                }
                 launchExperiment.execute(launchExperimentRequest);
             } catch (Exception e) {
                 log.error("Error launch pipeline", e);
