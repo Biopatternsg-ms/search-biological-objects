@@ -1,13 +1,13 @@
 package com.biopatternsg.infrastructure.session;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.ws.rs.core.MultivaluedMap;
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
-@ApplicationScoped
+@RequestScoped
 public class SessionUtil {
 
     private MultivaluedMap<String, String> context;
