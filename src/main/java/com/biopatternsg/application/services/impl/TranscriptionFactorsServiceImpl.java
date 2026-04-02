@@ -10,6 +10,7 @@ import com.biopatternsg.domain.models.pipeline_config.TranscriptionFactorConfig;
 import com.biopatternsg.domain.port.out.external_repositories.JasparRepository;
 import com.biopatternsg.domain.port.out.external_repositories.TFBindRepository;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
+import com.biopatternsg.domain.port.out.repositories.UserRepository;
 import com.biopatternsg.infrastructure.dtos.JasparRequest;
 import com.biopatternsg.infrastructure.dtos.PromoterRegionRequest;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -30,6 +31,7 @@ public class TranscriptionFactorsServiceImpl implements TranscriptionFactorsServ
     private final BiologicalObjectSearch biologicalObjectSearch;
     private final BiologicalObjectRepository biologicalObjectRepository;
     private final OntologiesService ontologiesService;
+    private final UserRepository userRepository;
 
     @Override
     public List<String> execute(TranscriptionFactorConfig transcriptionFactorConfig) {
@@ -43,9 +45,9 @@ public class TranscriptionFactorsServiceImpl implements TranscriptionFactorsServ
         if(transcriptionFactorConfig.getSources().contains(TranscriptionFactorSource.TFBIND)){
             var tfBindTranscriptionsFactors = executeTFBind(transcriptionFactorConfig);
 
-            tfBindTranscriptionsFactors.forEach(tfBindTranscriptionFactor -> {
-                transcriptionFactorMap.putIfAbsent(tfBindTranscriptionFactor.name(), tfBindTranscriptionFactor);
-            });
+            tfBindTranscriptionsFactors.forEach(tfBindTranscriptionFactor ->
+                transcriptionFactorMap.putIfAbsent(tfBindTranscriptionFactor.name(), tfBindTranscriptionFactor)
+            );
         }
 
         return getBiologicalObjectIds(transcriptionFactorMap);
@@ -55,6 +57,7 @@ public class TranscriptionFactorsServiceImpl implements TranscriptionFactorsServ
         List<TranscriptionFactor> transcriptionFactors = transcriptionFactorMap.values().stream().toList();
 
         List<String> biologicalObjectIds = new ArrayList<>();
+        var userId = userRepository.getUserId();
 
         transcriptionFactors.forEach(transcriptionFactor -> {
 
@@ -66,6 +69,7 @@ public class TranscriptionFactorsServiceImpl implements TranscriptionFactorsServ
 
             if(biologicalObject.getId() == null){
                 biologicalObject.setTranscriptionFactor(transcriptionFactor);
+                biologicalObject.setUserId(userId);
                 biologicalObject = biologicalObjectRepository.save(biologicalObject);
                 ontologiesService.buildGeneOntologyTree(biologicalObject.getGeneOntology());
             }

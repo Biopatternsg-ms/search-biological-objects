@@ -93,7 +93,7 @@ public class BiologicalObjectRepositoryAdapter implements BiologicalObjectReposi
 
         BiologicalObjectCollection mongoObject = new BiologicalObjectCollection();
 
-        mongoObject.setUserId(sessionUtil.getUserId());
+        mongoObject.setUserId(biologicalObject.getUserId());
         mongoObject.setSymbol(biologicalObject.getSymbol());
         mongoObject.setName(biologicalObject.getName());
         mongoObject.setLocusType(biologicalObject.getLocusType());
