@@ -2,10 +2,10 @@ package com.biopatternsg.infrastructure.adapters.out.repositories;
 
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
+import com.biopatternsg.domain.port.out.repositories.UserRepository;
 import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectCollection;
 import com.biopatternsg.infrastructure.mongo_db.mappers.BiologicalObjectMapper;
 import com.biopatternsg.infrastructure.mongo_db.repositories.BiologicalObjectRepositoryDB;
-import com.biopatternsg.infrastructure.session.SessionUtil;
 import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,7 +20,7 @@ public class BiologicalObjectRepositoryAdapter implements BiologicalObjectReposi
     @Inject
     private BiologicalObjectRepositoryDB biologicalObjectRepositoryDB;
     @Inject
-    private SessionUtil sessionUtil;
+    private UserRepository userRepository;
 
     @Override
     public BiologicalObject save(BiologicalObject biologicalObject) {
@@ -41,7 +41,7 @@ public class BiologicalObjectRepositoryAdapter implements BiologicalObjectReposi
     @Override
     public BiologicalObject findByUniprotId(String uniprotId) {
 
-        var mongoObject = biologicalObjectRepositoryDB.findByUniprotId(uniprotId, sessionUtil.getUserId());
+        var mongoObject = biologicalObjectRepositoryDB.findByUniprotId(uniprotId, userRepository.getUserId());
         return BiologicalObjectMapper.toBiologicalObject(mongoObject);
     }
 
@@ -49,7 +49,7 @@ public class BiologicalObjectRepositoryAdapter implements BiologicalObjectReposi
     public BiologicalObject findByHgncId(String hgncId) {
 
         StringBuilder queryBuilder = new StringBuilder("{'userId': :userId");
-        Parameters parameters = Parameters.with("userId", sessionUtil.getUserId());
+        Parameters parameters = Parameters.with("userId", userRepository.getUserId());
         queryBuilder.append(", '").append("hgncId").append("': :fieldValue");
         parameters.and("fieldValue", hgncId);
         queryBuilder.append("}");
@@ -67,7 +67,7 @@ public class BiologicalObjectRepositoryAdapter implements BiologicalObjectReposi
     public BiologicalObject findBySymbol(String symbol) {
 
         StringBuilder queryBuilder = new StringBuilder("{'userId': :userId");
-        Parameters parameters = Parameters.with("userId", sessionUtil.getUserId());
+        Parameters parameters = Parameters.with("userId", userRepository.getUserId());
         queryBuilder.append(", '").append("symbol").append("': :fieldValue");
         parameters.and("fieldValue", symbol);
         queryBuilder.append("}");
