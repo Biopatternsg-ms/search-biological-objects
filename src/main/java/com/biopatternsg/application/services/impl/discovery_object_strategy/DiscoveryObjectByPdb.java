@@ -1,18 +1,16 @@
 package com.biopatternsg.application.services.impl.discovery_object_strategy;
 
-import com.biopatternsg.application.services.PipelineService;
 import com.biopatternsg.application.services.impl.biological_object_strategy.BiologicalObjectSearch;
-import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
 import com.biopatternsg.domain.port.out.external_repositories.PdbRepository;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
+import com.biopatternsg.domain.port.out.repositories.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -20,16 +18,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DiscoveryObjectByPdb implements DiscoveryObjectStrategy{
 
-    private final PipelineService pipelineService;
     private final PdbRepository pdbRepository;
     private final BiologicalObjectSearch biologicalObjectSearch;
     private final BiologicalObjectRepository biologicalObjectRepository;
-
-    @Override
-    public void execute(Set<BiologicalObject> expertObjects, String pipelineId, int searchLevel) {
-
-        //discoveryObjectsByLevel(expertObjects, pipelineId, searchLevel, 2);
-    }
+    private final UserRepository userRepository;
 
     @Override
     public List<String> execute(String value) {
@@ -56,6 +48,8 @@ public class DiscoveryObjectByPdb implements DiscoveryObjectStrategy{
         if(biologicalObject.getId() != null){
             return biologicalObject.getId();
         }
+        var userId = userRepository.getUserId();
+        biologicalObject.setUserId(userId);
         biologicalObject = biologicalObjectRepository.save(biologicalObject);
         return biologicalObject.getId();
     }
