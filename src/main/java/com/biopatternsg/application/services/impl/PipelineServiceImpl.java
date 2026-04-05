@@ -56,13 +56,17 @@ public class PipelineServiceImpl implements PipelineService {
 
     private void findLevels(String pipelineId, int levels) {
 
+        log.info("start FindLevels pipelineId: {} y pipelineLevels: {} ",pipelineId, levels);
         for (int level = 2; level <= levels; level++) {
 
-            var minedObjects = getObjectsLastLevel(level, pipelineId); // Se consultan los objetos del nivel Anterior
-
+            var minedObjects = getObjectsLastLevel(level, pipelineId);
+            log.info("Level {} y minedObjects: {}", level, minedObjects);
             for (var value : minedObjects) {
+
+                log.info("Level {} y minedObject ID: {}", level, value.getBiologicalObjectId());
                 var newObjectIds = discoveryObjectService.execute(value.getBiologicalObjectId());
                 var newObjectsToSave = newObjects(newObjectIds, pipelineId, value.getBiologicalObjectId(), level);
+                log.info("Level {} y newObjects: {}", level, newObjectsToSave);
                 minedObjectRepository.save(newObjectsToSave);
             }
 
