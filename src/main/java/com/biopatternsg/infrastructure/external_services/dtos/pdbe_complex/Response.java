@@ -1,4 +1,4 @@
-package com.biopatternsg.infrastructure.external_services.dtos.pdbe;
+package com.biopatternsg.infrastructure.external_services.dtos.pdbe_complex;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 

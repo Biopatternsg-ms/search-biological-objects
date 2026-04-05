@@ -2,7 +2,7 @@ package com.biopatternsg.infrastructure.external_services.impl;
 
 import com.biopatternsg.infrastructure.clients.external_clients.PdbHttpClient;
 import com.biopatternsg.infrastructure.external_services.QueryPdb;
-import com.biopatternsg.infrastructure.external_services.dtos.pdbe.Response;
+import com.biopatternsg.infrastructure.external_services.dtos.pdbe_complex.Response;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.faulttolerance.Retry;
@@ -21,6 +21,7 @@ public class QueryPdbImpl implements QueryPdb {
     @Override
     @Retry
     public Response search(String label) {
-        return pdbeHttpClient.search(label);
+
+        return pdbeHttpClient.search(label, "accession");
     }
 }

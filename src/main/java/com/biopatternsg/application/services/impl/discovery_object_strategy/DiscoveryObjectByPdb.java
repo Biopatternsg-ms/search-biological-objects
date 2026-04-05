@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
 @Slf4j
 @ApplicationScoped
@@ -23,13 +23,16 @@ public class DiscoveryObjectByPdb implements DiscoveryObjectStrategy{
     private final BiologicalObjectRepository biologicalObjectRepository;
     private final UserRepository userRepository;
 
+    private static final Pattern UNIPROT_ID =
+            Pattern.compile("^([OPQJ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$");
+
     @Override
     public List<String> execute(String value) {
 
         var uniprotIds = pdbRepository.getComplexes(value).stream()
                 .flatMap(complex -> complex.getParticipants().stream())
-                .collect(Collectors.toSet())
-                .stream()
+                .distinct()
+                .filter(id -> UNIPROT_ID.matcher(id).matches()) //
                 .toList();
 
         return findBiologicalObjects(uniprotIds);
