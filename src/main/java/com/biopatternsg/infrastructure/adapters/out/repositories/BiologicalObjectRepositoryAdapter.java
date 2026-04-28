@@ -13,6 +13,8 @@ import jakarta.inject.Inject;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 
+import java.util.List;
+
 @ApplicationScoped
 @RequiredArgsConstructor
 public class BiologicalObjectRepositoryAdapter implements BiologicalObjectRepository, PanacheMongoRepository<BiologicalObjectCollection> {
@@ -88,6 +90,12 @@ public class BiologicalObjectRepositoryAdapter implements BiologicalObjectReposi
 
         persistOrUpdate(mongoObject);
     }
+
+    @Override
+    public List<BiologicalObject> findByIds(List<String> ids) {
+        return BiologicalObjectMapper.toBiologicalObjects(biologicalObjectRepositoryDB.findByIds(ids));
+    }
+
 
     private BiologicalObjectCollection saveBiologicalObject(BiologicalObject biologicalObject){
 

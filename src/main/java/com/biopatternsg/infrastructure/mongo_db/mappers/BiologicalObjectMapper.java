@@ -4,12 +4,14 @@ import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectCollection;
 import lombok.experimental.UtilityClass;
 
+import java.util.List;
+
 @UtilityClass
 public class BiologicalObjectMapper {
-    
-    public static BiologicalObject toBiologicalObject(BiologicalObjectCollection biologicalObjectCollection){
 
-        if(biologicalObjectCollection == null){
+    public static BiologicalObject toBiologicalObject(BiologicalObjectCollection biologicalObjectCollection) {
+
+        if (biologicalObjectCollection == null) {
             return null;
         }
         return BiologicalObject.builder()
@@ -27,8 +29,8 @@ public class BiologicalObjectMapper {
                 .transcriptionFactor(biologicalObjectCollection.getTranscriptionFactor())
                 .build();
     }
-    
-    public static BiologicalObjectCollection toBiologicalObjectCollection(BiologicalObject biologicalObject){
+
+    public static BiologicalObjectCollection toBiologicalObjectCollection(BiologicalObject biologicalObject) {
 
         return BiologicalObjectCollection.builder()
                 .userId(biologicalObject.getUserId())
@@ -44,5 +46,9 @@ public class BiologicalObjectMapper {
                 .tissues(biologicalObject.getTissues())
                 .transcriptionFactor(biologicalObject.getTranscriptionFactor())
                 .build();
+    }
+
+    public static List<BiologicalObject> toBiologicalObjects(List<BiologicalObjectCollection> biologicalObjectCollections){
+        return biologicalObjectCollections.stream().map(BiologicalObjectMapper::toBiologicalObject).toList();
     }
 }
