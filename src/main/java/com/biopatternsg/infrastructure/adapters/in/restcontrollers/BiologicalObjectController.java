@@ -2,7 +2,12 @@ package com.biopatternsg.infrastructure.adapters.in.restcontrollers;
 
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.port.in.FindBiologicalObject;
+import com.biopatternsg.domain.port.in.FindBiologicalObjectFatherBrothersAndSons;
+import com.biopatternsg.domain.port.in.FindBiologicalObjectsByPipelineAndLevel;
 import com.biopatternsg.domain.port.in.UpdateBiologicalObjectMeshId;
+import com.biopatternsg.infrastructure.adapters.dtos.BiologicalObjectDTO;
+import com.biopatternsg.infrastructure.adapters.dtos.FatherBrothersAndSonsRequest;
+import com.biopatternsg.infrastructure.adapters.dtos.NameAndSynonymRequest;
 import com.biopatternsg.infrastructure.adapters.dtos.UpdateMeshIdRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.*;
@@ -16,6 +21,8 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
+import java.util.List;
+
 @Slf4j
 @ApplicationScoped
 @Path("/biological-object")
@@ -24,23 +31,25 @@ public class BiologicalObjectController {
 
     private final FindBiologicalObject findBiologicalObject;
     private final UpdateBiologicalObjectMeshId updateBiologicalObjectMeshId;
+    private final FindBiologicalObjectsByPipelineAndLevel findBiologicalObjectsByPipelineAndLevel;
+    private final FindBiologicalObjectFatherBrothersAndSons findBiologicalObjectFatherBrothersAndSons;
 
     @GET
     @Path("/search/{type}/{value}")
     @Operation(
-        summary = "Find biological object by type and value",
-        description = "Searches for a biological object based on the specified type and value."
+            summary = "Find biological object by type and value",
+            description = "Searches for a biological object based on the specified type and value."
     )
     @APIResponse(
-        responseCode = "200",
-        description = "Successfully retrieved biological object",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(
-                implementation = BiologicalObject.class,
-                description = "The biological object matching the search criteria"
+            responseCode = "200",
+            description = "Successfully retrieved biological object",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            implementation = BiologicalObject.class,
+                            description = "The biological object matching the search criteria"
+                    )
             )
-        )
     )
     public BiologicalObject find(@PathParam("type") String type, @PathParam("value") String value){
         return findBiologicalObject.execute(type, value);
@@ -49,30 +58,30 @@ public class BiologicalObjectController {
     @PATCH
     @Path("/update-mesh-id")
     @Operation(
-        summary = "Update MeSH ID for biological object",
-        description = "Updates the MeSH identifier for a specific biological object."
+            summary = "Update MeSH ID for biological object",
+            description = "Updates the MeSH (Medical Subject Headings) identifier for a specific biological object."
     )
     @APIResponse(
-        responseCode = "200",
-        description = "Successfully updated MeSH ID",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(
-                type = SchemaType.STRING,
-                description = "Success message"
+            responseCode = "200",
+            description = "Successfully updated MeSH ID",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            type = SchemaType.STRING,
+                            description = "Success message"
+                    )
             )
-        )
     )
     @APIResponse(
-        responseCode = "500",
-        description = "Internal server error occurred while updating MeSH ID",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(
-                type = SchemaType.STRING,
-                description = "Error message"
+            responseCode = "500",
+            description = "Internal server error occurred while updating MeSH ID",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            type = SchemaType.STRING,
+                            description = "Error message"
+                    )
             )
-        )
     )
     public Response updateMeshId(@RequestBody UpdateMeshIdRequest updateMeshIdRequest){
         try {
@@ -82,5 +91,49 @@ public class BiologicalObjectController {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         return Response.ok().build();
+    }
+
+    @POST
+    @Path("/name-and-synonyms")
+    @Operation(
+            summary = "Get biological objects by pipeline and level",
+            description = "Retrieves biological objects with names and synonyms based on pipeline ID and level."
+    )
+    @APIResponse(
+            responseCode = "200",
+            description = "Successfully retrieved biological objects",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            implementation = BiologicalObjectDTO.class,
+                            type = SchemaType.ARRAY,
+                            description = "List of biological objects with names and synonyms"
+                    )
+            )
+    )
+    public List<BiologicalObjectDTO> getResumedBiologicalObjects(@RequestBody NameAndSynonymRequest nameAndSynonymRequest){
+        return findBiologicalObjectsByPipelineAndLevel.execute(nameAndSynonymRequest.pipelineId(), nameAndSynonymRequest.level());
+    }
+
+    @POST
+    @Path("/father-brothers-and-sons")
+    @Operation(
+            summary = "Get biological objects with father, brothers and sons",
+            description = "Retrieves biological objects"
+    )
+    @APIResponse(
+            responseCode = "200",
+            description = "Successfully retrieved biological objects",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            implementation = BiologicalObjectDTO.class,
+                            type = SchemaType.ARRAY,
+                            description = "List of biological objects with father, brothers and sons"
+                    )
+            )
+    )
+    public List<BiologicalObjectDTO> getFatherBrothersAndSons(@RequestBody FatherBrothersAndSonsRequest fatherBrothersAndSonsRequest){
+        return findBiologicalObjectFatherBrothersAndSons.execute(fatherBrothersAndSonsRequest.pipelineId(), fatherBrothersAndSonsRequest.biologicalObjectId());
     }
 }

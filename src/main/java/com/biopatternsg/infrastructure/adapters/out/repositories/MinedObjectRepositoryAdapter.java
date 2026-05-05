@@ -60,6 +60,12 @@ public class MinedObjectRepositoryAdapter implements MinedObjectRepository {
     }
 
     @Override
+    public List<MinedObject> findByParentId(String biologicalObjectParentId, String pipelineId) {
+        List<MinedObjectCollection> response = new ArrayList<>(MinedObjectCollection.list("biologicalObjectParentId = ?1 and pipelineId = ?2", biologicalObjectParentId, pipelineId));
+        return MinedObjectMapper.toMinedObjects(response);
+    }
+
+    @Override
     public MinedObject find(String biologicalObjectId, String pipelineId) {
 
         StringBuilder queryBuilder = new StringBuilder("{'biologicalObjectId': :objectId");
