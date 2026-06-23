@@ -16,6 +16,7 @@
 package com.biopatternsg.infrastructure.adapters.in.restcontrollers;
 
 import com.biopatternsg.domain.models.TranscriptionFactor;
+import com.biopatternsg.domain.models.pipeline_config.TranscriptionFactorConfig;
 import com.biopatternsg.domain.port.in.FindTranscriptionFactor;
 import com.biopatternsg.infrastructure.dtos.JasparRequest;
 import com.biopatternsg.infrastructure.dtos.PromoterRegionRequest;
@@ -83,6 +84,30 @@ public class TranscriptionFactorController {
     public Response getByPromoterJasparRegion(@Valid JasparRequest jasparRequest) {
         return Response
                 .ok(findTranscriptionFactor.getJasparTranscriptionFactors(jasparRequest))
+                .build();
+    }
+
+    @POST
+    @Path("/by-config")
+    @Operation(
+        summary = "Find transcription factors by config",
+        description = "Retrieves transcription factors from JASPAR and/or TFBind based on the provided configuration."
+    )
+    @APIResponse(
+        responseCode = "200",
+        description = "Successfully retrieved transcription factors",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(
+                implementation = TranscriptionFactor.class,
+                type = SchemaType.ARRAY,
+                description = "List of transcription factors matching the config"
+            )
+        )
+    )
+    public Response getByConfig(@Valid TranscriptionFactorConfig transcriptionFactorConfig) {
+        return Response
+                .ok(findTranscriptionFactor.getTranscriptionFactorsByConfig(transcriptionFactorConfig))
                 .build();
     }
 

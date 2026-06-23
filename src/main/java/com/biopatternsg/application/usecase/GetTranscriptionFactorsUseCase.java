@@ -16,7 +16,9 @@
 package com.biopatternsg.application.usecase;
 
 import com.biopatternsg.application.services.BuildTranscriptionFactorsService;
+import com.biopatternsg.application.services.TranscriptionFactorsService;
 import com.biopatternsg.domain.models.TranscriptionFactor;
+import com.biopatternsg.domain.models.pipeline_config.TranscriptionFactorConfig;
 import com.biopatternsg.domain.port.in.FindTranscriptionFactor;
 import com.biopatternsg.infrastructure.dtos.JasparRequest;
 import com.biopatternsg.infrastructure.dtos.PromoterRegionRequest;
@@ -30,6 +32,7 @@ import java.util.List;
 public class GetTranscriptionFactorsUseCase implements FindTranscriptionFactor {
 
     private final BuildTranscriptionFactorsService buildTranscriptionFactorsService;
+    private final TranscriptionFactorsService transcriptionFactorsService;
 
     @Override
     public List<TranscriptionFactor> getJasparTranscriptionFactors(JasparRequest jasparRequest) {
@@ -39,5 +42,10 @@ public class GetTranscriptionFactorsUseCase implements FindTranscriptionFactor {
     @Override
     public List<TranscriptionFactor> getTFBindTranscriptionFactors(PromoterRegionRequest promoterRegionRequest) {
         return buildTranscriptionFactorsService.executeTFBind(promoterRegionRequest);
+    }
+
+    @Override
+    public List<TranscriptionFactor> getTranscriptionFactorsByConfig(TranscriptionFactorConfig transcriptionFactorConfig) {
+        return transcriptionFactorsService.executeGetTranscriptionFactors(transcriptionFactorConfig);
     }
 }

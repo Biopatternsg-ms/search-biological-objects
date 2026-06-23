@@ -68,6 +68,26 @@ public class TranscriptionFactorsServiceImpl implements TranscriptionFactorsServ
         return getBiologicalObjectIds(transcriptionFactorMap);
     }
 
+    @Override
+    public List<TranscriptionFactor> executeGetTranscriptionFactors(TranscriptionFactorConfig transcriptionFactorConfig) {
+        Map<String, TranscriptionFactor> transcriptionFactorMap = new HashMap<>();
+
+        if(transcriptionFactorConfig.getSources().contains(TranscriptionFactorSource.JASPAR)){
+            var jasparTranscriptionFactors = executeJaspar(transcriptionFactorConfig);
+            transcriptionFactorMap.putAll(jasparTranscriptionFactors.stream().collect(Collectors.toMap(TranscriptionFactor::name, Function.identity())));
+        }
+
+        if(transcriptionFactorConfig.getSources().contains(TranscriptionFactorSource.TFBIND)){
+            var tfBindTranscriptionsFactors = executeTFBind(transcriptionFactorConfig);
+
+            tfBindTranscriptionsFactors.forEach(tfBindTranscriptionFactor ->
+                transcriptionFactorMap.putIfAbsent(tfBindTranscriptionFactor.name(), tfBindTranscriptionFactor)
+            );
+        }
+
+        return new ArrayList<>(transcriptionFactorMap.values());
+    }
+
     private List<String> getBiologicalObjectIds(Map<String, TranscriptionFactor> transcriptionFactorMap) {
         List<TranscriptionFactor> transcriptionFactors = transcriptionFactorMap.values().stream().toList();
 
