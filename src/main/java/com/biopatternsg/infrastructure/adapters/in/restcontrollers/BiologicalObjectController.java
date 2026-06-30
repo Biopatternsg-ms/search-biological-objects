@@ -19,10 +19,11 @@ import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.port.in.FindBiologicalObject;
 import com.biopatternsg.domain.port.in.FindBiologicalObjectFatherBrothersAndSons;
 import com.biopatternsg.domain.port.in.FindBiologicalObjectsByPipelineAndLevel;
+import com.biopatternsg.domain.port.in.GetExpertObjectsByPipelineAndLevel;
 import com.biopatternsg.domain.port.in.UpdateBiologicalObjectMeshId;
 import com.biopatternsg.infrastructure.adapters.dtos.BiologicalObjectDTO;
 import com.biopatternsg.infrastructure.adapters.dtos.FatherBrothersAndSonsRequest;
-import com.biopatternsg.infrastructure.adapters.dtos.NameAndSynonymRequest;
+import com.biopatternsg.infrastructure.adapters.dtos.BiologicalObjectRequest;
 import com.biopatternsg.infrastructure.adapters.dtos.UpdateMeshIdRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.*;
@@ -48,6 +49,7 @@ public class BiologicalObjectController {
     private final UpdateBiologicalObjectMeshId updateBiologicalObjectMeshId;
     private final FindBiologicalObjectsByPipelineAndLevel findBiologicalObjectsByPipelineAndLevel;
     private final FindBiologicalObjectFatherBrothersAndSons findBiologicalObjectFatherBrothersAndSons;
+    private final GetExpertObjectsByPipelineAndLevel getExpertObjectsByPipelineAndLevel;
 
     @GET
     @Path("/search/{type}/{value}")
@@ -126,8 +128,30 @@ public class BiologicalObjectController {
                     )
             )
     )
-    public List<BiologicalObjectDTO> getResumedBiologicalObjects(@RequestBody NameAndSynonymRequest nameAndSynonymRequest){
+    public List<BiologicalObjectDTO> getResumedBiologicalObjects(@RequestBody BiologicalObjectRequest nameAndSynonymRequest){
         return findBiologicalObjectsByPipelineAndLevel.execute(nameAndSynonymRequest.pipelineId(), nameAndSynonymRequest.level());
+    }
+
+    @POST
+    @Path("/get-expert-objects")
+    @Operation(
+            summary = "Get expert biological objects by pipeline and level",
+            description = "Retrieves biological objects with names and synonyms based on pipeline ID and level, filtering out those that have a transcription factor."
+    )
+    @APIResponse(
+            responseCode = "200",
+            description = "Successfully retrieved biological objects",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            implementation = BiologicalObjectDTO.class,
+                            type = SchemaType.ARRAY,
+                            description = "List of expert biological objects (without transcription factor)"
+                    )
+            )
+    )
+    public List<BiologicalObjectDTO> getExpertObjects(@RequestBody BiologicalObjectRequest biologicalObjectRequest){
+        return getExpertObjectsByPipelineAndLevel.execute(biologicalObjectRequest.pipelineId(), biologicalObjectRequest.level());
     }
 
     @POST
