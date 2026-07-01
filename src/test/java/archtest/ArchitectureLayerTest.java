@@ -100,7 +100,7 @@ class ArchitectureLayerTest {
     @Test
     void adaptersNamingConventionTest() {
         ArchRuleDefinition.classes()
-                .that().resideInAPackage("..infrastructure.adeptars.out..")
+                .that().resideInAPackage("..infrastructure.adapters.out..")
                 .should().haveSimpleNameEndingWith("Adapter")
                 .check(this.javaClasses);
     }
