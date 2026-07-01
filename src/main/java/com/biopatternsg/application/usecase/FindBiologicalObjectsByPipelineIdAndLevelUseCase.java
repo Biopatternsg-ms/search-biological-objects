@@ -20,7 +20,6 @@ import com.biopatternsg.domain.models.MinedObject;
 import com.biopatternsg.domain.port.in.FindBiologicalObjectsByPipelineAndLevel;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
 import com.biopatternsg.domain.port.out.repositories.MinedObjectRepository;
-import com.biopatternsg.infrastructure.adapters.dtos.BiologicalObjectDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 
@@ -34,7 +33,7 @@ public class FindBiologicalObjectsByPipelineIdAndLevelUseCase implements FindBio
     private final BiologicalObjectRepository biologicalObjectRepository;
 
     @Override
-    public List<BiologicalObjectDTO> execute(String pipelineId, int level) {
+    public List<BiologicalObject> execute(String pipelineId, int level) {
 
         List<MinedObject> byLevel = minedObjectRepository.findByLevel(level, pipelineId);
 
@@ -43,10 +42,8 @@ public class FindBiologicalObjectsByPipelineIdAndLevelUseCase implements FindBio
         }
 
         List<String> minedObjectsIds = byLevel.stream().map(MinedObject::getBiologicalObjectId).toList();
-        List<BiologicalObject> byIds = biologicalObjectRepository.findByIds(minedObjectsIds)
+        return biologicalObjectRepository.findByIds(minedObjectsIds)
                 .stream().filter(biologicalObject -> isValidName(biologicalObject) || isValidSynonyms(biologicalObject)).toList();
-
-        return byIds.stream().map(BiologicalObjectDTO::fromDomain).toList();
     }
 
     private boolean isValidName(BiologicalObject biologicalObject) {

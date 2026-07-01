@@ -58,7 +58,7 @@ public class BlatController {
     public Response getByPromoterJasparRegion(
             @Valid PromoterRegionRequest promoterRegion) {
         return Response
-                .ok(findBlatOptions.execute(promoterRegion))
+                .ok(findBlatOptions.execute(promoterRegion.reliability(), promoterRegion.promoterRegion()))
                 .build();
     }
 

@@ -37,8 +37,9 @@ public class BlatAdapter implements BlatRepository {
     private final QueryBlat queryBlat;
 
     @Override
-    public List<BlatSearchOptionsResponse> fetchDataFromBlatSource(PromoterRegionRequest tfRequest) {
+    public List<BlatSearchOptionsResponse> fetchDataFromBlatSource(int reliability, String promoterRegion) {
 
+        PromoterRegionRequest tfRequest = new PromoterRegionRequest(reliability, promoterRegion);
         String byPromoterJasparRegion = queryBlat.getByPromoterJasparRegion(tfRequest);
         Elements elements = Jsoup.parse(byPromoterJasparRegion).select("pre");
 
@@ -51,7 +52,7 @@ public class BlatAdapter implements BlatRepository {
 
         return blatProcessData.stream()
                 .map(BlatSearchOptionsResponse::of)
-                .filter(l -> l.identity() >= tfRequest.reliability())
+                .filter(l -> l.identity() >= reliability)
                 .sorted(Comparator.comparingDouble(BlatSearchOptionsResponse::identity).reversed())
                 .toList();
     }

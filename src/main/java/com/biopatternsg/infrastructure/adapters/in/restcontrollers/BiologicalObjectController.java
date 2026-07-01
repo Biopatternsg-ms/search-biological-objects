@@ -129,7 +129,8 @@ public class BiologicalObjectController {
             )
     )
     public List<BiologicalObjectDTO> getResumedBiologicalObjects(@RequestBody BiologicalObjectRequest nameAndSynonymRequest){
-        return findBiologicalObjectsByPipelineAndLevel.execute(nameAndSynonymRequest.pipelineId(), nameAndSynonymRequest.level());
+        return findBiologicalObjectsByPipelineAndLevel.execute(nameAndSynonymRequest.pipelineId(), nameAndSynonymRequest.level())
+                .stream().map(BiologicalObjectDTO::fromDomain).toList();
     }
 
     @POST
@@ -151,7 +152,8 @@ public class BiologicalObjectController {
             )
     )
     public List<BiologicalObjectDTO> getExpertObjects(@RequestBody BiologicalObjectRequest biologicalObjectRequest){
-        return getExpertObjectsByPipelineAndLevel.execute(biologicalObjectRequest.pipelineId(), biologicalObjectRequest.level());
+        return getExpertObjectsByPipelineAndLevel.execute(biologicalObjectRequest.pipelineId(), biologicalObjectRequest.level())
+                .stream().map(BiologicalObjectDTO::fromDomain).toList();
     }
 
     @POST
@@ -173,6 +175,7 @@ public class BiologicalObjectController {
             )
     )
     public List<BiologicalObjectDTO> getFatherBrothersAndSons(@RequestBody FatherBrothersAndSonsRequest fatherBrothersAndSonsRequest){
-        return findBiologicalObjectFatherBrothersAndSons.execute(fatherBrothersAndSonsRequest.pipelineId(), fatherBrothersAndSonsRequest.biologicalObjectId());
+        return findBiologicalObjectFatherBrothersAndSons.execute(fatherBrothersAndSonsRequest.pipelineId(), fatherBrothersAndSonsRequest.biologicalObjectId())
+                .stream().map(BiologicalObjectDTO::fromDomain).toList();
     }
 }

@@ -15,10 +15,10 @@
  */
 package com.biopatternsg.domain.port.in;
 
-import com.biopatternsg.infrastructure.adapters.dtos.BiologicalObjectDTO;
+import com.biopatternsg.domain.models.BiologicalObject;
 
 import java.util.List;
 
 public interface GetExpertObjectsByPipelineAndLevel {
-    List<BiologicalObjectDTO> execute(String pipelineId, int level);
+    List<BiologicalObject> execute(String pipelineId, int level);
 }

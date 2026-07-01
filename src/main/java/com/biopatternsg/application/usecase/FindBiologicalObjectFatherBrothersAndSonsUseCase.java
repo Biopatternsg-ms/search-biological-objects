@@ -20,7 +20,6 @@ import com.biopatternsg.domain.models.MinedObject;
 import com.biopatternsg.domain.port.in.FindBiologicalObjectFatherBrothersAndSons;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
 import com.biopatternsg.domain.port.out.repositories.MinedObjectRepository;
-import com.biopatternsg.infrastructure.adapters.dtos.BiologicalObjectDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 
@@ -36,7 +35,7 @@ public class FindBiologicalObjectFatherBrothersAndSonsUseCase implements FindBio
     private final BiologicalObjectRepository biologicalObjectRepository;
 
     @Override
-    public List<BiologicalObjectDTO> execute(String pipelineId, String biologicalObjectId) {
+    public List<BiologicalObject> execute(String pipelineId, String biologicalObjectId) {
 
         MinedObject currentMinedObject = minedObjectRepository.find(biologicalObjectId, pipelineId);
 
@@ -61,8 +60,6 @@ public class FindBiologicalObjectFatherBrothersAndSonsUseCase implements FindBio
         biologicalObjectsMap.putAll(currentBrothers.stream().collect(Collectors.toMap(BiologicalObject::getId, Function.identity())));
         biologicalObjectsMap.putAll(currentSons.stream().collect(Collectors.toMap(BiologicalObject::getId, Function.identity())));
 
-        List<BiologicalObject> biologicalObjects = biologicalObjectsMap.values().stream().toList();
-
-        return biologicalObjects.stream().map(BiologicalObjectDTO::fromDomain).toList();
+        return biologicalObjectsMap.values().stream().toList();
     }
 }

@@ -16,11 +16,10 @@
 package com.biopatternsg.application.services.impl;
 
 import com.biopatternsg.application.services.BuildTranscriptionFactorsService;
+import com.biopatternsg.domain.models.JasparQuery;
 import com.biopatternsg.domain.models.TranscriptionFactor;
 import com.biopatternsg.domain.port.out.external_repositories.JasparRepository;
 import com.biopatternsg.domain.port.out.external_repositories.TFBindRepository;
-import com.biopatternsg.infrastructure.dtos.JasparRequest;
-import com.biopatternsg.infrastructure.dtos.PromoterRegionRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,12 +35,12 @@ public class BuildTranscriptionFactorsServiceImpl implements BuildTranscriptionF
     private final TFBindRepository tfBindRepository;
 
     @Override
-    public List<TranscriptionFactor> executeJaspar(JasparRequest jasparRequest) {
-        return jasparRepository.fetchDataFromJasparSource(jasparRequest);
+    public List<TranscriptionFactor> executeJaspar(JasparQuery jasparQuery) {
+        return jasparRepository.fetchDataFromJasparSource(jasparQuery);
     }
 
     @Override
-    public List<TranscriptionFactor> executeTFBind(PromoterRegionRequest promoterRegionRequest) {
-        return tfBindRepository.fetchDataFromTFBindSource(promoterRegionRequest);
+    public List<TranscriptionFactor> executeTFBind(int reliability, String promoterRegion) {
+        return tfBindRepository.fetchDataFromTFBindSource(reliability, promoterRegion);
     }
 }

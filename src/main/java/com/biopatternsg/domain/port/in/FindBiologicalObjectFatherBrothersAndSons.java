@@ -15,10 +15,10 @@
  */
 package com.biopatternsg.domain.port.in;
 
-import com.biopatternsg.infrastructure.adapters.dtos.BiologicalObjectDTO;
+import com.biopatternsg.domain.models.BiologicalObject;
 
 import java.util.List;
 
 public interface FindBiologicalObjectFatherBrothersAndSons {
-    List<BiologicalObjectDTO> execute(String pipelineId, String biologicalObjectId);
+    List<BiologicalObject> execute(String pipelineId, String biologicalObjectId);
 }
