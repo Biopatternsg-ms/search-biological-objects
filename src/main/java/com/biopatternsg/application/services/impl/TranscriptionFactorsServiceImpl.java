@@ -19,6 +19,7 @@ import com.biopatternsg.application.services.OntologiesService;
 import com.biopatternsg.application.services.TranscriptionFactorsService;
 import com.biopatternsg.application.services.impl.biological_object_strategy.BiologicalObjectSearch;
 import com.biopatternsg.domain.enums.TranscriptionFactorSource;
+import com.biopatternsg.domain.models.JasparQuery;
 import com.biopatternsg.domain.models.TranscriptionFactor;
 import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
 import com.biopatternsg.domain.models.pipeline_config.TranscriptionFactorConfig;
@@ -26,8 +27,6 @@ import com.biopatternsg.domain.port.out.external_repositories.JasparRepository;
 import com.biopatternsg.domain.port.out.external_repositories.TFBindRepository;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
 import com.biopatternsg.domain.port.out.repositories.UserRepository;
-import com.biopatternsg.infrastructure.dtos.JasparRequest;
-import com.biopatternsg.infrastructure.dtos.PromoterRegionRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -96,7 +95,7 @@ public class TranscriptionFactorsServiceImpl implements TranscriptionFactorsServ
     }
 
     private List<TranscriptionFactor> executeJaspar(TranscriptionFactorConfig transcriptionFactorConfig){
-        JasparRequest jasparRequest = new JasparRequest(
+        JasparQuery jasparQuery = new JasparQuery(
                 transcriptionFactorConfig.getGenome().getValue(),
                 transcriptionFactorConfig.getTrack(),
                 transcriptionFactorConfig.getChromosome(),
@@ -106,16 +105,13 @@ public class TranscriptionFactorsServiceImpl implements TranscriptionFactorsServ
                 transcriptionFactorConfig.getReliability()
         );
 
-        return jasparRepository.fetchDataFromJasparSource(jasparRequest);
+        return jasparRepository.fetchDataFromJasparSource(jasparQuery);
     }
 
     public List<TranscriptionFactor> executeTFBind(TranscriptionFactorConfig transcriptionFactorConfig) {
-        PromoterRegionRequest promoterRegionRequest = new PromoterRegionRequest(
+        return tfBindRepository.fetchDataFromTFBindSource(
                 transcriptionFactorConfig.getReliability(),
                 transcriptionFactorConfig.getPromoterRegion()
         );
-
-        return tfBindRepository.fetchDataFromTFBindSource(promoterRegionRequest);
     }
-
 }

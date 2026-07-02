@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.biopatternsg.application.services;
+package com.biopatternsg.infrastructure.adapters.dtos;
 
-import com.biopatternsg.domain.models.JasparQuery;
-import com.biopatternsg.domain.models.TranscriptionFactor;
-
-import java.util.List;
-
-public interface BuildTranscriptionFactorsService {
-    List<TranscriptionFactor> executeJaspar(JasparQuery jasparQuery);
-    List<TranscriptionFactor> executeTFBind(int reliability, String promoterRegion);
+public record BiologicalObjectRequest(
+        String pipelineId,
+        int level
+) {
 }

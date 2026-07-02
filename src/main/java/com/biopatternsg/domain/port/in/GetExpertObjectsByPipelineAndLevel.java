@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.biopatternsg.infrastructure.adapters.dtos;
+package com.biopatternsg.domain.port.in;
 
-public record NameAndSynonymRequest(
-        String pipelineId,
-        int level
-) {
+import com.biopatternsg.domain.models.BiologicalObject;
+
+import java.util.List;
+
+public interface GetExpertObjectsByPipelineAndLevel {
+    List<BiologicalObject> execute(String pipelineId, int level);
 }

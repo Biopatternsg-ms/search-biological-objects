@@ -15,6 +15,8 @@
  */
 package com.biopatternsg.infrastructure.adapters.out.external_repositories;
 
+import com.biopatternsg.domain.enums.TranscriptionFactorSource;
+import com.biopatternsg.domain.models.JasparQuery;
 import com.biopatternsg.domain.models.TranscriptionFactor;
 import com.biopatternsg.domain.port.out.external_repositories.JasparRepository;
 import com.biopatternsg.infrastructure.dtos.JasparRegion;
@@ -39,18 +41,34 @@ public class JasparAdapter implements JasparRepository {
     }
 
     @Override
-    public List<TranscriptionFactor> fetchDataFromJasparSource(JasparRequest jasparRequest) {
+    public List<TranscriptionFactor> fetchDataFromJasparSource(JasparQuery jasparQuery) {
+
+        JasparRequest jasparRequest = new JasparRequest(
+                jasparQuery.genome(),
+                jasparQuery.track(),
+                jasparQuery.chromosome(),
+                jasparQuery.start(),
+                jasparQuery.end(),
+                jasparQuery.strand(),
+                jasparQuery.reliability()
+        );
 
         JasparRegionData jasparRegionData = queryJaspar.getDataFromJasparSource(JasparRegion.of(jasparRequest));
 
         List<JasparRegionData.JasparTranscriptionFactor> jasparTranscriptionFactors = jasparRegionData.getTranscriptionFactors();
         int maxScore = Collections.max(jasparTranscriptionFactors, Comparator.comparingInt(JasparRegionData.JasparTranscriptionFactor::score)).score();
 
-        float reliabilityScore = maxScore * ((float) jasparRequest.reliability() / 100);
+        float reliabilityScore = maxScore * ((float) jasparQuery.reliability() / 100);
 
         return jasparTranscriptionFactors.stream()
                 .filter(jtf -> jtf.score() >= reliabilityScore)
-                .map(jtf -> TranscriptionFactor.of(jtf, maxScore))
+                .map(jtf -> TranscriptionFactor.builder()
+                        .name(jtf.TFName())
+                        .reliability(jtf.score() * ((float) 100 / maxScore))
+                        .source(TranscriptionFactorSource.JASPAR)
+                        .sign("(" + jtf.strand() + ")")
+                        .matrix(jtf.name())
+                        .build())
                 .toList();
     }
 }
