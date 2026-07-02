@@ -17,7 +17,7 @@ package com.biopatternsg.application.usecase;
 
 import com.biopatternsg.domain.models.PaginatedResult;
 import com.biopatternsg.domain.models.PipelineSynonym;
-import com.biopatternsg.domain.port.in.UpdateBiologicalObjectsSynomymsAfterKnowledgeBaseGeneration;
+import com.biopatternsg.domain.port.in.UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGeneration;
 import com.biopatternsg.domain.port.out.external_repositories.PubmedIntegrationRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +29,10 @@ import java.util.List;
 @Slf4j
 @ApplicationScoped
 @RequiredArgsConstructor
-public class UpdateBiologicalObjectsSynomymsAfterKnowledgeBaseGenerationUseCase implements UpdateBiologicalObjectsSynomymsAfterKnowledgeBaseGeneration {
+public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase implements UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGeneration {
 
     private final PubmedIntegrationRepository pubmedIntegrationRepository;
-    private static final int PAGE_SIZE = 100;
+    private static final int PAGE_SIZE = 20;
 
     @Override
     public List<PipelineSynonym> execute(String pipelineId) {

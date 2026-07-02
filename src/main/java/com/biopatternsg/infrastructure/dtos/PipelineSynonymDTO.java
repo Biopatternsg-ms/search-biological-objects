@@ -20,4 +20,8 @@ import java.util.List;
 public record PipelineSynonymDTO(
         String name,
         List<String> synonyms
-) {}
+) {
+    public static PipelineSynonymDTO fromDomain(com.biopatternsg.domain.models.PipelineSynonym domain) {
+        return new PipelineSynonymDTO(domain.name(), domain.synonyms());
+    }
+}
