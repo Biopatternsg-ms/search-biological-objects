@@ -43,4 +43,17 @@ public class BiologicalObject {
     private List<String> geneFamilies;
     private List<String> tissues;
     private TranscriptionFactor transcriptionFactor;
+
+    public Set<String> getSynonyms() {
+        if (this.synonyms == null) {
+            this.synonyms = new java.util.HashSet<>();
+        }
+        if (this.symbol != null && !this.symbol.trim().isEmpty() && !this.synonyms.contains(this.symbol)) {
+            this.synonyms.add(this.symbol);
+        }
+        if (this.name != null && !this.name.trim().isEmpty() && !this.synonyms.contains(this.name)) {
+            this.synonyms.add(this.name);
+        }
+        return this.synonyms;
+    }
 }
