@@ -55,21 +55,12 @@ public class UnmatchedSynonymServiceImpl implements UnmatchedSynonymService {
                 .build();
 
         BiologicalObject biologicalObject = biologicalObjectSearch.request(config);
-        addMissingSynonyms(biologicalObject, synonym.synonyms());
+        biologicalObject.addSynonyms(synonym.synonyms());
         log.info("Biological object resolved for synonym name=[{}]: processed=[{}] of total=[{}]",
                 synonym.name(), processed, total);
         if (biologicalObject.getId() == null) {
             biologicalObject.setUserId(userRepository.getUserId());
             biologicalObjectRepository.save(biologicalObject);
         }
-    }
-
-    private void addMissingSynonyms(BiologicalObject biologicalObject, List<String> synonymsToAdd) {
-        if (synonymsToAdd == null || synonymsToAdd.isEmpty()) {
-            return;
-        }
-        synonymsToAdd.stream()
-                .filter(s -> !biologicalObject.getSynonyms().contains(s))
-                .forEach(biologicalObject.getSynonyms()::add);
     }
 }

@@ -48,12 +48,30 @@ public class BiologicalObject {
         if (this.synonyms == null) {
             this.synonyms = new java.util.HashSet<>();
         }
-        if (this.symbol != null && !this.symbol.trim().isEmpty() && !this.synonyms.contains(this.symbol)) {
+        if (this.symbol != null && !this.symbol.trim().isEmpty()) {
             this.synonyms.add(this.symbol);
         }
         if (this.name != null && !this.name.trim().isEmpty() && !this.synonyms.contains(this.name)) {
             this.synonyms.add(this.name);
         }
-        return this.synonyms;
+        return Set.copyOf(this.synonyms);
+    }
+
+    public void addSynonyms(java.util.Collection<String> newSynonyms) {
+        if (newSynonyms == null || newSynonyms.isEmpty()) {
+            return;
+        }
+        if (this.synonyms == null) {
+            this.synonyms = new java.util.HashSet<>();
+        }
+        for (String newSynonym : newSynonyms) {
+            if (newSynonym != null && !newSynonym.trim().isEmpty() && !containsIgnoreCase(newSynonym)) {
+                this.synonyms.add(newSynonym);
+            }
+        }
+    }
+
+    private boolean containsIgnoreCase(String newSynonym) {
+        return this.synonyms.stream().anyMatch(existing -> existing.equalsIgnoreCase(newSynonym));
     }
 }

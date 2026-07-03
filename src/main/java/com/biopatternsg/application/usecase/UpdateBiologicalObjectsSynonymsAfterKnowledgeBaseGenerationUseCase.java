@@ -116,7 +116,7 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
                 if (!missingSynonyms.isEmpty()) {
                     log.info("Adding missing synonyms to biological object ID=[{}] (Name=[{}], Symbol=[{}]): {}", 
                             bo.getId(), bo.getName(), bo.getSymbol(), missingSynonyms);
-                    bo.getSynonyms().addAll(missingSynonyms);
+                    bo.addSynonyms(missingSynonyms);
                     biologicalObjectRepository.update(bo);
                 }
             }
@@ -147,7 +147,7 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
                         if (!missingSynonyms.isEmpty()) {
                             log.info("Dependency resolved. Adding missing synonyms to biological object ID=[{}] (Name=[{}], Symbol=[{}]): {}", 
                                     bo.getId(), bo.getName(), bo.getSymbol(), missingSynonyms);
-                            bo.getSynonyms().addAll(missingSynonyms);
+                            bo.addSynonyms(missingSynonyms);
                             biologicalObjectRepository.update(bo);
                             matchFoundInIteration = true;
                         }
