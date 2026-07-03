@@ -50,7 +50,7 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
         log.info("Retrieved [{}] biological objects for pipelineId=[{}] before fetching synonyms", biologicalObjects.size(), pipelineId);
 
         List<PipelineSynonym> unmatchedSynonyms = new ArrayList<>();
-        int processedItemsCount = 0;
+        List<PipelineSynonym> allSynonyms = new ArrayList<>();
         int currentPage = 0;
         int totalPages = 1;
 
@@ -62,13 +62,15 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
 
             processSynonymsBatch(pageResult.items(), biologicalObjects, unmatchedSynonyms);
             
-            processedItemsCount += pageResult.items().size();
+            allSynonyms.addAll(pageResult.items());
             totalPages = pageResult.totalPages();
             currentPage++;
         }
 
-        log.info("Finished matching synonyms. Successfully processed [{}] synonyms from pubmed-integration. [{}] items did not match any biological object.",
-                processedItemsCount, unmatchedSynonyms.size());
+        log.info("Finished pagination pass. Successfully processed [{}] synonyms from pubmed-integration. [{}] items did not match any biological object in the first pass.",
+                allSynonyms.size(), unmatchedSynonyms.size());
+
+        resolveDependencies(allSynonyms, biologicalObjects);
     }
 
     private List<BiologicalObject> getBiologicalObjects(String pipelineId) {
@@ -95,8 +97,8 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
                 
                 List<String> missingSynonyms = getMissingSynonyms(pubSynonym, bo);
                 if (!missingSynonyms.isEmpty()) {
-                    log.info("Adding missing synonyms to biological object ID=[{}] (Name=[{}]): {}", 
-                            bo.getId(), bo.getName(), missingSynonyms);
+                    log.info("Adding missing synonyms to biological object ID=[{}] (Name=[{}], Symbol=[{}]): {}", 
+                            bo.getId(), bo.getName(), bo.getSymbol(), missingSynonyms);
                     bo.getSynonyms().addAll(missingSynonyms);
                     biologicalObjectRepository.update(bo);
                 }
@@ -105,6 +107,39 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
         if (!matched) {
             unmatchedSynonyms.add(pubSynonym);
         }
+    }
+
+    private void resolveDependencies(List<PipelineSynonym> allSynonyms, List<BiologicalObject> biologicalObjects) {
+        if (allSynonyms.isEmpty()) {
+            return;
+        }
+
+        log.info("Starting dependency resolution pass for [{}] synonyms...", allSynonyms.size());
+        boolean matchFoundInIteration;
+        int passCount = 0;
+        
+        do {
+            matchFoundInIteration = false;
+            passCount++;
+            log.info("Running dependency resolution iteration [{}]...", passCount);
+            
+            for (PipelineSynonym pubSynonym : allSynonyms) {
+                for (BiologicalObject bo : biologicalObjects) {
+                    if (anySynonymMatches(pubSynonym.synonyms(), bo.getSynonyms())) {
+                        List<String> missingSynonyms = getMissingSynonyms(pubSynonym, bo);
+                        if (!missingSynonyms.isEmpty()) {
+                            log.info("Dependency resolved. Adding missing synonyms to biological object ID=[{}] (Name=[{}], Symbol=[{}]): {}", 
+                                    bo.getId(), bo.getName(), bo.getSymbol(), missingSynonyms);
+                            bo.getSynonyms().addAll(missingSynonyms);
+                            biologicalObjectRepository.update(bo);
+                            matchFoundInIteration = true;
+                        }
+                    }
+                }
+            }
+        } while (matchFoundInIteration);
+
+        log.info("Dependency resolution finished. Completed in [{}] iterations.", passCount);
     }
 
     private boolean anySynonymMatches(List<String> pubSynonyms, Collection<String> boSynonyms) {
