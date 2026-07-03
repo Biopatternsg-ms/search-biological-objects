@@ -20,6 +20,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -46,7 +48,7 @@ public class BiologicalObject {
 
     public Set<String> getSynonyms() {
         if (this.synonyms == null) {
-            this.synonyms = new java.util.HashSet<>();
+            this.synonyms = new HashSet<>();
         }
         if (this.symbol != null && !this.symbol.trim().isEmpty()) {
             this.synonyms.add(this.symbol);
@@ -57,12 +59,12 @@ public class BiologicalObject {
         return Set.copyOf(this.synonyms);
     }
 
-    public void addSynonyms(java.util.Collection<String> newSynonyms) {
+    public void addSynonyms(Collection<String> newSynonyms) {
         if (newSynonyms == null || newSynonyms.isEmpty()) {
             return;
         }
         if (this.synonyms == null) {
-            this.synonyms = new java.util.HashSet<>();
+            this.synonyms = new HashSet<>();
         }
         for (String newSynonym : newSynonyms) {
             if (newSynonym != null && !newSynonym.trim().isEmpty() && !containsIgnoreCase(newSynonym)) {
