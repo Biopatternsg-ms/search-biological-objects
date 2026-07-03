@@ -43,14 +43,14 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
     private static final int PAGE_SIZE = 100;
 
     @Override
-    public List<PipelineSynonym> execute(String pipelineId) {
+    public void execute(String pipelineId) {
         log.info("Starting update of biological objects synonyms for pipelineId=[{}]", pipelineId);
 
         List<BiologicalObject> biologicalObjects = getBiologicalObjects(pipelineId);
         log.info("Retrieved [{}] biological objects for pipelineId=[{}] before fetching synonyms", biologicalObjects.size(), pipelineId);
 
         List<PipelineSynonym> unmatchedSynonyms = new ArrayList<>();
-        List<PipelineSynonym> allSynonyms = new ArrayList<>();
+        int processedItemsCount = 0;
         int currentPage = 0;
         int totalPages = 1;
 
@@ -62,14 +62,13 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
 
             processSynonymsBatch(pageResult.items(), biologicalObjects, unmatchedSynonyms);
             
-            allSynonyms.addAll(pageResult.items());
+            processedItemsCount += pageResult.items().size();
             totalPages = pageResult.totalPages();
             currentPage++;
         }
 
         log.info("Finished matching synonyms. Successfully processed [{}] synonyms from pubmed-integration. [{}] items did not match any biological object.",
-                allSynonyms.size(), unmatchedSynonyms.size());
-        return allSynonyms;
+                processedItemsCount, unmatchedSynonyms.size());
     }
 
     private List<BiologicalObject> getBiologicalObjects(String pipelineId) {

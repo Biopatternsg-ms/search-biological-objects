@@ -15,9 +15,6 @@
  */
 package com.biopatternsg.domain.port.in;
 
-import com.biopatternsg.domain.models.PipelineSynonym;
-import java.util.List;
-
 public interface UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGeneration {
-    List<PipelineSynonym> execute(String pipelineId);
+    void execute(String pipelineId);
 }

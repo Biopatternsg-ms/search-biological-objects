@@ -27,11 +27,18 @@ import com.biopatternsg.infrastructure.adapters.dtos.BiologicalObjectDTO;
 import com.biopatternsg.infrastructure.adapters.dtos.FatherBrothersAndSonsRequest;
 import com.biopatternsg.infrastructure.adapters.dtos.BiologicalObjectRequest;
 import com.biopatternsg.infrastructure.adapters.dtos.UpdateMeshIdRequest;
+import com.biopatternsg.infrastructure.session.SessionUtil;
+import io.quarkus.arc.Arc;
+import io.quarkus.arc.ManagedContext;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.CompletableFuture;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -53,6 +60,7 @@ public class BiologicalObjectController {
     private final FindBiologicalObjectFatherBrothersAndSons findBiologicalObjectFatherBrothersAndSons;
     private final GetExpertObjectsByPipelineAndLevel getExpertObjectsByPipelineAndLevel;
     private final UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGeneration updateBiologicalObjectsSynonymsAfterKnowledgeBaseGeneration;
+    private final SessionUtil sessionUtil;
 
     @GET
     @Path("/search/{type}/{value}")
@@ -184,26 +192,52 @@ public class BiologicalObjectController {
 
     @POST
     @Path("/update-synonyms/{pipelineId}")
+    @ActivateRequestContext
     @Operation(
             summary = "Update biological objects synonyms after knowledge base generation",
-            description = "Retrieves synonyms from pubmed-integration and updates the biological objects."
+            description = "Retrieves synonyms from pubmed-integration and updates the biological objects asynchronously."
     )
     @APIResponse(
-            responseCode = "200",
-            description = "Successfully retrieved and processed synonyms",
+            responseCode = "202",
+            description = "Synonyms update accepted and processing started",
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(
-                            implementation = PipelineSynonymDTO.class,
-                            type = SchemaType.ARRAY,
-                            description = "List of synonyms processed"
+                            type = SchemaType.STRING,
+                            description = "Success message"
                     )
             )
     )
-    public List<PipelineSynonymDTO> updateSynonyms(@PathParam("pipelineId") String pipelineId) {
-        return updateBiologicalObjectsSynonymsAfterKnowledgeBaseGeneration.execute(pipelineId)
-                .stream()
-                .map(PipelineSynonymDTO::fromDomain)
-                .toList();
+    public Response updateSynonyms(@PathParam("pipelineId") String pipelineId) {
+        MultivaluedMap<String, String> currentContext = null;
+        if (sessionUtil.getContext() != null) {
+            currentContext = new MultivaluedHashMap<>(sessionUtil.getContext());
+        }
+        final MultivaluedMap<String, String> contextToPropagate = currentContext;
+
+        CompletableFuture.runAsync(() -> {
+            ManagedContext requestContext = Arc.container().requestContext();
+            boolean newlyActivated = false;
+            if (!requestContext.isActive()) {
+                requestContext.activate();
+                newlyActivated = true;
+            }
+            try {
+                if (contextToPropagate != null) {
+                    sessionUtil.setContext(contextToPropagate);
+                }
+                updateBiologicalObjectsSynonymsAfterKnowledgeBaseGeneration.execute(pipelineId);
+            } catch (Exception e) {
+                log.error("Error updating synonyms asynchronously", e);
+            } finally {
+                if (newlyActivated) {
+                    requestContext.terminate();
+                }
+            }
+        });
+
+        return Response.accepted()
+                .entity("{\"message\": \"Biological objects synonyms update started\"}")
+                .build();
     }
 }
