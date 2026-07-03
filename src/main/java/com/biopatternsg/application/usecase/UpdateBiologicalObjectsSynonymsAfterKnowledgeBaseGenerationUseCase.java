@@ -15,6 +15,8 @@
  */
 package com.biopatternsg.application.usecase;
 
+import com.biopatternsg.domain.enums.PipelineSteps;
+import com.biopatternsg.domain.enums.Status;
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.MinedObject;
 import com.biopatternsg.domain.models.PaginatedResult;
@@ -24,6 +26,7 @@ import com.biopatternsg.application.services.UnmatchedSynonymService;
 import com.biopatternsg.domain.port.out.external_repositories.PubmedIntegrationRepository;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
 import com.biopatternsg.domain.port.out.repositories.MinedObjectRepository;
+import com.biopatternsg.domain.port.out.repositories.ConfigAndControlRepository;
 import com.biopatternsg.domain.port.in.UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGeneration;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -44,38 +47,47 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
     private final BiologicalObjectRepository biologicalObjectRepository;
     private final PubmedIntegrationRepository pubmedIntegrationRepository;
     private final UnmatchedSynonymService unmatchedSynonymService;
+    private final ConfigAndControlRepository configAndControlRepository;
     private static final int PAGE_SIZE = 100;
 
     @Override
     public void execute(String pipelineId) {
-        log.info("Starting update of biological objects synonyms for pipelineId=[{}]", pipelineId);
+        try {
+            log.info("Starting update of biological objects synonyms for pipelineId=[{}]", pipelineId);
 
-        List<BiologicalObject> biologicalObjects = getBiologicalObjects(pipelineId);
-        log.info("Retrieved [{}] biological objects for pipelineId=[{}] before fetching synonyms", biologicalObjects.size(), pipelineId);
+            List<BiologicalObject> biologicalObjects = getBiologicalObjects(pipelineId);
+            log.info("Retrieved [{}] biological objects for pipelineId=[{}] before fetching synonyms", biologicalObjects.size(), pipelineId);
 
-        List<PipelineSynonym> unmatchedSynonyms = new ArrayList<>();
-        List<PipelineSynonym> allSynonyms = new ArrayList<>();
-        int currentPage = 0;
-        int totalPages = 1;
+            List<PipelineSynonym> unmatchedSynonyms = new ArrayList<>();
+            List<PipelineSynonym> allSynonyms = new ArrayList<>();
+            int currentPage = 0;
+            int totalPages = 1;
 
-        while (currentPage < totalPages) {
-            PaginatedResult<PipelineSynonym> pageResult = pubmedIntegrationRepository.getSynonyms(pipelineId, currentPage, PAGE_SIZE);
-            if (isPageEmpty(pageResult)) {
-                break;
+            while (currentPage < totalPages) {
+                PaginatedResult<PipelineSynonym> pageResult = pubmedIntegrationRepository.getSynonyms(pipelineId, currentPage, PAGE_SIZE);
+                if (isPageEmpty(pageResult)) {
+                    break;
+                }
+
+                processSynonymsBatch(pageResult.items(), biologicalObjects, unmatchedSynonyms);
+                
+                allSynonyms.addAll(pageResult.items());
+                totalPages = pageResult.totalPages();
+                currentPage++;
             }
 
-            processSynonymsBatch(pageResult.items(), biologicalObjects, unmatchedSynonyms);
-            
-            allSynonyms.addAll(pageResult.items());
-            totalPages = pageResult.totalPages();
-            currentPage++;
+            log.info("Finished pagination pass. Successfully processed [{}] synonyms from pubmed-integration. [{}] items did not match any biological object in the first pass.",
+                    allSynonyms.size(), unmatchedSynonyms.size());
+
+            resolveDependencies(allSynonyms, biologicalObjects);
+            unmatchedSynonymService.resolve(unmatchedSynonyms);
+
+            configAndControlRepository.updatePipelineStep(pipelineId, PipelineSteps.UPDATE_SYNONYMS, Status.COMPLETED);
+        } catch (Exception e) {
+            log.error("Error updating biological objects synonyms for pipelineId=[{}]", pipelineId, e);
+            configAndControlRepository.updatePipelineStep(pipelineId, PipelineSteps.UPDATE_SYNONYMS, Status.FAILED);
+            throw e;
         }
-
-        log.info("Finished pagination pass. Successfully processed [{}] synonyms from pubmed-integration. [{}] items did not match any biological object in the first pass.",
-                allSynonyms.size(), unmatchedSynonyms.size());
-
-        resolveDependencies(allSynonyms, biologicalObjects);
-        unmatchedSynonymService.resolve(unmatchedSynonyms);
     }
 
     private List<BiologicalObject> getBiologicalObjects(String pipelineId) {

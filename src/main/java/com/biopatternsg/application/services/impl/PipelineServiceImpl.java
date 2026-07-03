@@ -17,6 +17,7 @@ package com.biopatternsg.application.services.impl;
 
 import com.biopatternsg.application.services.*;
 import com.biopatternsg.domain.enums.PipelineSteps;
+import com.biopatternsg.domain.enums.Status;
 import com.biopatternsg.domain.models.MinedObject;
 import com.biopatternsg.domain.models.pipeline_config.PipelineConfig;
 import com.biopatternsg.domain.port.out.repositories.ConfigAndControlRepository;
@@ -53,7 +54,7 @@ public class PipelineServiceImpl implements PipelineService {
 
         if (pipelineConfig.getTranscriptionFactorConfig() != null){
              biologicalObjectIdsFromTranscriptionFactors = transcriptionFactorsService.execute(pipelineConfig.getTranscriptionFactorConfig());
-             configAndControlRepository.updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR);
+             configAndControlRepository.updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR, Status.COMPLETED);
         }
 
         var biologicalObjectIdsFromExpertObjects = expertObjectService.execute(pipelineConfig.getExpertObjects());
@@ -66,7 +67,7 @@ public class PipelineServiceImpl implements PipelineService {
         var minedObjects = newObjects(biologicalObjectIds, pipelineConfig.getPipelineId(), null, 1);
 
         minedObjectRepository.save(minedObjects);
-        configAndControlRepository.updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS);
+        configAndControlRepository.updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.COMPLETED);
     }
 
     private void findLevels(String pipelineId, int levels) {
@@ -86,7 +87,7 @@ public class PipelineServiceImpl implements PipelineService {
             }
 
         }
-        configAndControlRepository.updatePipelineStep(pipelineId, PipelineSteps.SEARCH_LEVELS);
+        configAndControlRepository.updatePipelineStep(pipelineId, PipelineSteps.SEARCH_LEVELS, Status.COMPLETED);
     }
 
     private List<MinedObject> getObjectsLastLevel(int level, String pipelineId) {
