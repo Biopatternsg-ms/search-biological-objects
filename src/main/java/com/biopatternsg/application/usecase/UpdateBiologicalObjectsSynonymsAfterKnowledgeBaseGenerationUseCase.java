@@ -17,6 +17,8 @@ package com.biopatternsg.application.usecase;
 
 import com.biopatternsg.domain.enums.PipelineSteps;
 import com.biopatternsg.domain.enums.Status;
+import com.biopatternsg.domain.exceptions.ApiException;
+import com.biopatternsg.domain.exceptions.GeneralError;
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.MinedObject;
 import com.biopatternsg.domain.models.PaginatedResult;
@@ -86,7 +88,7 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
         } catch (Exception e) {
             log.error("Error updating biological objects synonyms for pipelineId=[{}]", pipelineId, e);
             configAndControlRepository.updatePipelineStep(pipelineId, PipelineSteps.UPDATE_SYNONYMS, Status.FAILED);
-            throw e;
+            throw new ApiException(GeneralError.INTERNAL_SERVER_ERROR, 500, e.getMessage());
         }
     }
 
