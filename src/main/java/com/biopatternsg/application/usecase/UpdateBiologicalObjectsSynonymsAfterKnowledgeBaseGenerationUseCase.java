@@ -19,10 +19,13 @@ import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.MinedObject;
 import com.biopatternsg.domain.models.PaginatedResult;
 import com.biopatternsg.domain.models.PipelineSynonym;
-import com.biopatternsg.domain.port.in.UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGeneration;
+import com.biopatternsg.application.services.UnmatchedSynonymService;
+
 import com.biopatternsg.domain.port.out.external_repositories.PubmedIntegrationRepository;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
 import com.biopatternsg.domain.port.out.repositories.MinedObjectRepository;
+import com.biopatternsg.domain.port.in.UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGeneration;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +43,7 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
     private final MinedObjectRepository minedObjectRepository;
     private final BiologicalObjectRepository biologicalObjectRepository;
     private final PubmedIntegrationRepository pubmedIntegrationRepository;
+    private final UnmatchedSynonymService unmatchedSynonymService;
     private static final int PAGE_SIZE = 100;
 
     @Override
@@ -71,6 +75,7 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
                 allSynonyms.size(), unmatchedSynonyms.size());
 
         resolveDependencies(allSynonyms, biologicalObjects);
+        unmatchedSynonymService.resolve(unmatchedSynonyms);
     }
 
     private List<BiologicalObject> getBiologicalObjects(String pipelineId) {
