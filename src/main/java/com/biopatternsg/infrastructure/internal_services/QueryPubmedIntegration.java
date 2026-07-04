@@ -13,19 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.biopatternsg.domain.port.out.repositories;
+package com.biopatternsg.infrastructure.internal_services;
 
-import com.biopatternsg.domain.models.MinedObject;
+import com.biopatternsg.infrastructure.dtos.PaginatedResultDTO;
+import com.biopatternsg.infrastructure.dtos.PipelineSynonymDTO;
 
-import java.util.List;
-
-public interface MinedObjectRepository {
-
-    MinedObject save(MinedObject minedObject);
-    MinedObject find(String biologicalObjectId, String pipelineId);
-    List<MinedObject> save(List<MinedObject> minedObjects);
-    List<MinedObject> find(List<String> ids, String pipelineId);
-    List<MinedObject> findByLevel(int level, String pipelineId);
-    List<MinedObject> findByParentId(String biologicalObjectParentId, String pipelineId);
-    List<MinedObject> findByPipelineId(String pipelineId);
+public interface QueryPubmedIntegration {
+    PaginatedResultDTO<PipelineSynonymDTO> getSynonyms(String pipelineId, int page, int size);
 }

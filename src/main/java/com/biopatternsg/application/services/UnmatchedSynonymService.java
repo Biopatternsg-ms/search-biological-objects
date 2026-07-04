@@ -13,19 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.biopatternsg.domain.port.out.repositories;
+package com.biopatternsg.application.services;
 
-import com.biopatternsg.domain.models.MinedObject;
+import com.biopatternsg.domain.models.PipelineSynonym;
 
 import java.util.List;
 
-public interface MinedObjectRepository {
+public interface UnmatchedSynonymService {
 
-    MinedObject save(MinedObject minedObject);
-    MinedObject find(String biologicalObjectId, String pipelineId);
-    List<MinedObject> save(List<MinedObject> minedObjects);
-    List<MinedObject> find(List<String> ids, String pipelineId);
-    List<MinedObject> findByLevel(int level, String pipelineId);
-    List<MinedObject> findByParentId(String biologicalObjectParentId, String pipelineId);
-    List<MinedObject> findByPipelineId(String pipelineId);
+    void resolve(List<PipelineSynonym> unmatchedSynonyms);
+
 }

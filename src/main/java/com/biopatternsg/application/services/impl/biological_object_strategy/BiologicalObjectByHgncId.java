@@ -61,7 +61,7 @@ public class BiologicalObjectByHgncId implements BuildBiologicalObjectStrategy, 
 
     private void addUniprotInformation(BiologicalObject biologicalObject, String uniprotId) {
         var uniprotResponse = uniprotRepository.findInfo(uniprotId);
-        biologicalObject.getSynonyms().addAll(uniprotResponse.getSynonyms());
+        biologicalObject.addSynonyms(uniprotResponse.getSynonyms());
         addGOCodes(biologicalObject, uniprotResponse);
     }
 

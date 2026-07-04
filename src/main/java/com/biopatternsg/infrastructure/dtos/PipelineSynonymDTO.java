@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.biopatternsg.domain.port.out.repositories;
-
-import com.biopatternsg.domain.models.MinedObject;
+package com.biopatternsg.infrastructure.dtos;
 
 import java.util.List;
 
-public interface MinedObjectRepository {
-
-    MinedObject save(MinedObject minedObject);
-    MinedObject find(String biologicalObjectId, String pipelineId);
-    List<MinedObject> save(List<MinedObject> minedObjects);
-    List<MinedObject> find(List<String> ids, String pipelineId);
-    List<MinedObject> findByLevel(int level, String pipelineId);
-    List<MinedObject> findByParentId(String biologicalObjectParentId, String pipelineId);
-    List<MinedObject> findByPipelineId(String pipelineId);
+public record PipelineSynonymDTO(
+        String name,
+        List<String> synonyms
+) {
+    public static PipelineSynonymDTO fromDomain(com.biopatternsg.domain.models.PipelineSynonym domain) {
+        return new PipelineSynonymDTO(domain.name(), domain.synonyms());
+    }
 }

@@ -16,6 +16,7 @@
 package com.biopatternsg.infrastructure.adapters.out.repositories;
 
 import com.biopatternsg.domain.enums.PipelineSteps;
+import com.biopatternsg.domain.enums.Status;
 import com.biopatternsg.domain.port.out.repositories.ConfigAndControlRepository;
 import com.biopatternsg.infrastructure.dtos.PipelineStepInternalRequest;
 import com.biopatternsg.infrastructure.internal_services.QueryConfigAndControl;
@@ -31,17 +32,18 @@ public class ConfigAndControlAdapter implements ConfigAndControlRepository {
     private final QueryConfigAndControl queryConfigAndControl;
 
     @Override
-    public void updatePipelineStep(String pipelineId, PipelineSteps pipelineStep) {
+    public void updatePipelineStep(String pipelineId, PipelineSteps pipelineStep, Status status) {
 
-        var pipelineStepRequest = updatePipelineStepBuild(pipelineId, pipelineStep);
+        var pipelineStepRequest = updatePipelineStepBuild(pipelineId, pipelineStep, status);
         queryConfigAndControl.updatePipelineStep(pipelineStepRequest, sessionUtil.getUserId());
     }
 
-    private PipelineStepInternalRequest updatePipelineStepBuild(String pipelineId, PipelineSteps pipelineStep){
+    private PipelineStepInternalRequest updatePipelineStepBuild(String pipelineId, PipelineSteps pipelineStep, Status status){
 
         return PipelineStepInternalRequest.builder()
                 .id(pipelineId)
                 .step(pipelineStep)
+                .status(status)
                 .build();
     }
 }

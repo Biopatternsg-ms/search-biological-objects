@@ -68,7 +68,7 @@ public class BiologicalObjectByUniprotId implements BuildBiologicalObjectStrateg
             biologicalObject.setHgncId(hgncResponse.getId());
             biologicalObject.setLocusType(hgncResponse.getLocusType());
             biologicalObject.setEnsemblGeneId(hgncResponse.getEnsemblGeneId());
-            biologicalObject.getSynonyms().addAll(hgncResponse.getSynonyms());
+            biologicalObject.addSynonyms(hgncResponse.getSynonyms());
         }
     }
 
