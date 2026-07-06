@@ -49,6 +49,8 @@ public class BiologicalObject {
     public Set<String> getSynonyms() {
         if (this.synonyms == null) {
             this.synonyms = new HashSet<>();
+        } else if (!(this.synonyms instanceof HashSet)) {
+            this.synonyms = new HashSet<>(this.synonyms);
         }
         if (this.symbol != null && !this.symbol.trim().isEmpty()) {
             this.synonyms.add(this.symbol);
@@ -65,6 +67,8 @@ public class BiologicalObject {
         }
         if (this.synonyms == null) {
             this.synonyms = new HashSet<>();
+        } else if (!(this.synonyms instanceof HashSet)) {
+            this.synonyms = new HashSet<>(this.synonyms);
         }
         for (String newSynonym : newSynonyms) {
             if (newSynonym != null && !newSynonym.trim().isEmpty() && !containsIgnoreCase(newSynonym)) {
