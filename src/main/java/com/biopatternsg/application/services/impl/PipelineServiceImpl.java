@@ -42,9 +42,12 @@ public class PipelineServiceImpl implements PipelineService {
     private final ConfigAndControlRepository configAndControlRepository;
 
     public void execute(PipelineConfig pipelineConfig) {
-
+        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.IN_PROGRESS);
+        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.SEARCH_LEVELS, Status.IN_PROGRESS);
         firstLevel(pipelineConfig);
+        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.COMPLETED);
         findLevels(pipelineConfig.getPipelineId(), pipelineConfig.getLevels());
+        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.SEARCH_LEVELS, Status.COMPLETED);
     }
 
 
@@ -53,8 +56,9 @@ public class PipelineServiceImpl implements PipelineService {
         List<String> biologicalObjectIdsFromTranscriptionFactors = new ArrayList<>();
 
         if (pipelineConfig.getTranscriptionFactorConfig() != null){
+            updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR, Status.IN_PROGRESS);
              biologicalObjectIdsFromTranscriptionFactors = transcriptionFactorsService.execute(pipelineConfig.getTranscriptionFactorConfig());
-             configAndControlRepository.updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR, Status.COMPLETED);
+             updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR, Status.COMPLETED);
         }
 
         var biologicalObjectIdsFromExpertObjects = expertObjectService.execute(pipelineConfig.getExpertObjects());
@@ -67,7 +71,6 @@ public class PipelineServiceImpl implements PipelineService {
         var minedObjects = newObjects(biologicalObjectIds, pipelineConfig.getPipelineId(), null, 1);
 
         minedObjectRepository.save(minedObjects);
-        configAndControlRepository.updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.COMPLETED);
     }
 
     private void findLevels(String pipelineId, int levels) {
@@ -87,7 +90,6 @@ public class PipelineServiceImpl implements PipelineService {
             }
 
         }
-        configAndControlRepository.updatePipelineStep(pipelineId, PipelineSteps.SEARCH_LEVELS, Status.COMPLETED);
     }
 
     private List<MinedObject> getObjectsLastLevel(int level, String pipelineId) {
@@ -117,6 +119,10 @@ public class PipelineServiceImpl implements PipelineService {
                 .biologicalObjectParentId(parentId)
                 .level(level)
                 .build();
+    }
+
+    private void updatePipelineStep(String pipelineId, PipelineSteps step, Status status) {
+        configAndControlRepository.updatePipelineStep(pipelineId, step, status);
     }
 
 }
