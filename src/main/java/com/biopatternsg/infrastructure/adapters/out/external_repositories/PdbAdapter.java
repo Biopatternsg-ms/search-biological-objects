@@ -17,6 +17,7 @@ package com.biopatternsg.infrastructure.adapters.out.external_repositories;
 
 import com.biopatternsg.domain.models.Complex;
 import com.biopatternsg.domain.port.out.external_repositories.PdbRepository;
+import com.biopatternsg.infrastructure.internal_services.QueryIntegrations;
 import com.biopatternsg.infrastructure.external_services.QueryPdb;
 import com.biopatternsg.infrastructure.external_services.dtos.pdbe_complex.Data;
 import com.biopatternsg.infrastructure.external_services.dtos.pdbe_complex.Participants;
@@ -34,11 +35,19 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PdbAdapter implements PdbRepository {
 
+    private final QueryIntegrations queryIntegrations;
     private final QueryPdb queryPdbe;
 
     @Override
     public List<Complex> getComplexes(String uniprotId) {
+        return queryIntegrations.getComplexes(uniprotId);
+    }
 
+    /**
+     * @deprecated Usar {@link #getComplexes(String)} que obtiene los complejos con puntuación desde integrations.
+     */
+    @Deprecated(since = "2026")
+    public List<Complex> getComplexesDirect(String uniprotId) {
         List<Data> dataList = getPdbResponse(uniprotId);
         return dataList.stream()
                 .map(data -> {
@@ -48,11 +57,15 @@ public class PdbAdapter implements PdbRepository {
                             .filter(accession -> !accession.equals(uniprotId))
                             .toList();
 
-                    return new Complex(complexId, participants);
+                    return new Complex(complexId, participants, 0.0f);
                 })
                 .toList();
     }
 
+    /**
+     * @deprecated Método auxiliar de la consulta directa obsoleta.
+     */
+    @Deprecated(since = "2026")
     private List<Data> getPdbResponse(String uniprotId) {
 
         try{

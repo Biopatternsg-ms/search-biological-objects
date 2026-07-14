@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.biopatternsg.domain.models;
+package com.biopatternsg.infrastructure.clients.internal_clients;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import com.biopatternsg.domain.models.Complex;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import java.util.List;
 
-@AllArgsConstructor
-@Getter
-@Setter
-@Builder
-public class Complex {
-    String complexPdbId;
-    List<String> participants;
-    float score;
+@RegisterRestClient(configKey = "integrations-api")
+public interface IntegrationsHttpClient {
+
+    @GET
+    @Path("/integrations/pdb/complexes/{uniprotId}")
+    List<Complex> getComplexes(@PathParam("uniprotId") String uniprotId);
 }

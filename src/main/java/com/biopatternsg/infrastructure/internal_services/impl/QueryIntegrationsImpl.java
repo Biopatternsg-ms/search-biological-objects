@@ -13,34 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.biopatternsg.infrastructure.external_services.impl;
+package com.biopatternsg.infrastructure.internal_services.impl;
 
-import com.biopatternsg.infrastructure.clients.external_clients.PdbHttpClient;
-import com.biopatternsg.infrastructure.external_services.QueryPdb;
-import com.biopatternsg.infrastructure.external_services.dtos.pdbe_complex.Response;
+import com.biopatternsg.domain.models.Complex;
+import com.biopatternsg.infrastructure.clients.internal_clients.IntegrationsHttpClient;
+import com.biopatternsg.infrastructure.internal_services.QueryIntegrations;
 import jakarta.enterprise.context.ApplicationScoped;
-import lombok.extern.slf4j.Slf4j;
+import jakarta.inject.Inject;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-/**
- * @deprecated Esta clase implementa la consulta directa obsoleta.
- */
-@Deprecated(since = "2026")
-@Slf4j
+import java.util.List;
+
 @ApplicationScoped
-public class QueryPdbImpl implements QueryPdb {
+public class QueryIntegrationsImpl implements QueryIntegrations {
 
-    private final PdbHttpClient pdbeHttpClient;
+    @RestClient
+    @Inject
+    private final IntegrationsHttpClient integrationsHttpClient;
 
-    public QueryPdbImpl(@RestClient PdbHttpClient pdbeHttpClient) {
-        this.pdbeHttpClient = pdbeHttpClient;
+    public QueryIntegrationsImpl(@RestClient IntegrationsHttpClient integrationsHttpClient) {
+        this.integrationsHttpClient = integrationsHttpClient;
     }
 
     @Override
     @Retry
-    public Response search(String label) {
-
-        return pdbeHttpClient.search(label, "accession");
+    public List<Complex> getComplexes(String uniprotId) {
+        return integrationsHttpClient.getComplexes(uniprotId);
     }
 }

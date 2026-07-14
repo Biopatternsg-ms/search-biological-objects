@@ -17,6 +17,11 @@ package com.biopatternsg.infrastructure.external_services;
 
 import com.biopatternsg.infrastructure.external_services.dtos.pdbe_complex.Response;
 
+/**
+ * @deprecated Esta interfaz realiza consultas directas externas a PDBe.
+ * Usar {@link com.biopatternsg.infrastructure.clients.internal_clients.IntegrationsHttpClient} en su lugar.
+ */
+@Deprecated(since = "2026")
 public interface QueryPdb {
     Response search(String uniprotId);
 }

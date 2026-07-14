@@ -20,6 +20,10 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
+/**
+ * @deprecated Cliente REST directo a la API externa de PDBe. Obsoleto en favor del MS de Integraciones.
+ */
+@Deprecated(since = "2026")
 @RegisterRestClient(configKey = "pdbe-api")
 public interface PdbHttpClient {
 

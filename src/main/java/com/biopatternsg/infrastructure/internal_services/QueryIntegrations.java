@@ -13,21 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.biopatternsg.domain.models;
+package com.biopatternsg.infrastructure.internal_services;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-
+import com.biopatternsg.domain.models.Complex;
 import java.util.List;
 
-@AllArgsConstructor
-@Getter
-@Setter
-@Builder
-public class Complex {
-    String complexPdbId;
-    List<String> participants;
-    float score;
+public interface QueryIntegrations {
+    List<Complex> getComplexes(String uniprotId);
 }
