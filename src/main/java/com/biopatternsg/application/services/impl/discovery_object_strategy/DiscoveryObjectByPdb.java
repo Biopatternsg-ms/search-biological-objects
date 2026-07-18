@@ -45,12 +45,12 @@ public class DiscoveryObjectByPdb implements DiscoveryObjectStrategy{
     @Override
     public List<String> execute(String value, Integer maxComplexes) {
 
-
-
         List<Complex> complexes = pdbRepository.getComplexes(value);
+        log.info("Total complexes [{}]", complexes.size());
         if (maxComplexes != null && maxComplexes > 0) {
             complexes = complexes.stream().limit(maxComplexes).toList();
         }
+        log.info("Filtered complexes [{}]", complexes.size());
 
         var uniprotIds = complexes.stream()
                 .flatMap(complex -> complex.getParticipants().stream())
