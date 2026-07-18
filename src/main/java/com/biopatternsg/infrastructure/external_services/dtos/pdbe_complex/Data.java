@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
+@Deprecated(since = "2026-07-14", forRemoval = false)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record Data(
 

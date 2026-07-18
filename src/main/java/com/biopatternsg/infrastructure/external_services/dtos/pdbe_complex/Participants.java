@@ -15,6 +15,7 @@
  */
 package com.biopatternsg.infrastructure.external_services.dtos.pdbe_complex;
 
+@Deprecated(since = "2026-07-14", forRemoval = false)
 public record Participants(
 
         String accession,

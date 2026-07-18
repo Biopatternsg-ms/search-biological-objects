@@ -46,7 +46,7 @@ public class PipelineServiceImpl implements PipelineService {
         updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.SEARCH_LEVELS, Status.IN_PROGRESS);
         firstLevel(pipelineConfig);
         updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.COMPLETED);
-        findLevels(pipelineConfig.getPipelineId(), pipelineConfig.getLevels());
+        findLevels(pipelineConfig);
         updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.SEARCH_LEVELS, Status.COMPLETED);
     }
 
@@ -73,7 +73,10 @@ public class PipelineServiceImpl implements PipelineService {
         minedObjectRepository.save(minedObjects);
     }
 
-    private void findLevels(String pipelineId, int levels) {
+    private void findLevels(PipelineConfig pipelineConfig) {
+        String pipelineId = pipelineConfig.getPipelineId();
+        int levels = pipelineConfig.getLevels();
+        Integer maxComplexes = pipelineConfig.getMaxComplexes();
 
         log.info("start FindLevels pipelineId: {} y pipelineLevels: {} ",pipelineId, levels);
         for (int level = 2; level <= levels; level++) {
@@ -83,7 +86,7 @@ public class PipelineServiceImpl implements PipelineService {
             for (var value : minedObjects) {
 
                 log.info("Level {} y minedObject ID: {}", level, value.getBiologicalObjectId());
-                var newObjectIds = discoveryObjectService.execute(value.getBiologicalObjectId());
+                var newObjectIds = discoveryObjectService.execute(value.getBiologicalObjectId(), maxComplexes);
                 var newObjectsToSave = newObjects(newObjectIds, pipelineId, value.getBiologicalObjectId(), level);
                 log.info("Level {} y newObjects: {}", level, newObjectsToSave);
                 minedObjectRepository.save(newObjectsToSave);

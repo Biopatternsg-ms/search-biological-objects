@@ -20,6 +20,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
+@Deprecated(since = "2026-07-14", forRemoval = false)
 @RegisterRestClient(configKey = "pdbe-api")
 public interface PdbHttpClient {
 

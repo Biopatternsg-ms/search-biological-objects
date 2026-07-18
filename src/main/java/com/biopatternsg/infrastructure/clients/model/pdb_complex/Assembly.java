@@ -13,24 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.biopatternsg.domain.models.pipeline_config;
+package com.biopatternsg.infrastructure.clients.model.pdb_complex;
 
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.List;
-
-@AllArgsConstructor
-@Getter
-@Setter
-@Builder
-public class PipelineConfig {
-
-    @NonNull
-    private String pipelineId;
-    @NonNull
-    private Integer levels;
-    private Integer maxComplexes;
-    @NonNull
-    private List<BiologicalObjectConfig> expertObjects;
-    private TranscriptionFactorConfig transcriptionFactorConfig;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record Assembly(
+        @JsonProperty("pdb_id")
+        String pdbId,
+        @JsonProperty("preferred_assembly")
+        Boolean preferredAssembly,
+        @JsonProperty("experimental_method")
+        String experimentalMethod,
+        Double resolution
+) {
 }
