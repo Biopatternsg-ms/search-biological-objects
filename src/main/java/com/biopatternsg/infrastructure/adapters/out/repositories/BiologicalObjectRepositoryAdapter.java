@@ -21,7 +21,6 @@ import com.biopatternsg.domain.port.out.repositories.UserRepository;
 import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectCollection;
 import com.biopatternsg.infrastructure.mongo_db.mappers.BiologicalObjectMapper;
 import com.biopatternsg.infrastructure.mongo_db.repositories.BiologicalObjectRepositoryDB;
-import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -32,7 +31,7 @@ import java.util.List;
 
 @ApplicationScoped
 @RequiredArgsConstructor
-public class BiologicalObjectRepositoryAdapter implements BiologicalObjectRepository, PanacheMongoRepository<BiologicalObjectCollection> {
+public class BiologicalObjectRepositoryAdapter implements BiologicalObjectRepository {
 
     @Inject
     private BiologicalObjectRepositoryDB biologicalObjectRepositoryDB;
@@ -103,12 +102,13 @@ public class BiologicalObjectRepositoryAdapter implements BiologicalObjectReposi
         BiologicalObjectCollection mongoObject = BiologicalObjectMapper.toBiologicalObjectCollection(biologicalObject);
         mongoObject.id = new ObjectId(biologicalObject.getId());
 
-        persistOrUpdate(mongoObject);
+        biologicalObjectRepositoryDB.persistOrUpdate(mongoObject);
     }
 
     @Override
     public List<BiologicalObject> findByIds(List<String> ids) {
-        return BiologicalObjectMapper.toBiologicalObjects(biologicalObjectRepositoryDB.findByIds(ids));
+        List<ObjectId> objectIds = ids.stream().map(ObjectId::new).toList();
+        return BiologicalObjectMapper.toBiologicalObjects(biologicalObjectRepositoryDB.findByIds(objectIds));
     }
 
 
