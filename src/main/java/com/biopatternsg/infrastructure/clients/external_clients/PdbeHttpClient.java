@@ -13,24 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.biopatternsg.domain.models.pipeline_config;
+package com.biopatternsg.infrastructure.clients.external_clients;
 
-import lombok.*;
+import com.biopatternsg.infrastructure.clients.model.pdb_complex.Response;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import java.util.List;
+@RegisterRestClient(configKey = "pdbe-api")
+public interface PdbeHttpClient {
 
-@AllArgsConstructor
-@Getter
-@Setter
-@Builder
-public class PipelineConfig {
-
-    @NonNull
-    private String pipelineId;
-    @NonNull
-    private Integer levels;
-    private Integer maxComplexes;
-    @NonNull
-    private List<BiologicalObjectConfig> expertObjects;
-    private TranscriptionFactorConfig transcriptionFactorConfig;
+    @GET
+    @Path("/graph-api/uniprot/complex/{uniprotId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response search(@PathParam("uniprotId") String uniprotId);
 }

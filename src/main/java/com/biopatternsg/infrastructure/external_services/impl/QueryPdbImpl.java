@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+@Deprecated(since = "2026-07-14", forRemoval = false)
 @Slf4j
 @ApplicationScoped
 public class QueryPdbImpl implements QueryPdb {

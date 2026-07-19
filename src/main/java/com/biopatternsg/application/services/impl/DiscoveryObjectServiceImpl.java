@@ -40,12 +40,12 @@ public class DiscoveryObjectServiceImpl implements DiscoveryObjectService {
     }
 
     @Override
-    public List<String> execute(String id) {
+    public List<String> execute(String id, Integer maxComplexes) {
 
         var biologicalObject = biologicalObjectRepository.findById(id);
         if(biologicalObject != null && biologicalObject.getUniprotId() != null){
             var discoveryObject = discoveryObjectContext.load("pdb");
-            return discoveryObject.execute(biologicalObject.getUniprotId());
+            return discoveryObject.execute(biologicalObject.getUniprotId(), maxComplexes);
         }
 
         return List.of();

@@ -13,24 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.biopatternsg.domain.models.pipeline_config;
+package com.biopatternsg.infrastructure.clients.model.pdb_complex;
 
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 
 import java.util.List;
+import java.util.Map;
 
-@AllArgsConstructor
-@Getter
-@Setter
-@Builder
-public class PipelineConfig {
-
-    @NonNull
-    private String pipelineId;
-    @NonNull
-    private Integer levels;
-    private Integer maxComplexes;
-    @NonNull
-    private List<BiologicalObjectConfig> expertObjects;
-    private TranscriptionFactorConfig transcriptionFactorConfig;
+public record Response(
+        @JsonAnySetter
+        Map<String, List<Data>> uniprotIndex
+) {
 }

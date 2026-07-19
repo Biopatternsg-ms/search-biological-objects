@@ -22,5 +22,5 @@ import java.util.List;
 public interface DiscoveryObjectService {
 
     void execute (PipelineConfig pipelineConfig, String context);
-    List<String> execute(String id);
+    List<String> execute(String id, Integer maxComplexes);
 }
