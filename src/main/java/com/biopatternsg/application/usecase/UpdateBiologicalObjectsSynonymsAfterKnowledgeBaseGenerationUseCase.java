@@ -35,10 +35,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @ApplicationScoped
@@ -51,6 +48,7 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
     private final UnmatchedSynonymService unmatchedSynonymService;
     private final ConfigAndControlRepository configAndControlRepository;
     private static final int PAGE_SIZE = 100;
+    private static final int MAX_DEPENDENCY_RESOLUTION_PASSES = 50;
 
     @Override
     public void execute(String pipelineId) {
@@ -62,8 +60,11 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
 
             List<PipelineSynonym> unmatchedSynonyms = new ArrayList<>();
             List<PipelineSynonym> allSynonyms = new ArrayList<>();
+            Set<BiologicalObject> dirtyObjects = new LinkedHashSet<>();
             int currentPage = 0;
             int totalPages = 1;
+
+            Map<String, List<BiologicalObject>> synonymIndex = buildSynonymIndex(biologicalObjects);
 
             while (currentPage < totalPages) {
                 PaginatedResult<PipelineSynonym> pageResult = pubmedIntegrationRepository.getSynonyms(pipelineId, currentPage, PAGE_SIZE);
@@ -71,8 +72,8 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
                     break;
                 }
 
-                processSynonymsBatch(pageResult.items(), biologicalObjects, unmatchedSynonyms);
-                
+                processSynonymsBatch(pageResult.items(), synonymIndex, unmatchedSynonyms, dirtyObjects);
+
                 allSynonyms.addAll(pageResult.items());
                 totalPages = pageResult.totalPages();
                 currentPage++;
@@ -81,7 +82,13 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
             log.info("Finished pagination pass. Successfully processed [{}] synonyms from pubmed-integration. [{}] items did not match any biological object in the first pass.",
                     allSynonyms.size(), unmatchedSynonyms.size());
 
-            resolveDependencies(allSynonyms, biologicalObjects);
+            resolveDependencies(allSynonyms, biologicalObjects, dirtyObjects);
+
+            if (!dirtyObjects.isEmpty()) {
+                log.info("Persisting [{}] modified biological objects.", dirtyObjects.size());
+                biologicalObjectRepository.updateAll(new ArrayList<>(dirtyObjects));
+            }
+
             unmatchedSynonymService.resolve(unmatchedSynonyms);
 
             configAndControlRepository.updatePipelineStep(pipelineId, PipelineSteps.UPDATE_SYNONYMS, Status.COMPLETED);
@@ -104,31 +111,70 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
         return pageResult == null || pageResult.items() == null || pageResult.items().isEmpty();
     }
 
-    private void processSynonymsBatch(List<PipelineSynonym> batch, List<BiologicalObject> biologicalObjects, List<PipelineSynonym> unmatchedSynonyms) {
-        batch.forEach(pubSynonym -> processSingleSynonym(pubSynonym, biologicalObjects, unmatchedSynonyms));
-    }
-
-    private void processSingleSynonym(PipelineSynonym pubSynonym, List<BiologicalObject> biologicalObjects, List<PipelineSynonym> unmatchedSynonyms) {
-        boolean matched = false;
+    /**
+     * Builds an inverted index mapping each lowercase synonym to the list of BiologicalObjects that contain it.
+     * This enables O(1) lookups per synonym instead of O(M × S) linear scans.
+     */
+    Map<String, List<BiologicalObject>> buildSynonymIndex(List<BiologicalObject> biologicalObjects) {
+        Map<String, List<BiologicalObject>> index = new HashMap<>();
         for (BiologicalObject bo : biologicalObjects) {
-            if (anySynonymMatches(pubSynonym.synonyms(), bo.getSynonyms())) {
-                matched = true;
-                
-                List<String> missingSynonyms = getMissingSynonyms(pubSynonym, bo);
-                if (!missingSynonyms.isEmpty()) {
-                    log.info("Adding missing synonyms to biological object ID=[{}] (Name=[{}], Symbol=[{}]): {}", 
-                            bo.getId(), bo.getName(), bo.getSymbol(), missingSynonyms);
-                    bo.addSynonyms(missingSynonyms);
-                    biologicalObjectRepository.update(bo);
-                }
+            for (String synonym : bo.getSynonyms()) {
+                index.computeIfAbsent(synonym.toLowerCase(), k -> new ArrayList<>()).add(bo);
             }
         }
-        if (!matched) {
+        return index;
+    }
+
+    /**
+     * Returns the set of BiologicalObjects that share at least one synonym (case-insensitive)
+     * with the given PipelineSynonym, using the prebuilt inverted index.
+     */
+    private Set<BiologicalObject> findMatchingObjects(PipelineSynonym pubSynonym, Map<String, List<BiologicalObject>> index) {
+        Set<BiologicalObject> matches = new LinkedHashSet<>();
+        if (pubSynonym.synonyms() == null) {
+            return matches;
+        }
+        for (String syn : pubSynonym.synonyms()) {
+            List<BiologicalObject> found = index.get(syn.toLowerCase());
+            if (found != null) {
+                matches.addAll(found);
+            }
+        }
+        return matches;
+    }
+
+    private void processSynonymsBatch(List<PipelineSynonym> batch, Map<String, List<BiologicalObject>> synonymIndex,
+                                       List<PipelineSynonym> unmatchedSynonyms, Set<BiologicalObject> dirtyObjects) {
+        batch.forEach(pubSynonym -> processSingleSynonym(pubSynonym, synonymIndex, unmatchedSynonyms, dirtyObjects));
+    }
+
+    private void processSingleSynonym(PipelineSynonym pubSynonym, Map<String, List<BiologicalObject>> synonymIndex,
+                                       List<PipelineSynonym> unmatchedSynonyms, Set<BiologicalObject> dirtyObjects) {
+        Set<BiologicalObject> matches = findMatchingObjects(pubSynonym, synonymIndex);
+        if (matches.isEmpty()) {
             unmatchedSynonyms.add(pubSynonym);
+            return;
+        }
+        for (BiologicalObject bo : matches) {
+            List<String> missingSynonyms = getMissingSynonyms(pubSynonym, bo);
+            if (!missingSynonyms.isEmpty()) {
+                log.info("Adding missing synonyms to biological object ID=[{}] (Name=[{}], Symbol=[{}]): {}",
+                        bo.getId(), bo.getName(), bo.getSymbol(), missingSynonyms);
+                bo.addSynonyms(missingSynonyms);
+                updateSynonymIndex(synonymIndex, bo, missingSynonyms);
+                dirtyObjects.add(bo);
+            }
         }
     }
 
-    private void resolveDependencies(List<PipelineSynonym> allSynonyms, List<BiologicalObject> biologicalObjects) {
+    /**
+     * Resolves transitive synonym dependencies through iterative passes.
+     * After the first pass adds new synonyms to biological objects, previously unmatched
+     * PipelineSynonyms may now match. This method rebuilds the inverted index each iteration
+     * and repeats until no new synonyms are discovered or MAX_DEPENDENCY_RESOLUTION_PASSES is reached.
+     */
+    private void resolveDependencies(List<PipelineSynonym> allSynonyms, List<BiologicalObject> biologicalObjects,
+                                      Set<BiologicalObject> dirtyObjects) {
         if (allSynonyms.isEmpty()) {
             return;
         }
@@ -136,23 +182,29 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
         log.info("Starting dependency resolution pass for [{}] synonyms...", allSynonyms.size());
         boolean matchFoundInIteration;
         int passCount = 0;
-        
+
         do {
-            matchFoundInIteration = false;
             passCount++;
+            if (passCount > MAX_DEPENDENCY_RESOLUTION_PASSES) {
+                log.warn("Dependency resolution exceeded max iterations [{}]. Breaking.", MAX_DEPENDENCY_RESOLUTION_PASSES);
+                break;
+            }
+
+            matchFoundInIteration = false;
             log.info("Running dependency resolution iteration [{}]...", passCount);
-            
+
+            Map<String, List<BiologicalObject>> index = buildSynonymIndex(biologicalObjects);
+
             for (PipelineSynonym pubSynonym : allSynonyms) {
-                for (BiologicalObject bo : biologicalObjects) {
-                    if (anySynonymMatches(pubSynonym.synonyms(), bo.getSynonyms())) {
-                        List<String> missingSynonyms = getMissingSynonyms(pubSynonym, bo);
-                        if (!missingSynonyms.isEmpty()) {
-                            log.info("Dependency resolved. Adding missing synonyms to biological object ID=[{}] (Name=[{}], Symbol=[{}]): {}", 
-                                    bo.getId(), bo.getName(), bo.getSymbol(), missingSynonyms);
-                            bo.addSynonyms(missingSynonyms);
-                            biologicalObjectRepository.update(bo);
-                            matchFoundInIteration = true;
-                        }
+                Set<BiologicalObject> matches = findMatchingObjects(pubSynonym, index);
+                for (BiologicalObject bo : matches) {
+                    List<String> missingSynonyms = getMissingSynonyms(pubSynonym, bo);
+                    if (!missingSynonyms.isEmpty()) {
+                        log.info("Dependency resolved. Adding missing synonyms to biological object ID=[{}] (Name=[{}], Symbol=[{}]): {}",
+                                bo.getId(), bo.getName(), bo.getSymbol(), missingSynonyms);
+                        bo.addSynonyms(missingSynonyms);
+                        dirtyObjects.add(bo);
+                        matchFoundInIteration = true;
                     }
                 }
             }
@@ -161,21 +213,33 @@ public class UpdateBiologicalObjectsSynonymsAfterKnowledgeBaseGenerationUseCase 
         log.info("Dependency resolution finished. Completed in [{}] iterations.", passCount);
     }
 
-    private boolean anySynonymMatches(List<String> pubSynonyms, Collection<String> boSynonyms) {
-        if (pubSynonyms == null || boSynonyms == null) {
-            return false;
+    /**
+     * Incrementally updates the inverted index with newly added synonyms for a biological object,
+     * avoiding a full index rebuild during the first-pass processing.
+     */
+    private void updateSynonymIndex(Map<String, List<BiologicalObject>> index, BiologicalObject bo, List<String> newSynonyms) {
+        for (String newSyn : newSynonyms) {
+            index.computeIfAbsent(newSyn.toLowerCase(), k -> new ArrayList<>()).add(bo);
         }
-        return pubSynonyms.stream()
-                .anyMatch(pubSyn -> boSynonyms.stream().anyMatch(pubSyn::equalsIgnoreCase));
     }
 
+    /**
+     * Returns the list of synonyms from the PipelineSynonym that are NOT already present
+     * in the BiologicalObject (case-insensitive comparison via HashSet lookup in O(1)).
+     */
     private List<String> getMissingSynonyms(PipelineSynonym pubSynonym, BiologicalObject bo) {
         if (pubSynonym.synonyms() == null) {
             return Collections.emptyList();
         }
-        Collection<String> boSynonyms = bo.getSynonyms() != null ? bo.getSynonyms() : Collections.emptyList();
+        Set<String> boSynonymsLower = new HashSet<>();
+        Collection<String> boSynonyms = bo.getSynonyms();
+        if (boSynonyms != null) {
+            for (String s : boSynonyms) {
+                boSynonymsLower.add(s.toLowerCase());
+            }
+        }
         return pubSynonym.synonyms().stream()
-                .filter(pubSyn -> boSynonyms.stream().noneMatch(pubSyn::equalsIgnoreCase))
+                .filter(pubSyn -> !boSynonymsLower.contains(pubSyn.toLowerCase()))
                 .toList();
     }
 }

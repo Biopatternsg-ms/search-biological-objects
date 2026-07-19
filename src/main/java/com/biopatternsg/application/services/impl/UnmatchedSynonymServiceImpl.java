@@ -61,6 +61,8 @@ public class UnmatchedSynonymServiceImpl implements UnmatchedSynonymService {
         if (biologicalObject.getId() == null) {
             biologicalObject.setUserId(userRepository.getUserId());
             biologicalObjectRepository.save(biologicalObject);
+        } else {
+            biologicalObjectRepository.update(biologicalObject);
         }
     }
 }

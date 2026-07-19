@@ -33,7 +33,8 @@ class ArchitectureLayerTest {
 
     @BeforeEach
     void init() {
-        this.javaClasses = new ClassFileImporter().importPackages(ROOT);
+        this.javaClasses = new ClassFileImporter()
+                .importPath("target/classes");
     }
 
     @DisplayName("The class in the layer applications should only used for others class by the same layer")
