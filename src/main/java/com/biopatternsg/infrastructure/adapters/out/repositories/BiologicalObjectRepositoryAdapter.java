@@ -111,6 +111,18 @@ public class BiologicalObjectRepositoryAdapter implements BiologicalObjectReposi
         return BiologicalObjectMapper.toBiologicalObjects(biologicalObjectRepositoryDB.findByIds(objectIds));
     }
 
+    @Override
+    public void updateAll(List<BiologicalObject> biologicalObjects) {
+        List<BiologicalObjectCollection> mongoObjects = biologicalObjects.stream()
+                .map(bo -> {
+                    BiologicalObjectCollection mongoObject = BiologicalObjectMapper.toBiologicalObjectCollection(bo);
+                    mongoObject.id = new ObjectId(bo.getId());
+                    return mongoObject;
+                })
+                .toList();
+        biologicalObjectRepositoryDB.persistOrUpdate(mongoObjects);
+    }
+
 
     private BiologicalObjectCollection saveBiologicalObject(BiologicalObject biologicalObject){
 
