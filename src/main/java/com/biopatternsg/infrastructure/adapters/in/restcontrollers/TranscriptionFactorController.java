@@ -15,6 +15,7 @@
  */
 package com.biopatternsg.infrastructure.adapters.in.restcontrollers;
 
+import com.biopatternsg.domain.models.JasparQuery;
 import com.biopatternsg.domain.models.TranscriptionFactor;
 import com.biopatternsg.domain.models.pipeline_config.TranscriptionFactorConfig;
 import com.biopatternsg.domain.port.in.FindTranscriptionFactor;
@@ -59,7 +60,7 @@ public class TranscriptionFactorController {
     public Response getByPromoterRegion(
             @Valid PromoterRegionRequest promoterRegionRequest) {
         return Response
-                .ok(findTranscriptionFactor.getTFBindTranscriptionFactors(promoterRegionRequest))
+                .ok(findTranscriptionFactor.getTFBindTranscriptionFactors(promoterRegionRequest.reliability(), promoterRegionRequest.promoterRegion()))
                 .build();
     }
 
@@ -82,8 +83,17 @@ public class TranscriptionFactorController {
         )
     )
     public Response getByPromoterJasparRegion(@Valid JasparRequest jasparRequest) {
+        JasparQuery jasparQuery = new JasparQuery(
+                jasparRequest.genome(),
+                jasparRequest.track(),
+                jasparRequest.chromosome(),
+                jasparRequest.start(),
+                jasparRequest.end(),
+                jasparRequest.strand(),
+                jasparRequest.reliability()
+        );
         return Response
-                .ok(findTranscriptionFactor.getJasparTranscriptionFactors(jasparRequest))
+                .ok(findTranscriptionFactor.getJasparTranscriptionFactors(jasparQuery))
                 .build();
     }
 

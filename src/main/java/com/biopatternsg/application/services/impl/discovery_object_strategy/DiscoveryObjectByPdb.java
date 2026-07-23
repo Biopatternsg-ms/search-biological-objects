@@ -16,6 +16,7 @@
 package com.biopatternsg.application.services.impl.discovery_object_strategy;
 
 import com.biopatternsg.application.services.impl.biological_object_strategy.BiologicalObjectSearch;
+import com.biopatternsg.domain.models.Complex;
 import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
 import com.biopatternsg.domain.port.out.external_repositories.PdbRepository;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
@@ -42,9 +43,16 @@ public class DiscoveryObjectByPdb implements DiscoveryObjectStrategy{
             Pattern.compile("^([OPQJ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$");
 
     @Override
-    public List<String> execute(String value) {
+    public List<String> execute(String value, Integer maxComplexes) {
 
-        var uniprotIds = pdbRepository.getComplexes(value).stream()
+        List<Complex> complexes = pdbRepository.getComplexes(value);
+        log.info("Total complexes [{}]", complexes.size());
+        if (maxComplexes != null && maxComplexes > 0) {
+            complexes = complexes.stream().limit(maxComplexes).toList();
+        }
+        log.info("Filtered complexes [{}]", complexes.size());
+
+        var uniprotIds = complexes.stream()
                 .flatMap(complex -> complex.getParticipants().stream())
                 .distinct()
                 .filter(id -> UNIPROT_ID.matcher(id).matches()) //

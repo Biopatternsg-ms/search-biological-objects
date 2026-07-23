@@ -39,8 +39,9 @@ public class TFBindAdapter implements TFBindRepository {
     }
 
     @Override
-    public List<TranscriptionFactor> fetchDataFromTFBindSource(PromoterRegionRequest tfRequest) {
+    public List<TranscriptionFactor> fetchDataFromTFBindSource(int reliability, String promoterRegion) {
 
+        PromoterRegionRequest tfRequest = new PromoterRegionRequest(reliability, promoterRegion);
         String query = queryTFBIND.getByPromoterRegion(tfRequest);
 
         List<String> unprocessTranscriptionFactors = Jsoup.parse(query).body().childNodes().stream()
@@ -52,7 +53,7 @@ public class TFBindAdapter implements TFBindRepository {
         return unprocessTranscriptionFactors.stream()
                 .skip(2)
                 .map(this::buildTF)
-                .filter(tf -> (tf.reliability() * 100) >= tfRequest.reliability())
+                .filter(tf -> (tf.reliability() * 100) >= reliability)
                 .toList();
     }
 

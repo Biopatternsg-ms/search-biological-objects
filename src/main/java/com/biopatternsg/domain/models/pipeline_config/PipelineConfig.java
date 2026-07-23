@@ -29,6 +29,7 @@ public class PipelineConfig {
     private String pipelineId;
     @NonNull
     private Integer levels;
+    private Integer maxComplexes;
     @NonNull
     private List<BiologicalObjectConfig> expertObjects;
     private TranscriptionFactorConfig transcriptionFactorConfig;

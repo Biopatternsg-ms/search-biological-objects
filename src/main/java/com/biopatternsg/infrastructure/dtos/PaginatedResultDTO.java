@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.biopatternsg.infrastructure.adapters.dtos;
+package com.biopatternsg.infrastructure.dtos;
 
-public record NameAndSynonymRequest(
-        String pipelineId,
-        int level
-) {
-}
+import java.util.List;
+
+public record PaginatedResultDTO<T>(
+        List<T> items,
+        long totalItems,
+        int totalPages,
+        int currentPage,
+        int size
+) {}

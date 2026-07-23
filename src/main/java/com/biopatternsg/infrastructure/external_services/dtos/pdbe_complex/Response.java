@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated(since = "2026-07-14", forRemoval = false)
 public record Response(
         @JsonAnySetter
         Map<String, List<Data>> uniprotIndex

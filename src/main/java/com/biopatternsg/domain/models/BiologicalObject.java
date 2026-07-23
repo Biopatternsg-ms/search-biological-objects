@@ -20,6 +20,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -43,4 +45,39 @@ public class BiologicalObject {
     private List<String> geneFamilies;
     private List<String> tissues;
     private TranscriptionFactor transcriptionFactor;
+
+    public Set<String> getSynonyms() {
+        if (this.synonyms == null) {
+            this.synonyms = new HashSet<>();
+        } else if (!(this.synonyms instanceof HashSet)) {
+            this.synonyms = new HashSet<>(this.synonyms);
+        }
+        if (this.symbol != null && !this.symbol.trim().isEmpty()) {
+            this.synonyms.add(this.symbol);
+        }
+        if (this.name != null && !this.name.trim().isEmpty() && !this.synonyms.contains(this.name)) {
+            this.synonyms.add(this.name);
+        }
+        return Set.copyOf(this.synonyms);
+    }
+
+    public void addSynonyms(Collection<String> newSynonyms) {
+        if (newSynonyms == null || newSynonyms.isEmpty()) {
+            return;
+        }
+        if (this.synonyms == null) {
+            this.synonyms = new HashSet<>();
+        } else if (!(this.synonyms instanceof HashSet)) {
+            this.synonyms = new HashSet<>(this.synonyms);
+        }
+        for (String newSynonym : newSynonyms) {
+            if (newSynonym != null && !newSynonym.trim().isEmpty() && !containsIgnoreCase(newSynonym)) {
+                this.synonyms.add(newSynonym);
+            }
+        }
+    }
+
+    private boolean containsIgnoreCase(String newSynonym) {
+        return this.synonyms.stream().anyMatch(existing -> existing.equalsIgnoreCase(newSynonym));
+    }
 }

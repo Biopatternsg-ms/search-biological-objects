@@ -27,4 +27,5 @@ public interface MinedObjectRepository {
     List<MinedObject> find(List<String> ids, String pipelineId);
     List<MinedObject> findByLevel(int level, String pipelineId);
     List<MinedObject> findByParentId(String biologicalObjectParentId, String pipelineId);
+    List<MinedObject> findByPipelineId(String pipelineId);
 }

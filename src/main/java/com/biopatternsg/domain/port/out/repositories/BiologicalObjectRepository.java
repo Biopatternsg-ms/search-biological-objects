@@ -28,4 +28,5 @@ public interface BiologicalObjectRepository {
     BiologicalObject findBySymbol(String symbol);
     List<BiologicalObject> findByIds(List<String> ids);
     void update(BiologicalObject biologicalObject);
+    void updateAll(List<BiologicalObject> biologicalObjects);
 }

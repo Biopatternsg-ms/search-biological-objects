@@ -113,4 +113,10 @@ public class MinedObjectRepositoryAdapter implements MinedObjectRepository {
 
         return mongoObject;
     }
+
+    @Override
+    public List<MinedObject> findByPipelineId(String pipelineId) {
+        List<MinedObjectCollection> response = new ArrayList<>(MinedObjectCollection.list("pipelineId = ?1", pipelineId));
+        return MinedObjectMapper.toMinedObjects(response);
+    }
 }

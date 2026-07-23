@@ -19,5 +19,5 @@ import java.util.List;
 
 public interface DiscoveryObjectStrategy {
 
-    List<String> execute(String value);
+    List<String> execute(String value, Integer maxComplexes);
 }

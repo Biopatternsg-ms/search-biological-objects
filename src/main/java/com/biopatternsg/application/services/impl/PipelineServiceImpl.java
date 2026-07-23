@@ -17,6 +17,7 @@ package com.biopatternsg.application.services.impl;
 
 import com.biopatternsg.application.services.*;
 import com.biopatternsg.domain.enums.PipelineSteps;
+import com.biopatternsg.domain.enums.Status;
 import com.biopatternsg.domain.models.MinedObject;
 import com.biopatternsg.domain.models.pipeline_config.PipelineConfig;
 import com.biopatternsg.domain.port.out.repositories.ConfigAndControlRepository;
@@ -41,9 +42,12 @@ public class PipelineServiceImpl implements PipelineService {
     private final ConfigAndControlRepository configAndControlRepository;
 
     public void execute(PipelineConfig pipelineConfig) {
-
+        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.IN_PROGRESS);
+        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.SEARCH_LEVELS, Status.IN_PROGRESS);
         firstLevel(pipelineConfig);
-        findLevels(pipelineConfig.getPipelineId(), pipelineConfig.getLevels());
+        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.COMPLETED);
+        findLevels(pipelineConfig);
+        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.SEARCH_LEVELS, Status.COMPLETED);
     }
 
 
@@ -52,8 +56,9 @@ public class PipelineServiceImpl implements PipelineService {
         List<String> biologicalObjectIdsFromTranscriptionFactors = new ArrayList<>();
 
         if (pipelineConfig.getTranscriptionFactorConfig() != null){
+            updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR, Status.IN_PROGRESS);
              biologicalObjectIdsFromTranscriptionFactors = transcriptionFactorsService.execute(pipelineConfig.getTranscriptionFactorConfig());
-             configAndControlRepository.updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR);
+             updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR, Status.COMPLETED);
         }
 
         var biologicalObjectIdsFromExpertObjects = expertObjectService.execute(pipelineConfig.getExpertObjects());
@@ -66,10 +71,12 @@ public class PipelineServiceImpl implements PipelineService {
         var minedObjects = newObjects(biologicalObjectIds, pipelineConfig.getPipelineId(), null, 1);
 
         minedObjectRepository.save(minedObjects);
-        configAndControlRepository.updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS);
     }
 
-    private void findLevels(String pipelineId, int levels) {
+    private void findLevels(PipelineConfig pipelineConfig) {
+        String pipelineId = pipelineConfig.getPipelineId();
+        int levels = pipelineConfig.getLevels();
+        Integer maxComplexes = pipelineConfig.getMaxComplexes();
 
         log.info("start FindLevels pipelineId: {} y pipelineLevels: {} ",pipelineId, levels);
         for (int level = 2; level <= levels; level++) {
@@ -79,14 +86,13 @@ public class PipelineServiceImpl implements PipelineService {
             for (var value : minedObjects) {
 
                 log.info("Level {} y minedObject ID: {}", level, value.getBiologicalObjectId());
-                var newObjectIds = discoveryObjectService.execute(value.getBiologicalObjectId());
+                var newObjectIds = discoveryObjectService.execute(value.getBiologicalObjectId(), maxComplexes);
                 var newObjectsToSave = newObjects(newObjectIds, pipelineId, value.getBiologicalObjectId(), level);
                 log.info("Level {} y newObjects: {}", level, newObjectsToSave);
                 minedObjectRepository.save(newObjectsToSave);
             }
 
         }
-        configAndControlRepository.updatePipelineStep(pipelineId, PipelineSteps.SEARCH_LEVELS);
     }
 
     private List<MinedObject> getObjectsLastLevel(int level, String pipelineId) {
@@ -116,6 +122,10 @@ public class PipelineServiceImpl implements PipelineService {
                 .biologicalObjectParentId(parentId)
                 .level(level)
                 .build();
+    }
+
+    private void updatePipelineStep(String pipelineId, PipelineSteps step, Status status) {
+        configAndControlRepository.updatePipelineStep(pipelineId, step, status);
     }
 
 }

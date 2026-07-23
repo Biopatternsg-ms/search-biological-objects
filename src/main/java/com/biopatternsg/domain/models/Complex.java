@@ -27,6 +27,7 @@ import java.util.List;
 @Setter
 @Builder
 public class Complex {
-    String complexPdbId;
-    List<String> participants;
+    private String complexPdbId;
+    private List<String> participants;
+    private float score;
 }

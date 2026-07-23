@@ -31,10 +31,4 @@ public class BiologicalObjectRepositoryDB implements PanacheMongoRepository<Biol
         return find("{'uniprotId': ?1, 'userId': ?2}",uniprotId, userId).firstResult();
     }
 
-
-    public List<BiologicalObjectCollection> findByIds(List<String> ids) {
-        return find("{'_id': {'$in': ?1}}", ids.stream().map(ObjectId::new).toList()).list();
-    }
-
-
 }
