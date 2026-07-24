@@ -24,8 +24,7 @@ public enum PipelineSteps {
     LAUNCH("launched"),
     TRANSCRIPTION_FACTOR("transcription_factor"),
     EXPERT_OBJECTS("expert_objects"),
-    SEARCH_LEVELS("search_levels"),
-    UPDATE_SYNONYMS("update-synonyms");
+    SEARCH_LEVELS("search_levels");
 
     private final String value;
 
