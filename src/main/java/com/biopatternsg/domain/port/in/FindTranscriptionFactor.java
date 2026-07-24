@@ -17,10 +17,12 @@ package com.biopatternsg.domain.port.in;
 
 import com.biopatternsg.domain.models.JasparQuery;
 import com.biopatternsg.domain.models.TranscriptionFactor;
+import com.biopatternsg.domain.models.pipeline_config.TranscriptionFactorConfig;
 
 import java.util.List;
 
 public interface FindTranscriptionFactor {
     List<TranscriptionFactor> getJasparTranscriptionFactors(JasparQuery jasparQuery);
     List<TranscriptionFactor> getTFBindTranscriptionFactors(int reliability, String promoterRegion);
+    List<TranscriptionFactor> getTranscriptionFactorsByConfig(TranscriptionFactorConfig transcriptionFactorConfig);
 }

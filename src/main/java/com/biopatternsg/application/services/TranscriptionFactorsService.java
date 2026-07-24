@@ -15,6 +15,7 @@
  */
 package com.biopatternsg.application.services;
 
+import com.biopatternsg.domain.models.TranscriptionFactor;
 import com.biopatternsg.domain.models.pipeline_config.TranscriptionFactorConfig;
 
 import java.util.List;
@@ -22,4 +23,6 @@ import java.util.List;
 public interface TranscriptionFactorsService {
 
     List<String> execute(TranscriptionFactorConfig transcriptionFactorConfig);
+
+    List<TranscriptionFactor> executeGetTranscriptionFactors(TranscriptionFactorConfig transcriptionFactorConfig);
 }
