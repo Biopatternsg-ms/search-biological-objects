@@ -24,6 +24,8 @@ import com.biopatternsg.infrastructure.session.SessionUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Map;
+
 @ApplicationScoped
 @RequiredArgsConstructor
 public class ConfigAndControlAdapter implements ConfigAndControlRepository {
@@ -33,17 +35,17 @@ public class ConfigAndControlAdapter implements ConfigAndControlRepository {
 
     @Override
     public void updatePipelineStep(String pipelineId, PipelineSteps pipelineStep, Status status) {
-
-        var pipelineStepRequest = updatePipelineStepBuild(pipelineId, pipelineStep, status);
-        queryConfigAndControl.updatePipelineStep(pipelineStepRequest, sessionUtil.getUserId());
+        updatePipelineStep(pipelineId, pipelineStep, status, null);
     }
 
-    private PipelineStepInternalRequest updatePipelineStepBuild(String pipelineId, PipelineSteps pipelineStep, Status status){
-
-        return PipelineStepInternalRequest.builder()
+    @Override
+    public void updatePipelineStep(String pipelineId, PipelineSteps pipelineStep, Status status, Map<String, String> metrics) {
+        var pipelineStepRequest = PipelineStepInternalRequest.builder()
                 .id(pipelineId)
                 .step(pipelineStep)
                 .status(status)
+                .metrics(metrics)
                 .build();
+        queryConfigAndControl.updatePipelineStep(pipelineStepRequest, sessionUtil.getUserId());
     }
 }

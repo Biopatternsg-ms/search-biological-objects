@@ -18,7 +18,11 @@ package com.biopatternsg.domain.port.out.repositories;
 import com.biopatternsg.domain.enums.PipelineSteps;
 import com.biopatternsg.domain.enums.Status;
 
+import java.util.Map;
+
 public interface ConfigAndControlRepository {
 
     void updatePipelineStep(String pipelineId, PipelineSteps pipelineStep, Status status);
+
+    void updatePipelineStep(String pipelineId, PipelineSteps pipelineStep, Status status, Map<String, String> metrics);
 }
