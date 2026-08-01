@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
@@ -42,12 +43,10 @@ public class PipelineServiceImpl implements PipelineService {
     private final ConfigAndControlRepository configAndControlRepository;
 
     public void execute(PipelineConfig pipelineConfig) {
-        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.IN_PROGRESS);
-        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.SEARCH_LEVELS, Status.IN_PROGRESS);
+        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.IN_PROGRESS, null);
+        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.SEARCH_LEVELS, Status.IN_PROGRESS, null);
         firstLevel(pipelineConfig);
-        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.COMPLETED);
         findLevels(pipelineConfig);
-        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.SEARCH_LEVELS, Status.COMPLETED);
     }
 
 
@@ -56,12 +55,17 @@ public class PipelineServiceImpl implements PipelineService {
         List<String> biologicalObjectIdsFromTranscriptionFactors = new ArrayList<>();
 
         if (pipelineConfig.getTranscriptionFactorConfig() != null){
-            updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR, Status.IN_PROGRESS);
+            updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR, Status.IN_PROGRESS, null);
              biologicalObjectIdsFromTranscriptionFactors = transcriptionFactorsService.execute(pipelineConfig.getTranscriptionFactorConfig());
-             updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR, Status.COMPLETED);
+             int tfCount = biologicalObjectIdsFromTranscriptionFactors.size();
+             updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR, Status.COMPLETED,
+                     Map.of("transcriptionFactorsFound", String.valueOf(tfCount)));
         }
 
         var biologicalObjectIdsFromExpertObjects = expertObjectService.execute(pipelineConfig.getExpertObjects());
+        int expertObjCount = biologicalObjectIdsFromExpertObjects.size();
+        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.COMPLETED,
+                Map.of("expertObjectsValidated", String.valueOf(expertObjCount)));
 
         var biologicalObjectIds = Stream.concat(
                 biologicalObjectIdsFromTranscriptionFactors.stream(),
@@ -93,6 +97,13 @@ public class PipelineServiceImpl implements PipelineService {
             }
 
         }
+
+        long totalMinedObjects = minedObjectRepository.findByPipelineId(pipelineId).size();
+        updatePipelineStep(pipelineId, PipelineSteps.SEARCH_LEVELS, Status.COMPLETED,
+                Map.of(
+                        "totalMinedObjects", String.valueOf(totalMinedObjects),
+                        "searchLevels", String.valueOf(levels)
+                ));
     }
 
     private List<MinedObject> getObjectsLastLevel(int level, String pipelineId) {
@@ -124,8 +135,8 @@ public class PipelineServiceImpl implements PipelineService {
                 .build();
     }
 
-    private void updatePipelineStep(String pipelineId, PipelineSteps step, Status status) {
-        configAndControlRepository.updatePipelineStep(pipelineId, step, status);
+    private void updatePipelineStep(String pipelineId, PipelineSteps step, Status status, Map<String, String> metrics) {
+        configAndControlRepository.updatePipelineStep(pipelineId, step, status, metrics);
     }
 
 }

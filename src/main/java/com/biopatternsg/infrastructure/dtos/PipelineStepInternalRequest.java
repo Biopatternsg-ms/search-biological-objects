@@ -20,10 +20,13 @@ import com.biopatternsg.domain.enums.Status;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
+import java.util.Map;
+
 @Builder
 public record PipelineStepInternalRequest(
         @NotNull String id,
         @NotNull PipelineSteps step,
-        @NotNull Status status
+        @NotNull Status status,
+        Map<String, String> metrics
 ){
 }
