@@ -49,42 +49,41 @@ public class TranscriptionFactorsServiceImpl implements TranscriptionFactorsServ
 
     @Override
     public List<String> execute(TranscriptionFactorConfig transcriptionFactorConfig) {
-        Map<String, TranscriptionFactor> transcriptionFactorMap = new HashMap<>();
-
-        if(transcriptionFactorConfig.getSources().contains(TranscriptionFactorSource.JASPAR)){
-            var jasparTranscriptionFactors = executeJaspar(transcriptionFactorConfig);
-            transcriptionFactorMap.putAll(jasparTranscriptionFactors.stream().collect(Collectors.toMap(TranscriptionFactor::name, Function.identity())));
-        }
-
-        if(transcriptionFactorConfig.getSources().contains(TranscriptionFactorSource.TFBIND)){
-            var tfBindTranscriptionsFactors = executeTFBind(transcriptionFactorConfig);
-
-            tfBindTranscriptionsFactors.forEach(tfBindTranscriptionFactor ->
-                transcriptionFactorMap.putIfAbsent(tfBindTranscriptionFactor.name(), tfBindTranscriptionFactor)
-            );
-        }
-
+        Map<String, TranscriptionFactor> transcriptionFactorMap = buildTranscriptionFactorMap(transcriptionFactorConfig);
         return getBiologicalObjectIds(transcriptionFactorMap);
     }
 
     @Override
     public List<TranscriptionFactor> executeGetTranscriptionFactors(TranscriptionFactorConfig transcriptionFactorConfig) {
+        Map<String, TranscriptionFactor> transcriptionFactorMap = buildTranscriptionFactorMap(transcriptionFactorConfig);
+        return new ArrayList<>(transcriptionFactorMap.values());
+    }
+
+    private Map<String, TranscriptionFactor> buildTranscriptionFactorMap(TranscriptionFactorConfig transcriptionFactorConfig) {
         Map<String, TranscriptionFactor> transcriptionFactorMap = new HashMap<>();
 
-        if(transcriptionFactorConfig.getSources().contains(TranscriptionFactorSource.JASPAR)){
+        if (transcriptionFactorConfig.getSources() != null && transcriptionFactorConfig.getSources().contains(TranscriptionFactorSource.JASPAR)) {
             var jasparTranscriptionFactors = executeJaspar(transcriptionFactorConfig);
-            transcriptionFactorMap.putAll(jasparTranscriptionFactors.stream().collect(Collectors.toMap(TranscriptionFactor::name, Function.identity())));
-        }
-
-        if(transcriptionFactorConfig.getSources().contains(TranscriptionFactorSource.TFBIND)){
-            var tfBindTranscriptionsFactors = executeTFBind(transcriptionFactorConfig);
-
-            tfBindTranscriptionsFactors.forEach(tfBindTranscriptionFactor ->
-                transcriptionFactorMap.putIfAbsent(tfBindTranscriptionFactor.name(), tfBindTranscriptionFactor)
+            jasparTranscriptionFactors.forEach(tf ->
+                transcriptionFactorMap.merge(tf.name(), tf, (existing, replacement) ->
+                    existing.reliability() >= replacement.reliability() ? existing : replacement
+                )
             );
         }
 
-        return new ArrayList<>(transcriptionFactorMap.values());
+        if (transcriptionFactorConfig.getSources() != null && transcriptionFactorConfig.getSources().contains(TranscriptionFactorSource.TFBIND)) {
+            var tfBindTranscriptionsFactors = executeTFBind(transcriptionFactorConfig);
+
+            tfBindTranscriptionsFactors.forEach(tfBindTranscriptionFactor ->
+                transcriptionFactorMap.merge(tfBindTranscriptionFactor.name(), tfBindTranscriptionFactor,
+                    (existing, replacement) -> existing.source() == TranscriptionFactorSource.JASPAR
+                        ? existing
+                        : (existing.reliability() >= replacement.reliability() ? existing : replacement)
+                )
+            );
+        }
+
+        return transcriptionFactorMap;
     }
 
     private List<String> getBiologicalObjectIds(Map<String, TranscriptionFactor> transcriptionFactorMap) {
