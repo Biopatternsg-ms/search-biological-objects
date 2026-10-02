@@ -20,11 +20,10 @@ import com.biopatternsg.application.services.impl.biological_object_strategy.Bio
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.PipelineSynonym;
 import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
+import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
 
 import java.util.List;
 

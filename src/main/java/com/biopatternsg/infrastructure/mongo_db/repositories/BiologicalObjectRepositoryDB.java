@@ -18,9 +18,6 @@ package com.biopatternsg.infrastructure.mongo_db.repositories;
 import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectCollection;
 import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.bson.types.ObjectId;
-
-import java.util.List;
 
 @ApplicationScoped
 public class BiologicalObjectRepositoryDB implements PanacheMongoRepository<BiologicalObjectCollection> {
