@@ -17,11 +17,9 @@ package com.biopatternsg.infrastructure.adapters.out.repositories;
 
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
-import com.biopatternsg.domain.port.out.repositories.UserRepository;
 import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectCollection;
 import com.biopatternsg.infrastructure.mongo_db.mappers.BiologicalObjectMapper;
 import com.biopatternsg.infrastructure.mongo_db.repositories.BiologicalObjectRepositoryDB;
-import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +33,6 @@ public class BiologicalObjectRepositoryAdapter implements BiologicalObjectReposi
 
     @Inject
     private BiologicalObjectRepositoryDB biologicalObjectRepositoryDB;
-    @Inject
-    private UserRepository userRepository;
 
     @Override
     public BiologicalObject save(BiologicalObject biologicalObject) {
@@ -57,22 +53,14 @@ public class BiologicalObjectRepositoryAdapter implements BiologicalObjectReposi
     @Override
     public BiologicalObject findByUniprotId(String uniprotId) {
 
-        var mongoObject = biologicalObjectRepositoryDB.findByUniprotId(uniprotId, userRepository.getUserId());
+        var mongoObject = biologicalObjectRepositoryDB.findByUniprotId(uniprotId);
         return BiologicalObjectMapper.toBiologicalObject(mongoObject);
     }
 
     @Override
     public BiologicalObject findByHgncId(String hgncId) {
 
-        StringBuilder queryBuilder = new StringBuilder("{'userId': :userId");
-        Parameters parameters = Parameters.with("userId", userRepository.getUserId());
-        queryBuilder.append(", '").append("hgncId").append("': :fieldValue");
-        parameters.and("fieldValue", hgncId);
-        queryBuilder.append("}");
-
-        BiologicalObjectCollection mongoObject = BiologicalObjectCollection
-                .find(queryBuilder.toString(), parameters)
-                .firstResult();
+        var mongoObject = biologicalObjectRepositoryDB.findByHgncId(hgncId);
 
         if(mongoObject == null){return null;}
 
@@ -82,15 +70,7 @@ public class BiologicalObjectRepositoryAdapter implements BiologicalObjectReposi
     @Override
     public BiologicalObject findBySymbol(String symbol) {
 
-        StringBuilder queryBuilder = new StringBuilder("{'userId': :userId");
-        Parameters parameters = Parameters.with("userId", userRepository.getUserId());
-        queryBuilder.append(", '").append("symbol").append("': :fieldValue");
-        parameters.and("fieldValue", symbol);
-        queryBuilder.append("}");
-
-        BiologicalObjectCollection mongoObject = BiologicalObjectCollection
-                .find(queryBuilder.toString(), parameters)
-                .firstResult();
+        var mongoObject = biologicalObjectRepositoryDB.findBySymbol(symbol);
 
         if(mongoObject == null){return null;}
 
@@ -126,20 +106,7 @@ public class BiologicalObjectRepositoryAdapter implements BiologicalObjectReposi
 
     private BiologicalObjectCollection saveBiologicalObject(BiologicalObject biologicalObject){
 
-        BiologicalObjectCollection mongoObject = new BiologicalObjectCollection();
-
-        mongoObject.setUserId(biologicalObject.getUserId());
-        mongoObject.setSymbol(biologicalObject.getSymbol());
-        mongoObject.setName(biologicalObject.getName());
-        mongoObject.setLocusType(biologicalObject.getLocusType());
-        mongoObject.setHgncId(biologicalObject.getHgncId());
-        mongoObject.setUniprotId(biologicalObject.getUniprotId());
-        mongoObject.setSynonyms(biologicalObject.getSynonyms());
-        mongoObject.setGeneOntology(biologicalObject.getGeneOntology());
-        mongoObject.setTissues(biologicalObject.getTissues());
-        mongoObject.setGeneFamilies(biologicalObject.getGeneFamilies());
-        mongoObject.setTranscriptionFactor(biologicalObject.getTranscriptionFactor());
-
+        BiologicalObjectCollection mongoObject = BiologicalObjectMapper.toBiologicalObjectCollection(biologicalObject);
         mongoObject.persist();
 
         return mongoObject;

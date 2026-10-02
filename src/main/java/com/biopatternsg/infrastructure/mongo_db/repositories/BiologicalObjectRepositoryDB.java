@@ -25,10 +25,16 @@ import java.util.List;
 @ApplicationScoped
 public class BiologicalObjectRepositoryDB implements PanacheMongoRepository<BiologicalObjectCollection> {
 
-    public BiologicalObjectCollection findByUniprotId(String uniprotId, String userId){
+    public BiologicalObjectCollection findByUniprotId(String uniprotId){
+        return find("{'uniprotId': ?1}", uniprotId).firstResult();
+    }
 
-        //return find("{uniprotId: :id, userId: :user}", Parameters.with("id", uniprotId).and("user", userId)).firstResult();
-        return find("{'uniprotId': ?1, 'userId': ?2}",uniprotId, userId).firstResult();
+    public BiologicalObjectCollection findByHgncId(String hgncId){
+        return find("{'hgncId': ?1}", hgncId).firstResult();
+    }
+
+    public BiologicalObjectCollection findBySymbol(String symbol){
+        return find("{'symbol': ?1}", symbol).firstResult();
     }
 
 }

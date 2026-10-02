@@ -20,7 +20,6 @@ import com.biopatternsg.domain.models.Complex;
 import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
 import com.biopatternsg.domain.port.out.external_repositories.PdbRepository;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
-import com.biopatternsg.domain.port.out.repositories.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +36,6 @@ public class DiscoveryObjectByPdb implements DiscoveryObjectStrategy{
     private final PdbRepository pdbRepository;
     private final BiologicalObjectSearch biologicalObjectSearch;
     private final BiologicalObjectRepository biologicalObjectRepository;
-    private final UserRepository userRepository;
 
     private static final Pattern UNIPROT_ID =
             Pattern.compile("^([OPQJ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$");
@@ -74,8 +72,6 @@ public class DiscoveryObjectByPdb implements DiscoveryObjectStrategy{
         if(biologicalObject.getId() != null){
             return biologicalObject.getId();
         }
-        var userId = userRepository.getUserId();
-        biologicalObject.setUserId(userId);
         biologicalObject = biologicalObjectRepository.save(biologicalObject);
         return biologicalObject.getId();
     }
