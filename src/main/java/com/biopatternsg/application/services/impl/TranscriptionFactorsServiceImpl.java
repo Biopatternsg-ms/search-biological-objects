@@ -26,14 +26,14 @@ import com.biopatternsg.domain.models.pipeline_config.TranscriptionFactorConfig;
 import com.biopatternsg.domain.port.out.external_repositories.JasparRepository;
 import com.biopatternsg.domain.port.out.external_repositories.TFBindRepository;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
-import com.biopatternsg.domain.port.out.repositories.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -45,7 +45,6 @@ public class TranscriptionFactorsServiceImpl implements TranscriptionFactorsServ
     private final BiologicalObjectSearch biologicalObjectSearch;
     private final BiologicalObjectRepository biologicalObjectRepository;
     private final OntologiesService ontologiesService;
-    private final UserRepository userRepository;
 
     @Override
     public List<String> execute(TranscriptionFactorConfig transcriptionFactorConfig) {
@@ -90,7 +89,6 @@ public class TranscriptionFactorsServiceImpl implements TranscriptionFactorsServ
         List<TranscriptionFactor> transcriptionFactors = transcriptionFactorMap.values().stream().toList();
 
         List<String> biologicalObjectIds = new ArrayList<>();
-        var userId = userRepository.getUserId();
 
         transcriptionFactors.forEach(transcriptionFactor -> {
 
@@ -102,7 +100,6 @@ public class TranscriptionFactorsServiceImpl implements TranscriptionFactorsServ
 
             if(biologicalObject.getId() == null){
                 biologicalObject.setTranscriptionFactor(transcriptionFactor);
-                biologicalObject.setUserId(userId);
                 biologicalObject = biologicalObjectRepository.save(biologicalObject);
                 ontologiesService.buildGeneOntologyTree(biologicalObject.getGeneOntology());
             }

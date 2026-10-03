@@ -31,7 +31,6 @@ public class BiologicalObjectMapper {
         }
         return BiologicalObject.builder()
                 .id(biologicalObjectCollection.id.toString())
-                .userId(biologicalObjectCollection.getUserId())
                 .hgncId(biologicalObjectCollection.getHgncId())
                 .uniprotId(biologicalObjectCollection.getUniprotId())
                 .symbol(biologicalObjectCollection.getSymbol())
@@ -48,7 +47,6 @@ public class BiologicalObjectMapper {
     public static BiologicalObjectCollection toBiologicalObjectCollection(BiologicalObject biologicalObject) {
 
         return BiologicalObjectCollection.builder()
-                .userId(biologicalObject.getUserId())
                 .hgncId(biologicalObject.getHgncId())
                 .uniprotId(biologicalObject.getUniprotId())
                 .meshId(biologicalObject.getMeshId())

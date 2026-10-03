@@ -32,7 +32,6 @@ import java.util.Set;
 public class BiologicalObject {
 
     private String id;
-    private String userId;
     private String symbol;
     private String name;
     private String locusType;

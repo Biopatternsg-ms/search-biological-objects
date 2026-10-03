@@ -17,12 +17,15 @@ package com.biopatternsg.infrastructure.adapters.in.restcontrollers;
 
 import com.biopatternsg.domain.models.pipeline_config.PipelineConfig;
 import com.biopatternsg.domain.port.in.LaunchPipeline;
+import com.biopatternsg.infrastructure.session.SessionUtil;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.ManagedContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +38,6 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
 import java.util.concurrent.CompletableFuture;
-import com.biopatternsg.infrastructure.session.SessionUtil;
-import jakarta.ws.rs.core.MultivaluedHashMap;
-import jakarta.ws.rs.core.MultivaluedMap;
 
 @Slf4j
 @ApplicationScoped
