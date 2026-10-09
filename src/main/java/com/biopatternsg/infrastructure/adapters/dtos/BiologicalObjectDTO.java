@@ -23,6 +23,8 @@ public record BiologicalObjectDTO(
         String id,
         String name,
         String symbol,
+        String hgncId,
+        String uniprotId,
         List<String> synonyms
 ) {
     public static BiologicalObjectDTO fromDomain(BiologicalObject biologicalObject) {
@@ -30,6 +32,8 @@ public record BiologicalObjectDTO(
                 biologicalObject.getId(),
                 biologicalObject.getName(),
                 biologicalObject.getSymbol(),
+                biologicalObject.getHgncId(),
+                biologicalObject.getUniprotId(),
                 biologicalObject.getSynonyms().stream().toList()
         );
     }

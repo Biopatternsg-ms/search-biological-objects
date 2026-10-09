@@ -13,21 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.biopatternsg.domain.port.out.repositories;
+package com.biopatternsg.application.usecase;
 
 import com.biopatternsg.domain.models.BiologicalObject;
+import com.biopatternsg.domain.port.in.FindBiologicalObjectsBySynonym;
+import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-public interface BiologicalObjectRepository {
+@ApplicationScoped
+@RequiredArgsConstructor
+public class FindBiologicalObjectsBySynonymUseCase implements FindBiologicalObjectsBySynonym {
 
-    BiologicalObject save(BiologicalObject biologicalObject);
-    BiologicalObject findById(String id);
-    BiologicalObject findByUniprotId(String uniprotId);
-    BiologicalObject findByHgncId(String hgncId);
-    BiologicalObject findBySymbol(String symbol);
-    List<BiologicalObject> findBySynonym(String synonym);
-    List<BiologicalObject> findByIds(List<String> ids);
-    void update(BiologicalObject biologicalObject);
-    void updateAll(List<BiologicalObject> biologicalObjects);
+    private final BiologicalObjectRepository biologicalObjectRepository;
+
+    @Override
+    public List<BiologicalObject> execute(String synonym) {
+        return biologicalObjectRepository.findBySynonym(synonym);
+    }
 }

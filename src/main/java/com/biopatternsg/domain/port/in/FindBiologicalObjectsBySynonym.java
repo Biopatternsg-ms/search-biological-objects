@@ -13,21 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.biopatternsg.domain.port.out.repositories;
+package com.biopatternsg.domain.port.in;
 
 import com.biopatternsg.domain.models.BiologicalObject;
-
 import java.util.List;
 
-public interface BiologicalObjectRepository {
-
-    BiologicalObject save(BiologicalObject biologicalObject);
-    BiologicalObject findById(String id);
-    BiologicalObject findByUniprotId(String uniprotId);
-    BiologicalObject findByHgncId(String hgncId);
-    BiologicalObject findBySymbol(String symbol);
-    List<BiologicalObject> findBySynonym(String synonym);
-    List<BiologicalObject> findByIds(List<String> ids);
-    void update(BiologicalObject biologicalObject);
-    void updateAll(List<BiologicalObject> biologicalObjects);
+public interface FindBiologicalObjectsBySynonym {
+    List<BiologicalObject> execute(String synonym);
 }

@@ -19,6 +19,7 @@ import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.port.in.FindBiologicalObject;
 import com.biopatternsg.domain.port.in.FindBiologicalObjectFatherBrothersAndSons;
 import com.biopatternsg.domain.port.in.FindBiologicalObjectsByPipelineAndLevel;
+import com.biopatternsg.domain.port.in.FindBiologicalObjectsBySynonym;
 import com.biopatternsg.domain.port.in.GetExpertObjectsByPipelineAndLevel;
 import com.biopatternsg.domain.port.in.UpdateBiologicalObjectMeshId;
 import com.biopatternsg.infrastructure.adapters.dtos.BiologicalObjectDTO;
@@ -50,6 +51,7 @@ public class BiologicalObjectController {
     private final UpdateBiologicalObjectMeshId updateBiologicalObjectMeshId;
     private final FindBiologicalObjectsByPipelineAndLevel findBiologicalObjectsByPipelineAndLevel;
     private final FindBiologicalObjectFatherBrothersAndSons findBiologicalObjectFatherBrothersAndSons;
+    private final FindBiologicalObjectsBySynonym findBiologicalObjectsBySynonym;
     private final GetExpertObjectsByPipelineAndLevel getExpertObjectsByPipelineAndLevel;
     private final SessionUtil sessionUtil;
 
@@ -178,6 +180,27 @@ public class BiologicalObjectController {
     )
     public List<BiologicalObjectDTO> getFatherBrothersAndSons(@RequestBody FatherBrothersAndSonsRequest fatherBrothersAndSonsRequest){
         return findBiologicalObjectFatherBrothersAndSons.execute(fatherBrothersAndSonsRequest.pipelineId(), fatherBrothersAndSonsRequest.biologicalObjectId())
+                .stream().map(BiologicalObjectDTO::fromDomain).toList();
+    }
+    @GET
+    @Path("/search-by-synonym/{synonym}")
+    @Operation(
+            summary = "Find biological objects by synonym",
+            description = "Retrieves a list of biological objects matching the given synonym."
+    )
+    @APIResponse(
+            responseCode = "200",
+            description = "Successfully retrieved biological objects",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            implementation = BiologicalObjectDTO.class,
+                            type = SchemaType.ARRAY
+                    )
+            )
+    )
+    public List<BiologicalObjectDTO> findBySynonym(@PathParam("synonym") String synonym){
+        return findBiologicalObjectsBySynonym.execute(synonym)
                 .stream().map(BiologicalObjectDTO::fromDomain).toList();
     }
 }
