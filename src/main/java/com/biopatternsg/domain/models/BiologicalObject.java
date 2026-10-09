@@ -44,6 +44,7 @@ public class BiologicalObject {
     private GeneOntology geneOntology;
     private List<String> geneFamilies;
     private List<String> tissues;
+    private List<String> prevSymbol;
     private TranscriptionFactor transcriptionFactor;
 
     public Set<String> getSynonyms() {

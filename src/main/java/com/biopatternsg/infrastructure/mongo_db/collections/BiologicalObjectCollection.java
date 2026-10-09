@@ -43,5 +43,6 @@ public class BiologicalObjectCollection extends PanacheMongoEntity {
     private GeneOntology geneOntology;
     private List<String> geneFamilies;
     private List<String> tissues;
+    private List<String> prevSymbol;
     private TranscriptionFactor transcriptionFactor;
 }

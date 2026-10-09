@@ -56,6 +56,7 @@ public class BiologicalObjectByHgncId implements BuildBiologicalObjectStrategy, 
                         .synonyms(hgncResponse.getSynonyms())
                         .uniprotId(hgncResponse.getUniprotId())
                         .geneFamilies(hgncResponse.getGeneFamilies())
+                        .prevSymbol(hgncResponse.getPrevSymbol())
                         .build();
     }
 
