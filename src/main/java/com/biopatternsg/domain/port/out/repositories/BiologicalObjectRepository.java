@@ -26,6 +26,7 @@ public interface BiologicalObjectRepository {
     BiologicalObject findByUniprotId(String uniprotId);
     BiologicalObject findByHgncId(String hgncId);
     BiologicalObject findBySymbol(String symbol);
+    List<BiologicalObject> findBySynonym(String synonym);
     List<BiologicalObject> findByIds(List<String> ids);
     void update(BiologicalObject biologicalObject);
     void updateAll(List<BiologicalObject> biologicalObjects);

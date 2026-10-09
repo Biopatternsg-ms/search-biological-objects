@@ -98,6 +98,18 @@ public class BiologicalObjectRepositoryAdapter implements BiologicalObjectReposi
     }
 
     @Override
+    public List<BiologicalObject> findBySynonym(String synonym) {
+        StringBuilder queryBuilder = new StringBuilder("{'synonyms': :synonym}");
+        Parameters parameters = Parameters.with("synonym", synonym);
+
+        List<BiologicalObjectCollection> mongoObjects = BiologicalObjectCollection
+                .find(queryBuilder.toString(), parameters)
+                .list();
+
+        return BiologicalObjectMapper.toBiologicalObjects(mongoObjects);
+    }
+
+    @Override
     public void update(BiologicalObject biologicalObject) {
         BiologicalObjectCollection mongoObject = BiologicalObjectMapper.toBiologicalObjectCollection(biologicalObject);
         mongoObject.id = new ObjectId(biologicalObject.getId());
