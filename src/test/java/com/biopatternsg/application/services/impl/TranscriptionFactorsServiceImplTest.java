@@ -25,7 +25,6 @@ import com.biopatternsg.domain.models.pipeline_config.TranscriptionFactorConfig;
 import com.biopatternsg.domain.port.out.external_repositories.JasparRepository;
 import com.biopatternsg.domain.port.out.external_repositories.TFBindRepository;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
-import com.biopatternsg.domain.port.out.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -59,9 +58,6 @@ class TranscriptionFactorsServiceImplTest {
     @Mock
     private OntologiesService ontologiesService;
 
-    @Mock
-    private UserRepository userRepository;
-
     private TranscriptionFactorsServiceImpl transcriptionFactorsService;
 
     @BeforeEach
@@ -71,8 +67,7 @@ class TranscriptionFactorsServiceImplTest {
                 tfBindRepository,
                 biologicalObjectSearch,
                 biologicalObjectRepository,
-                ontologiesService,
-                userRepository
+                ontologiesService
         );
     }
 
