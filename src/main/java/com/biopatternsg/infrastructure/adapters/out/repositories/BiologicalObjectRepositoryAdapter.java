@@ -20,6 +20,7 @@ import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
 import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectCollection;
 import com.biopatternsg.infrastructure.mongo_db.mappers.BiologicalObjectMapper;
 import com.biopatternsg.infrastructure.mongo_db.repositories.BiologicalObjectRepositoryDB;
+import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.RequiredArgsConstructor;
