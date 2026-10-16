@@ -25,7 +25,8 @@ public record BiologicalObjectDTO(
         String symbol,
         String hgncId,
         String uniprotId,
-        List<String> synonyms
+        List<String> synonyms,
+        List<String> prevSymbol
 ) {
     public static BiologicalObjectDTO fromDomain(BiologicalObject biologicalObject) {
         return new BiologicalObjectDTO(
@@ -34,6 +35,7 @@ public record BiologicalObjectDTO(
                 biologicalObject.getSymbol(),
                 biologicalObject.getHgncId(),
                 biologicalObject.getUniprotId(),
+                biologicalObject.getPrevSymbol(),
                 biologicalObject.getSynonyms().stream().toList()
         );
     }

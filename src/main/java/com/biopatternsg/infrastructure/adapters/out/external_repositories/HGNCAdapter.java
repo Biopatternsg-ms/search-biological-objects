@@ -100,6 +100,7 @@ public class HGNCAdapter implements HGNCRepository {
                 .ensemblGeneId(values.ensemblGeneId())
                 .locusType(values.locusType())
                 .synonyms(getSynonyms(values))
+                .prevSymbol(values.prevSymbol())
                 .uniprotId(values.uniprotIds().getFirst())
                 .build();
     }
@@ -108,6 +109,7 @@ public class HGNCAdapter implements HGNCRepository {
         Set<String> combinedSynonyms = new HashSet<>();
         Optional.ofNullable(values.aliasName()).ifPresent(combinedSynonyms::addAll);
         Optional.ofNullable(values.cosmic()).ifPresent(combinedSynonyms::add);
+        Optional.ofNullable(values.prevSymbol()).ifPresent(combinedSynonyms::addAll);
         return combinedSynonyms;
     }
 }

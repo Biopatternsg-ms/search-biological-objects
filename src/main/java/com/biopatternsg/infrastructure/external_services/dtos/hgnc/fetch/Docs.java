@@ -49,5 +49,6 @@ public record Docs(
     @JsonProperty("date_modified") String dateModified,
     @JsonProperty("ucsc_id") String ucscId,
     @JsonProperty("ensembl_gene_id") String ensemblGeneId,
-    @JsonProperty("hgnc_id") String hgncId
+    @JsonProperty("hgnc_id") String hgncId,
+    @JsonProperty("prev_symbol") List<String> prevSymbol
 ) {}

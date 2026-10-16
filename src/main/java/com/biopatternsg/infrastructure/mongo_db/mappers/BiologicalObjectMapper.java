@@ -41,6 +41,7 @@ public class BiologicalObjectMapper {
                 .geneFamilies(biologicalObjectCollection.getGeneFamilies())
                 .tissues(biologicalObjectCollection.getTissues())
                 .transcriptionFactor(biologicalObjectCollection.getTranscriptionFactor())
+                .prevSymbol(biologicalObjectCollection.getPrevSymbol())
                 .build();
     }
 
@@ -58,6 +59,7 @@ public class BiologicalObjectMapper {
                 .geneFamilies(biologicalObject.getGeneFamilies())
                 .tissues(biologicalObject.getTissues())
                 .transcriptionFactor(biologicalObject.getTranscriptionFactor())
+                .prevSymbol(biologicalObject.getPrevSymbol())
                 .build();
     }
 

@@ -38,4 +38,5 @@ public class HGNCResponse {
     private String uniprotId;
     private Set<String> synonyms;
     private List<String> geneFamilies;
+    private List<String> prevSymbol;
 }
