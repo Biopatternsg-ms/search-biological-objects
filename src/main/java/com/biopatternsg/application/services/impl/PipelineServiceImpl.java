@@ -46,8 +46,6 @@ public class PipelineServiceImpl implements PipelineService {
     private final ConfigAndControlRepository configAndControlRepository;
 
     public void execute(PipelineConfig pipelineConfig) {
-        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.IN_PROGRESS, null);
-        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.SEARCH_LEVELS, Status.IN_PROGRESS, null);
         firstLevel(pipelineConfig);
         findLevels(pipelineConfig);
     }
@@ -64,6 +62,8 @@ public class PipelineServiceImpl implements PipelineService {
              updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR, Status.COMPLETED,
                      Map.of("transcriptionFactorsFound", String.valueOf(tfCount)));
         }
+
+        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.IN_PROGRESS, null);
 
         var biologicalObjectIdsFromExpertObjects = expertObjectService.execute(pipelineConfig.getExpertObjects());
         int expertObjCount = biologicalObjectIdsFromExpertObjects.size();
@@ -84,6 +84,8 @@ public class PipelineServiceImpl implements PipelineService {
         String pipelineId = pipelineConfig.getPipelineId();
         int levels = pipelineConfig.getLevels();
         Integer maxComplexes = pipelineConfig.getMaxComplexes();
+
+        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.SEARCH_LEVELS, Status.IN_PROGRESS, null);
 
         log.info("start FindLevels pipelineId: {} y pipelineLevels: {} ",pipelineId, levels);
         for (int level = 2; level <= levels; level++) {
