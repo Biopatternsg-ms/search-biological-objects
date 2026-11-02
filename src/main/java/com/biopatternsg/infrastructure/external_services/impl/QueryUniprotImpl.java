@@ -20,13 +20,16 @@ import com.biopatternsg.infrastructure.external_services.QueryUniprot;
 import com.biopatternsg.infrastructure.external_services.dtos.uniprot.ListResponse;
 import com.biopatternsg.infrastructure.external_services.dtos.uniprot.Response;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.WebApplicationException;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import java.util.Collections;
+
 @Slf4j
 @ApplicationScoped
-public class QueryUniprotImpl implements QueryUniprot{
+public class QueryUniprotImpl implements QueryUniprot {
 
     private final UniprotHttpClient uniprotHttpClient;
 
@@ -37,12 +40,38 @@ public class QueryUniprotImpl implements QueryUniprot{
     @Override
     @Retry
     public ListResponse search(String label) {
-        return uniprotHttpClient.search(label, UniprotHttpClient.DEFAULT_SORT);
+        if (label == null || label.isBlank()) {
+            return new ListResponse(Collections.emptyList());
+        }
+        try {
+            return uniprotHttpClient.search(label, UniprotHttpClient.DEFAULT_SORT);
+        } catch (WebApplicationException e) {
+            int status = e.getResponse() != null ? e.getResponse().getStatus() : -1;
+            if (status >= 400 && status < 500) {
+                log.warn("UniProt search returned client error for '{}': status {}", label, status);
+                return new ListResponse(Collections.emptyList());
+            }
+            log.error("UniProt search server error for '{}': status {}", label, status);
+            throw e;
+        }
     }
 
     @Override
     @Retry
     public Response get(String uniprotId) {
-        return uniprotHttpClient.get(uniprotId);
+        if (uniprotId == null || uniprotId.isBlank()) {
+            return null;
+        }
+        try {
+            return uniprotHttpClient.get(uniprotId);
+        } catch (WebApplicationException e) {
+            int status = e.getResponse() != null ? e.getResponse().getStatus() : -1;
+            if (status == 404 || status == 400) {
+                log.warn("UniProt entry not found for ID '{}' (status {})", uniprotId, status);
+                return null;
+            }
+            log.error("UniProt API server error for ID '{}': status {}", uniprotId, status);
+            throw e;
+        }
     }
 }

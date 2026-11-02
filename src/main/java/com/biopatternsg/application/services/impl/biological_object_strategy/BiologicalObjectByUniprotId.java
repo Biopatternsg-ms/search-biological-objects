@@ -39,6 +39,9 @@ public class BiologicalObjectByUniprotId implements BuildBiologicalObjectStrateg
     public BiologicalObject execute(String value) {
 
         var uniprotResponse = uniprotRepository.findInfo(value);
+        if (uniprotResponse == null) {
+            return null;
+        }
         var biologicalObject = formatUniprotInformation(uniprotResponse);
         addHgncInformation(biologicalObject, value);
 

@@ -59,9 +59,16 @@ public class BiologicalObjectBySymbol implements BuildBiologicalObjectStrategy, 
     }
 
     private void addUniprotInformation(BiologicalObject biologicalObject, String uniprotId) {
+        if (uniprotId == null || uniprotId.isBlank()) {
+            return;
+        }
         var uniprotResponse = uniprotRepository.findInfo(uniprotId);
-        biologicalObject.addSynonyms(uniprotResponse.getSynonyms());
-        addGOCodes(biologicalObject, uniprotResponse);
+        if (uniprotResponse != null) {
+            if (uniprotResponse.getSynonyms() != null) {
+                biologicalObject.addSynonyms(uniprotResponse.getSynonyms());
+            }
+            addGOCodes(biologicalObject, uniprotResponse);
+        }
     }
 
     private void addGOCodes(BiologicalObject biologicalObject, UniprotResponse uniprotResponse) {
