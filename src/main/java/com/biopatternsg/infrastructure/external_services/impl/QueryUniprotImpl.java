@@ -46,12 +46,13 @@ public class QueryUniprotImpl implements QueryUniprot {
         try {
             return uniprotHttpClient.search(label, UniprotHttpClient.DEFAULT_SORT);
         } catch (WebApplicationException e) {
+            String safeLabel = label.replace('\n', '_').replace('\r', '_');
             int status = e.getResponse() != null ? e.getResponse().getStatus() : -1;
             if (status >= 400 && status < 500) {
-                log.warn("UniProt search returned client error for '{}': status {}", label, status);
+                log.warn("UniProt search returned client error for '{}': status {}", safeLabel, status);
                 return new ListResponse(Collections.emptyList());
             }
-            log.error("UniProt search server error for '{}': status {}", label, status);
+            log.error("UniProt search server error for '{}': status {}", safeLabel, status);
             throw e;
         }
     }
@@ -65,12 +66,13 @@ public class QueryUniprotImpl implements QueryUniprot {
         try {
             return uniprotHttpClient.get(uniprotId);
         } catch (WebApplicationException e) {
+            String safeUniprotId = uniprotId.replace('\n', '_').replace('\r', '_');
             int status = e.getResponse() != null ? e.getResponse().getStatus() : -1;
             if (status == 404 || status == 400) {
-                log.warn("UniProt entry not found for ID '{}' (status {})", uniprotId, status);
+                log.warn("UniProt entry not found for ID '{}' (status {})", safeUniprotId, status);
                 return null;
             }
-            log.error("UniProt API server error for ID '{}': status {}", uniprotId, status);
+            log.error("UniProt API server error for ID '{}': status {}", safeUniprotId, status);
             throw e;
         }
     }

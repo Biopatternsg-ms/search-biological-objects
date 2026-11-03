@@ -49,7 +49,8 @@ public class UniprotAdapter implements UniprotRepository {
             }
             return formatUniprotInformation(response);
         } catch (Exception e) {
-            log.error("Error retrieving UniProt information for ID '{}': {}", uniprotIds, e.getMessage());
+            String safeUniprotIds = uniprotIds.replace('\n', '_').replace('\r', '_');
+            log.error("Error retrieving UniProt information for ID '{}': {}", safeUniprotIds, e.getMessage());
             return null;
         }
     }
