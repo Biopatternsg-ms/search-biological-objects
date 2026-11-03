@@ -27,7 +27,7 @@ public interface UniprotHttpClient {
     String DEFAULT_SORT = "accession desc";
 
     @GET
-    @Path("uniprotkb/stream")
+    @Path("uniprotkb/search")
     @Produces(MediaType.APPLICATION_JSON)
     ListResponse search(@QueryParam("query") String label, @QueryParam("sort") String sort);
 

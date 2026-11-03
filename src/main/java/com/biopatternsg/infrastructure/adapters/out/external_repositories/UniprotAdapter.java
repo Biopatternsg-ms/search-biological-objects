@@ -38,21 +38,30 @@ public class UniprotAdapter implements UniprotRepository {
 
     @Override
     public UniprotResponse findInfo(String uniprotIds) {
-
-        var response = queryUniprot.search(uniprotIds);
-        if(response.results().isEmpty()){
+        if (uniprotIds == null || uniprotIds.isBlank()) {
             return null;
         }
-        return formatUniprotInformation(response.results().getFirst());
+
+        try {
+            var response = queryUniprot.get(uniprotIds);
+            if (response == null) {
+                return null;
+            }
+            return formatUniprotInformation(response);
+        } catch (Exception e) {
+            String safeUniprotIds = uniprotIds.replace('\n', '_').replace('\r', '_');
+            log.error("Error retrieving UniProt information for ID '{}': {}", safeUniprotIds, e.getMessage());
+            return null;
+        }
     }
 
-    private UniprotResponse formatUniprotInformation(Response response){
+    private UniprotResponse formatUniprotInformation(Response response) {
 
         var uniprotResponse = UniprotResponse.builder()
                 .id(response.primaryAccession())
                 .build();
 
-        setName(uniprotResponse, response.proteinDescription().recommendedName());
+        setName(uniprotResponse, response.proteinDescription() != null ? response.proteinDescription().recommendedName() : null);
         setGeneName(uniprotResponse, response.genes());
         setCodesGO(uniprotResponse, response.uniProtKBCrossReferences());
         setSynonyms(uniprotResponse, response.proteinDescription());
@@ -60,46 +69,64 @@ public class UniprotAdapter implements UniprotRepository {
         return uniprotResponse;
     }
 
-    private static void setCodesGO(UniprotResponse response, List<KBCrossReference> references){
+    private static void setCodesGO(UniprotResponse response, List<KBCrossReference> references) {
 
         List<String> goCc = new ArrayList<>();
         List<String> goMf = new ArrayList<>();
         List<String> goBp = new ArrayList<>();
 
-        references.forEach(reference -> reference.properties().forEach(property -> {
-            String branch = property.value().split(":")[FIRST_VALUE];
-            switch (branch) {
-                case "C" -> goCc.add(reference.id());
-                case "F" -> goMf.add(reference.id());
-                case "P" -> goBp.add(reference.id());
-            }
-        }));
+        if (references != null) {
+            references.forEach(reference -> {
+                if (reference.properties() != null) {
+                    reference.properties().forEach(property -> {
+                        if (property.value() != null) {
+                            String branch = property.value().split(":")[FIRST_VALUE];
+                            switch (branch) {
+                                case "C" -> goCc.add(reference.id());
+                                case "F" -> goMf.add(reference.id());
+                                case "P" -> goBp.add(reference.id());
+                            }
+                        }
+                    });
+                }
+            });
+        }
 
         response.setGoCc(goCc);
         response.setGoMf(goMf);
         response.setGoBp(goBp);
     }
 
-    private static void setSynonyms(UniprotResponse response, ProteinDescription descriptions){
+    private static void setSynonyms(UniprotResponse response, ProteinDescription descriptions) {
 
         Set<String> synonyms = new HashSet<>();
-        if(descriptions.alternativeNames() != null){
-            descriptions.alternativeNames().forEach(names -> synonyms.add(names.fullName().value()));
-            synonyms.add(descriptions.recommendedName().fullName().value());
+        if (descriptions != null) {
+            if (descriptions.alternativeNames() != null) {
+                descriptions.alternativeNames().forEach(names -> {
+                    if (names != null && names.fullName() != null && names.fullName().value() != null) {
+                        synonyms.add(names.fullName().value());
+                    }
+                });
+            }
+            if (descriptions.recommendedName() != null
+                    && descriptions.recommendedName().fullName() != null
+                    && descriptions.recommendedName().fullName().value() != null) {
+                synonyms.add(descriptions.recommendedName().fullName().value());
+            }
         }
         response.setSynonyms(synonyms);
     }
 
-    private static void setGeneName(UniprotResponse response, List<Gene> gene){
+    private static void setGeneName(UniprotResponse response, List<Gene> gene) {
 
-        if(gene != null && gene.getFirst().geneName() != null){
+        if (gene != null && !gene.isEmpty() && gene.getFirst() != null && gene.getFirst().geneName() != null) {
             response.setSymbol(gene.getFirst().geneName().value());
         }
     }
 
-    private static void setName(UniprotResponse response, RecommendedName recommendedName){
+    private static void setName(UniprotResponse response, RecommendedName recommendedName) {
 
-        if(recommendedName != null){
+        if (recommendedName != null && recommendedName.fullName() != null) {
             response.setName(recommendedName.fullName().value());
         }
     }
