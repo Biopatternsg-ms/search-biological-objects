@@ -22,7 +22,9 @@ import com.biopatternsg.infrastructure.internal_services.QueryOntologies;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ApplicationScoped
 @RequiredArgsConstructor
 public class OntologiesAdapter implements OntologiesRepository {
@@ -30,12 +32,30 @@ public class OntologiesAdapter implements OntologiesRepository {
     private final QueryOntologies queryOntologies;
 
     @Override
-    public Response buildGeneOntologyTree(GeneOntology geneOntology) {
-        return queryOntologies.buildGeneOntologyTree(geneOntology);
+    public void buildGeneOntologyTree(GeneOntology geneOntology) {
+        if (geneOntology == null) {
+            return;
+        }
+        try (Response response = queryOntologies.buildGeneOntologyTree(geneOntology)) {
+            if (response != null && response.hasEntity()) {
+                log.info(response.readEntity(String.class));
+            }
+        } catch (Exception e) {
+            log.error("Error building gene ontology tree in adapter: {}", e.getMessage(), e);
+        }
     }
 
     @Override
-    public Response buildMeshOntologyTree(BiologicalObject biologicalObject) {
-        return queryOntologies.buildMeshOntologyTree(biologicalObject);
+    public void buildMeshOntologyTree(BiologicalObject biologicalObject) {
+        if (biologicalObject == null) {
+            return;
+        }
+        try (Response response = queryOntologies.buildMeshOntologyTree(biologicalObject)) {
+            if (response != null && response.hasEntity()) {
+                log.info(response.readEntity(String.class));
+            }
+        } catch (Exception e) {
+            log.error("Error building mesh ontology tree in adapter: {}", e.getMessage(), e);
+        }
     }
 }
