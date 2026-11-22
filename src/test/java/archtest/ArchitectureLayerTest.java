@@ -106,5 +106,27 @@ class ArchitectureLayerTest {
                 .check(this.javaClasses);
     }
 
+    @DisplayName("The Domain layer should not depend on web or persistence frameworks")
+    @Test
+    void domainLayerFrameworkIsolationTest() {
+        ArchRuleDefinition.noClasses()
+                .that().resideInAPackage(ROOT + ".domain..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        "jakarta.ws.rs..",
+                        "io.quarkus..",
+                        "org.bson.."
+                )
+                .check(this.javaClasses);
+    }
 
+    @DisplayName("The Application layer should not depend on web frameworks")
+    @Test
+    void applicationLayerFrameworkIsolationTest() {
+        ArchRuleDefinition.noClasses()
+                .that().resideInAPackage(ROOT + ".application..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        "jakarta.ws.rs.."
+                )
+                .check(this.javaClasses);
+    }
 }

@@ -20,7 +20,6 @@ import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.GeneOntology;
 import com.biopatternsg.domain.port.out.external_repositories.OntologiesRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,16 +33,14 @@ public class OntologiesServiceImpl implements OntologiesService {
     @Override
     public void buildGeneOntologyTree(GeneOntology geneOntology) {
         if (geneOntology != null) {
-            Response response = ontologiesRepository.buildGeneOntologyTree(geneOntology);
-            log.info(response.readEntity(String.class));
+            ontologiesRepository.buildGeneOntologyTree(geneOntology);
         }
     }
 
     @Override
     public void buildMeshOntologyTree(BiologicalObject biologicalObject) {
         if (biologicalObject != null) {
-            Response response = ontologiesRepository.buildMeshOntologyTree(biologicalObject);
-            log.info(response.readEntity(String.class));
+            ontologiesRepository.buildMeshOntologyTree(biologicalObject);
         }
     }
 }

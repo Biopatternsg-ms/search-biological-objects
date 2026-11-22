@@ -31,9 +31,9 @@ public class ApiExceptionMapper implements ExceptionMapper<ApiException> {
     @Override
     public Response toResponse(ApiException ex) {
 
-        log.error("Handling ApiException: customCode={}, customMessage={}, generalError.code={}, generalError.message={}, httpStatus={}",
+        log.error("Handling ApiException: customCode={}, customMessage={}, generalError.code={}, generalError.message={}, httpStatusCode={}",
                 ex.getCustomCode(), ex.getCustomMessage(), ex.getGeneralError().getCode(),
-                ex.getGeneralError().getMessage(), ex.getGeneralError().getHttpStatusCode(), ex);
+                ex.getGeneralError().getMessage(), ex.getGeneralError().getCode(), ex);
 
         String customCode = Optional.ofNullable(ex.getCustomCode())
                 .map(Object::toString)
@@ -44,7 +44,7 @@ public class ApiExceptionMapper implements ExceptionMapper<ApiException> {
                 .message(Optional.ofNullable(ex.getCustomMessage()).orElse(ex.getGeneralError().getMessage()))
                 .build();
 
-        return Response.status(ex.getGeneralError().getHttpStatusCode())
+        return Response.status(ex.getGeneralError().getCode())
                 .entity(errorResponse)
                 .build();
     }
