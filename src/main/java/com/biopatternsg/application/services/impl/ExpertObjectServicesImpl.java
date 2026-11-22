@@ -15,9 +15,9 @@
  */
 package com.biopatternsg.application.services.impl;
 
+import com.biopatternsg.application.services.BiologicalObjectSearchService;
 import com.biopatternsg.application.services.ExpertObjectService;
 import com.biopatternsg.application.services.OntologiesService;
-import com.biopatternsg.application.services.impl.biological_object_strategy.BiologicalObjectSearch;
 import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -30,7 +30,7 @@ import java.util.List;
 @ApplicationScoped
 public class ExpertObjectServicesImpl implements ExpertObjectService {
 
-    private final BiologicalObjectSearch biologicalObjectSearch;
+    private final BiologicalObjectSearchService biologicalObjectSearchService;
     private final BiologicalObjectRepository biologicalObjectRepository;
     private final OntologiesService ontologiesService;
 
@@ -40,7 +40,7 @@ public class ExpertObjectServicesImpl implements ExpertObjectService {
         List<String> response = new ArrayList<>();
 
         expertObjects.forEach(expertObject -> {
-            var biologicalObject = biologicalObjectSearch.request(expertObject);
+            var biologicalObject = biologicalObjectSearchService.request(expertObject);
             if(biologicalObject.getId() == null){
                 biologicalObject = biologicalObjectRepository.save(biologicalObject);
                 ontologiesService.buildGeneOntologyTree(biologicalObject.getGeneOntology());

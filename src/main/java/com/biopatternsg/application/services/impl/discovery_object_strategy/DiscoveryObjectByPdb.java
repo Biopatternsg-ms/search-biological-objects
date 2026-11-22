@@ -15,7 +15,7 @@
  */
 package com.biopatternsg.application.services.impl.discovery_object_strategy;
 
-import com.biopatternsg.application.services.impl.biological_object_strategy.BiologicalObjectSearch;
+import com.biopatternsg.application.services.BiologicalObjectSearchService;
 import com.biopatternsg.domain.models.Complex;
 import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
 import com.biopatternsg.domain.port.out.external_repositories.PdbRepository;
@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 public class DiscoveryObjectByPdb implements DiscoveryObjectStrategy{
 
     private final PdbRepository pdbRepository;
-    private final BiologicalObjectSearch biologicalObjectSearch;
+    private final BiologicalObjectSearchService biologicalObjectSearchService;
     private final BiologicalObjectRepository biologicalObjectRepository;
 
     private static final Pattern UNIPROT_ID =
@@ -68,7 +68,7 @@ public class DiscoveryObjectByPdb implements DiscoveryObjectStrategy{
 
     private String getBiologicalObjectId(String uniprotId){
 
-        var biologicalObject = biologicalObjectSearch.request(BiologicalObjectConfig.builder().uniprotId(uniprotId).build());
+        var biologicalObject = biologicalObjectSearchService.request(BiologicalObjectConfig.builder().uniprotId(uniprotId).build());
         if(biologicalObject.getId() != null){
             return biologicalObject.getId();
         }

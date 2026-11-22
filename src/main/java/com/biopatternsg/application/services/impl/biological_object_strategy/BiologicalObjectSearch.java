@@ -15,51 +15,61 @@
  */
 package com.biopatternsg.application.services.impl.biological_object_strategy;
 
+import com.biopatternsg.application.services.BiologicalObjectSearchService;
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
 import jakarta.enterprise.context.ApplicationScoped;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 @ApplicationScoped
-@RequiredArgsConstructor
-public class BiologicalObjectSearch implements ChainResponsibility {
+public class BiologicalObjectSearch implements BiologicalObjectSearchService, ChainResponsibility {
 
-    @NonNull
-    public BiologicalObjectBySymbol biologicalObjectBySymbol;
-    @NonNull
-    public BiologicalObjectByHgncId biologicalObjectByHgncId;
-    @NonNull
-    public BiologicalObjectByUniprotId biologicalObjectByUniprotId;
-    @NonNull
-    public BiologicalObjectByUserUniprotId biologicalObjectByUserUniprotId;
-    @NonNull
-    public BiologicalObjectByUserHgncId biologicalObjectByUserHgncId;
-    @NonNull
-    public BiologicalObjectByUserSymbol biologicalObjectByUserSymbol;
+    private final BiologicalObjectBySymbol biologicalObjectBySymbol;
+    private final BiologicalObjectByHgncId biologicalObjectByHgncId;
+    private final BiologicalObjectByUniprotId biologicalObjectByUniprotId;
+    private final BiologicalObjectByUserUniprotId biologicalObjectByUserUniprotId;
+    private final BiologicalObjectByUserHgncId biologicalObjectByUserHgncId;
+    private final BiologicalObjectByUserSymbol biologicalObjectByUserSymbol;
+    private final BiologicalObjectContext biologicalObjectContext;
 
-    public ChainResponsibility next;
+    public BiologicalObjectSearch(
+            BiologicalObjectBySymbol biologicalObjectBySymbol,
+            BiologicalObjectByHgncId biologicalObjectByHgncId,
+            BiologicalObjectByUniprotId biologicalObjectByUniprotId,
+            BiologicalObjectByUserUniprotId biologicalObjectByUserUniprotId,
+            BiologicalObjectByUserHgncId biologicalObjectByUserHgncId,
+            BiologicalObjectByUserSymbol biologicalObjectByUserSymbol,
+            BiologicalObjectContext biologicalObjectContext) {
+        this.biologicalObjectBySymbol = biologicalObjectBySymbol;
+        this.biologicalObjectByHgncId = biologicalObjectByHgncId;
+        this.biologicalObjectByUniprotId = biologicalObjectByUniprotId;
+        this.biologicalObjectByUserUniprotId = biologicalObjectByUserUniprotId;
+        this.biologicalObjectByUserHgncId = biologicalObjectByUserHgncId;
+        this.biologicalObjectByUserSymbol = biologicalObjectByUserSymbol;
+        this.biologicalObjectContext = biologicalObjectContext;
+
+        this.biologicalObjectByUserUniprotId.setNext(this.biologicalObjectByUserHgncId);
+        this.biologicalObjectByUserHgncId.setNext(this.biologicalObjectByUserSymbol);
+        this.biologicalObjectByUserSymbol.setNext(this.biologicalObjectByUniprotId);
+        this.biologicalObjectByUniprotId.setNext(this.biologicalObjectByHgncId);
+        this.biologicalObjectByHgncId.setNext(this.biologicalObjectBySymbol);
+    }
+
+    @Override
+    public BiologicalObject findByTypeAndValue(String type, String value) {
+        return biologicalObjectContext.load(type).execute(value);
+    }
 
     @Override
     public void setNext(ChainResponsibility chainResponsibility) {
-        this.next = chainResponsibility;
     }
 
     @Override
     public ChainResponsibility getNext() {
-        return this.next;
+        return null;
     }
 
     @Override
     public BiologicalObject request(BiologicalObjectConfig biologicalObjectConfig) {
-
-        setNext(biologicalObjectByUserUniprotId);
-        biologicalObjectByUserUniprotId.setNext(biologicalObjectByUserHgncId);
-        biologicalObjectByUserHgncId.setNext(biologicalObjectByUserSymbol);
-        biologicalObjectByUserSymbol.setNext(biologicalObjectByUniprotId);
-        biologicalObjectByUniprotId.setNext(biologicalObjectByHgncId);
-        biologicalObjectByHgncId.setNext(biologicalObjectBySymbol);
-
-        return next.request(biologicalObjectConfig);
+        return biologicalObjectByUserUniprotId.request(biologicalObjectConfig);
     }
 }

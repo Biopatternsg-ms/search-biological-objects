@@ -15,8 +15,8 @@
  */
 package com.biopatternsg.application.services.impl;
 
+import com.biopatternsg.application.services.BiologicalObjectSearchService;
 import com.biopatternsg.application.services.UnmatchedSynonymService;
-import com.biopatternsg.application.services.impl.biological_object_strategy.BiologicalObjectSearch;
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.models.PipelineSynonym;
 import com.biopatternsg.domain.models.pipeline_config.BiologicalObjectConfig;
@@ -32,7 +32,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UnmatchedSynonymServiceImpl implements UnmatchedSynonymService {
 
-    private final BiologicalObjectSearch biologicalObjectSearch;
+    private final BiologicalObjectSearchService biologicalObjectSearchService;
     private final BiologicalObjectRepository biologicalObjectRepository;
 
     @Override
@@ -51,7 +51,7 @@ public class UnmatchedSynonymServiceImpl implements UnmatchedSynonymService {
                 .symbol(synonym.name())
                 .build();
 
-        BiologicalObject biologicalObject = biologicalObjectSearch.request(config);
+        BiologicalObject biologicalObject = biologicalObjectSearchService.request(config);
         biologicalObject.addSynonyms(synonym.synonyms());
         log.info("Biological object resolved for synonym name=[{}]: processed=[{}] of total=[{}]",
                 synonym.name(), processed, total);

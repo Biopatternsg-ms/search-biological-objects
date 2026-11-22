@@ -15,6 +15,8 @@
  */
 package com.biopatternsg.application.services.impl.biological_object_strategy;
 
+import com.biopatternsg.domain.exceptions.ApiException;
+import com.biopatternsg.domain.exceptions.GeneralError;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 
@@ -30,9 +32,13 @@ public class BiologicalObjectContext{
     private final BiologicalObjectByUserSymbol biologicalObjectByUserSymbol;
 
     public BuildBiologicalObjectStrategy load(String type){
-
+        if (type == null) {
+            throw new ApiException(GeneralError.BAD_REQUEST, 400, "Biological object type must not be null");
+        }
         BiologicalObjectEnum value = BiologicalObjectEnum.getValue(type);
-        assert value != null;
+        if (value == null) {
+            throw new ApiException(GeneralError.BAD_REQUEST, 400, "Unsupported biological object type: " + type);
+        }
         return switch (value){
             case SYMBOL -> biologicalObjectBySymbol;
             case HGNC_ID -> biologicalObjectByHgncId;

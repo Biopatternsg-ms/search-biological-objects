@@ -15,9 +15,9 @@
  */
 package com.biopatternsg.application.services.impl;
 
+import com.biopatternsg.application.services.BiologicalObjectSearchService;
 import com.biopatternsg.application.services.OntologiesService;
 import com.biopatternsg.application.services.TranscriptionFactorsService;
-import com.biopatternsg.application.services.impl.biological_object_strategy.BiologicalObjectSearch;
 import com.biopatternsg.domain.enums.TranscriptionFactorSource;
 import com.biopatternsg.domain.models.JasparQuery;
 import com.biopatternsg.domain.models.TranscriptionFactor;
@@ -42,7 +42,7 @@ public class TranscriptionFactorsServiceImpl implements TranscriptionFactorsServ
 
     private final JasparRepository jasparRepository;
     private final TFBindRepository tfBindRepository;
-    private final BiologicalObjectSearch biologicalObjectSearch;
+    private final BiologicalObjectSearchService biologicalObjectSearchService;
     private final BiologicalObjectRepository biologicalObjectRepository;
     private final OntologiesService ontologiesService;
 
@@ -96,7 +96,7 @@ public class TranscriptionFactorsServiceImpl implements TranscriptionFactorsServ
                     .symbol(transcriptionFactor.name())
                     .build();
 
-            var biologicalObject = biologicalObjectSearch.request(biologicalObjectConfig);
+            var biologicalObject = biologicalObjectSearchService.request(biologicalObjectConfig);
 
             if(biologicalObject.getId() == null){
                 biologicalObject.setTranscriptionFactor(transcriptionFactor);
@@ -124,7 +124,7 @@ public class TranscriptionFactorsServiceImpl implements TranscriptionFactorsServ
         return jasparRepository.fetchDataFromJasparSource(jasparQuery);
     }
 
-    public List<TranscriptionFactor> executeTFBind(TranscriptionFactorConfig transcriptionFactorConfig) {
+    private List<TranscriptionFactor> executeTFBind(TranscriptionFactorConfig transcriptionFactorConfig) {
         return tfBindRepository.fetchDataFromTFBindSource(
                 transcriptionFactorConfig.getReliability(),
                 transcriptionFactorConfig.getPromoterRegion()

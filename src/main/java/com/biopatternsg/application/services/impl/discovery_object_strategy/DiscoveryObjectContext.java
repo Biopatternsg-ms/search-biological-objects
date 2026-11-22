@@ -15,6 +15,8 @@
  */
 package com.biopatternsg.application.services.impl.discovery_object_strategy;
 
+import com.biopatternsg.domain.exceptions.ApiException;
+import com.biopatternsg.domain.exceptions.GeneralError;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 
@@ -22,12 +24,16 @@ import lombok.RequiredArgsConstructor;
 @ApplicationScoped
 public class DiscoveryObjectContext {
 
-    public final DiscoveryObjectByPdb discoveryObjectByPdb;
+    private final DiscoveryObjectByPdb discoveryObjectByPdb;
 
     public DiscoveryObjectStrategy load(String type){
-
+        if (type == null) {
+            throw new ApiException(GeneralError.BAD_REQUEST, 400, "Discovery object type must not be null");
+        }
         var value = DiscoveryObjectEnum.getValue(type);
-        assert value != null;
+        if (value == null) {
+            throw new ApiException(GeneralError.BAD_REQUEST, 400, "Unsupported discovery object type: " + type);
+        }
         return switch (value){
             case PDB -> discoveryObjectByPdb;
         };

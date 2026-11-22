@@ -15,7 +15,7 @@
  */
 package com.biopatternsg.application.usecase;
 
-import com.biopatternsg.application.services.impl.biological_object_strategy.BiologicalObjectContext;
+import com.biopatternsg.application.services.BiologicalObjectSearchService;
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.port.in.FindBiologicalObject;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -25,12 +25,10 @@ import lombok.RequiredArgsConstructor;
 @ApplicationScoped
 public class FindBiologicalObjectUseCase implements FindBiologicalObject {
 
-    private final BiologicalObjectContext biologicalObjectContext;
+    private final BiologicalObjectSearchService biologicalObjectSearchService;
 
     @Override
     public BiologicalObject execute(String type, String value) {
-
-        var context = biologicalObjectContext.load(type);
-        return context.execute(value);
+        return biologicalObjectSearchService.findByTypeAndValue(type, value);
     }
 }
