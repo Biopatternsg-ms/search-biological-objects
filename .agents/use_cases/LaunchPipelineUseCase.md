@@ -9,14 +9,13 @@ When `config-and-control` triggers the biological object search and enrichment p
 - **Outbound Ports:** Delegated internally via `PipelineService` (`ConfigAndControlRepository`, `BiologicalObjectRepository`, `MinedObjectRepository`, `PubmedIntegrationRepository`, `OntologiesRepository`, etc.).
 - **Application Services:**
   - `PipelineService` (`com.biopatternsg.application.services.PipelineService`)
-  - `DiscoveryObjectService` (injected in Use Case)
 - **Delivery Adapter:** `PipelineController` (`infrastructure.adapters.in.restcontrollers.PipelineController`).
 
 ## 3. Execution Flow
 1. Receive `PipelineConfig` via `LaunchPipeline.execute(pipelineConfig)`.
 2. Record start timestamp (`System.nanoTime()`).
 3. Delegate pipeline execution to `pipelineService.execute(pipelineConfig)`.
-4. Record end timestamp and log elapsed execution time in milliseconds.
+4. Record end timestamp and log elapsed execution time in milliseconds via SLF4J (`@Slf4j` `log.info`).
 
 ## 4. Sequence Diagram
 ```mermaid

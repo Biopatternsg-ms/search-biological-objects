@@ -15,6 +15,8 @@
  */
 package com.biopatternsg.application.usecase;
 
+import com.biopatternsg.domain.exceptions.ApiException;
+import com.biopatternsg.domain.exceptions.GeneralError;
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.port.in.UpdateBiologicalObjectMeshId;
 import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
@@ -35,7 +37,11 @@ public class UpdateBiologicalObjectMeshIdUseCase implements UpdateBiologicalObje
 
         if (biologicalObject == null) {
             log.error("Biological object not found with id: {}", biologicalObjectId);
-            return;
+            throw new ApiException(
+                    GeneralError.NOT_FOUND,
+                    GeneralError.NOT_FOUND.getCode(),
+                    "Biological object not found with id: " + biologicalObjectId
+            );
         }
 
         biologicalObject.setMeshId(meshId);

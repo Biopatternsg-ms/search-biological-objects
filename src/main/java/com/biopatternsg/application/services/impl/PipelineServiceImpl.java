@@ -22,6 +22,7 @@ import com.biopatternsg.application.services.TranscriptionFactorsService;
 import com.biopatternsg.domain.enums.PipelineSteps;
 import com.biopatternsg.domain.enums.Status;
 import com.biopatternsg.domain.models.MinedObject;
+import com.biopatternsg.domain.models.PipelineStepUpdate;
 import com.biopatternsg.domain.models.pipeline_config.PipelineConfig;
 import com.biopatternsg.domain.port.out.repositories.ConfigAndControlRepository;
 import com.biopatternsg.domain.port.out.repositories.MinedObjectRepository;
@@ -57,26 +58,26 @@ public class PipelineServiceImpl implements PipelineService {
         List<String> biologicalObjectIdsFromTranscriptionFactors = new ArrayList<>();
 
         if (pipelineConfig.getTranscriptionFactorConfig() != null){
-            updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR, Status.IN_PROGRESS, null);
-             biologicalObjectIdsFromTranscriptionFactors = transcriptionFactorsService.execute(pipelineConfig.getTranscriptionFactorConfig());
-             int tfCount = biologicalObjectIdsFromTranscriptionFactors.size();
-             updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR, Status.COMPLETED,
-                     Map.of("transcriptionFactorsFound", String.valueOf(tfCount)));
+            updatePipelineStep(new PipelineStepUpdate(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR, Status.IN_PROGRESS));
+            biologicalObjectIdsFromTranscriptionFactors = transcriptionFactorsService.execute(pipelineConfig.getTranscriptionFactorConfig());
+            int tfCount = biologicalObjectIdsFromTranscriptionFactors.size();
+            updatePipelineStep(new PipelineStepUpdate(pipelineConfig.getPipelineId(), PipelineSteps.TRANSCRIPTION_FACTOR, Status.COMPLETED,
+                    Map.of("transcriptionFactorsFound", String.valueOf(tfCount))));
         }
 
-        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.IN_PROGRESS, null);
+        updatePipelineStep(new PipelineStepUpdate(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.IN_PROGRESS));
 
         var biologicalObjectIdsFromExpertObjects = expertObjectService.execute(pipelineConfig.getExpertObjects());
         int expertObjCount = biologicalObjectIdsFromExpertObjects.size();
-        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.COMPLETED,
-                Map.of("expertObjectsValidated", String.valueOf(expertObjCount)));
+        updatePipelineStep(new PipelineStepUpdate(pipelineConfig.getPipelineId(), PipelineSteps.EXPERT_OBJECTS, Status.COMPLETED,
+                Map.of("expertObjectsValidated", String.valueOf(expertObjCount))));
 
         var biologicalObjectIds = Stream.concat(
                 biologicalObjectIdsFromTranscriptionFactors.stream(),
                 biologicalObjectIdsFromExpertObjects.stream()
         ).toList();
 
-        var minedObjects = newObjects(biologicalObjectIds, pipelineConfig.getPipelineId(), null, 1);
+        var minedObjects = newObjects(biologicalObjectIds, new MinedObjectCreationContext(pipelineConfig.getPipelineId(), null, 1));
 
         minedObjectRepository.save(minedObjects);
     }
@@ -86,7 +87,7 @@ public class PipelineServiceImpl implements PipelineService {
         int levels = pipelineConfig.getLevels();
         Integer maxComplexes = pipelineConfig.getMaxComplexes();
 
-        updatePipelineStep(pipelineConfig.getPipelineId(), PipelineSteps.SEARCH_LEVELS, Status.IN_PROGRESS, null);
+        updatePipelineStep(new PipelineStepUpdate(pipelineId, PipelineSteps.SEARCH_LEVELS, Status.IN_PROGRESS));
 
         log.info("start FindLevels pipelineId: {} y pipelineLevels: {} ",pipelineId, levels);
         for (int level = 2; level <= levels; level++) {
@@ -97,7 +98,7 @@ public class PipelineServiceImpl implements PipelineService {
 
                 log.info("Level {} y minedObject ID: {}", level, value.getBiologicalObjectId());
                 var newObjectIds = discoveryObjectService.execute(value.getBiologicalObjectId(), maxComplexes);
-                var newObjectsToSave = newObjects(newObjectIds, pipelineId, value.getBiologicalObjectId(), level);
+                var newObjectsToSave = newObjects(newObjectIds, new MinedObjectCreationContext(pipelineId, value.getBiologicalObjectId(), level));
                 log.info("Level {} y newObjects: {}", level, newObjectsToSave);
                 minedObjectRepository.save(newObjectsToSave);
             }
@@ -105,20 +106,20 @@ public class PipelineServiceImpl implements PipelineService {
         }
 
         long totalMinedObjects = minedObjectRepository.findByPipelineId(pipelineId).size();
-        updatePipelineStep(pipelineId, PipelineSteps.SEARCH_LEVELS, Status.COMPLETED,
+        updatePipelineStep(new PipelineStepUpdate(pipelineId, PipelineSteps.SEARCH_LEVELS, Status.COMPLETED,
                 Map.of(
                         "totalMinedObjects", String.valueOf(totalMinedObjects),
                         "searchLevels", String.valueOf(levels)
-                ));
+                )));
     }
 
     private List<MinedObject> getObjectsLastLevel(int level, String pipelineId) {
         return minedObjectRepository.findByLevel(level - 1, pipelineId);
     }
 
-    private List<MinedObject> newObjects(List<String> newObjectIds, String pipelineId, String parentId, int level) {
+    private List<MinedObject> newObjects(List<String> newObjectIds, MinedObjectCreationContext context) {
 
-        var minedObjects = minedObjectRepository.find(newObjectIds, pipelineId)
+        var minedObjects = minedObjectRepository.find(newObjectIds, context.pipelineId())
                 .stream()
                 .map(MinedObject::getBiologicalObjectId)
                 .toList();
@@ -126,23 +127,29 @@ public class PipelineServiceImpl implements PipelineService {
         return newObjectIds
                 .stream()
                 .filter(newObject -> !minedObjects.contains(newObject))
-                .map(id -> buildMinedObject(id, pipelineId, parentId, level))
+                .map(id -> buildMinedObject(id, context))
                 .toList();
     }
 
-
-    private MinedObject buildMinedObject(String biologicalObjectId, String pipelineId, String parentId, int level) {
+    private MinedObject buildMinedObject(String biologicalObjectId, MinedObjectCreationContext context) {
 
         return MinedObject.builder()
-                .pipelineId(pipelineId)
+                .pipelineId(context.pipelineId())
                 .biologicalObjectId(biologicalObjectId)
-                .biologicalObjectParentId(parentId)
-                .level(level)
+                .biologicalObjectParentId(context.parentId())
+                .level(context.level())
                 .build();
     }
 
-    private void updatePipelineStep(String pipelineId, PipelineSteps step, Status status, Map<String, String> metrics) {
-        configAndControlRepository.updatePipelineStep(pipelineId, step, status, metrics);
+    private void updatePipelineStep(PipelineStepUpdate update) {
+        configAndControlRepository.updatePipelineStep(update);
+    }
+
+    private record MinedObjectCreationContext(
+            String pipelineId,
+            String parentId,
+            int level
+    ) {
     }
 
 }
