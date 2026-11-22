@@ -16,9 +16,17 @@
 package archtest;
 
 import com.tngtech.archunit.core.domain.JavaClasses;
+import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.lang.ArchCondition;
+import com.tngtech.archunit.lang.ConditionEvents;
+import com.tngtech.archunit.lang.SimpleConditionEvent;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
 import com.tngtech.archunit.library.Architectures;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Singleton;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -106,26 +114,31 @@ class ArchitectureLayerTest {
                 .check(this.javaClasses);
     }
 
-    @DisplayName("The Domain layer should not depend on web or persistence frameworks")
+    @DisplayName("The Domain layer should not depend on web, CDI, MicroProfile, or persistence frameworks")
     @Test
     void domainLayerFrameworkIsolationTest() {
         ArchRuleDefinition.noClasses()
                 .that().resideInAPackage(ROOT + ".domain..")
                 .should().dependOnClassesThat().resideInAnyPackage(
                         "jakarta.ws.rs..",
+                        "jakarta.enterprise..",
+                        "jakarta.inject..",
                         "io.quarkus..",
-                        "org.bson.."
+                        "org.bson..",
+                        "org.eclipse.microprofile.."
                 )
                 .check(this.javaClasses);
     }
 
-    @DisplayName("The Application layer should not depend on web frameworks")
+    @DisplayName("The Application layer should not depend on delivery or persistence frameworks")
     @Test
     void applicationLayerFrameworkIsolationTest() {
         ArchRuleDefinition.noClasses()
                 .that().resideInAPackage(ROOT + ".application..")
                 .should().dependOnClassesThat().resideInAnyPackage(
-                        "jakarta.ws.rs.."
+                        "jakarta.ws.rs..",
+                        "io.quarkus.mongodb..",
+                        "org.bson.."
                 )
                 .check(this.javaClasses);
     }
@@ -136,6 +149,34 @@ class ArchitectureLayerTest {
         ArchRuleDefinition.noClasses()
                 .that().resideInAPackage(ROOT + ".application.usecase..")
                 .should().dependOnClassesThat().resideInAPackage(ROOT + ".application.services.impl..")
+                .check(this.javaClasses);
+    }
+
+    @DisplayName("Static mappers should be stateless final utility classes with private constructors and no CDI scopes")
+    @Test
+    void staticMappersShouldBeStatelessFinalUtilityClassesTest() {
+        ArchCondition<JavaClass> beStatelessFinalUtility = new ArchCondition<>("be final with private constructor only") {
+            @Override
+            public void check(JavaClass item, ConditionEvents events) {
+                if (!item.getModifiers().contains(JavaModifier.FINAL)) {
+                    events.add(SimpleConditionEvent.violated(item, item.getName() + " must be declared final"));
+                }
+                boolean hasNonPrivateConstructor = item.getConstructors().stream()
+                        .anyMatch(ctor -> !ctor.getModifiers().contains(JavaModifier.PRIVATE));
+                if (item.getConstructors().isEmpty() || hasNonPrivateConstructor) {
+                    events.add(SimpleConditionEvent.violated(item, item.getName() + " must declare only private constructors"));
+                }
+            }
+        };
+
+        ArchRuleDefinition.classes()
+                .that().resideInAPackage("..mappers..")
+                .and().resideOutsideOfPackage("..exceptions..")
+                .and().areTopLevelClasses()
+                .should(beStatelessFinalUtility)
+                .andShould().notBeAnnotatedWith(ApplicationScoped.class)
+                .andShould().notBeAnnotatedWith(Singleton.class)
+                .andShould().notBeAnnotatedWith(RequestScoped.class)
                 .check(this.javaClasses);
     }
 }

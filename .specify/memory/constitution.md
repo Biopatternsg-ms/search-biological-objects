@@ -63,7 +63,7 @@ Mapping and structural naming conventions MUST be strictly enforced:
 
 Before completing any feature, refactoring, or bug fix:
 1. Run `./mvnw clean compile` to verify compilation and refresh `target/classes`.
-2. Run `./mvnw test -Dtest=ArchitectureLayerTest` to verify all ArchUnit hexagonal layer and naming rules pass.
+2. Run `./mvnw test -Dtest=ArchitectureLayerTest,DocumentationGovernanceTest` to verify all ArchUnit hexagonal layer, naming, and documentation governance rules pass.
 3. Update `.agents/architecture.md` whenever new Use Cases, Ports, or integrations are added or modified.
 
 ## Governance
