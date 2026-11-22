@@ -26,8 +26,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @ApplicationScoped
@@ -38,30 +37,66 @@ public class FindBiologicalObjectFatherBrothersAndSonsUseCase implements FindBio
 
     @Override
     public List<BiologicalObject> execute(String pipelineId, String biologicalObjectId) {
-
         MinedObject currentMinedObject = minedObjectRepository.find(biologicalObjectId, pipelineId);
-
-        List<MinedObject> currentMinedBrothers = minedObjectRepository.findByParentId(currentMinedObject.getBiologicalObjectParentId(), pipelineId);
+        if (currentMinedObject == null) {
+            return List.of();
+        }
 
         BiologicalObject currentBiologicalObject = biologicalObjectRepository.findById(currentMinedObject.getBiologicalObjectId());
-        BiologicalObject currentFather = biologicalObjectRepository.findById(currentMinedObject.getBiologicalObjectParentId());
-        List<BiologicalObject> currentBrothers = biologicalObjectRepository.findByIds(
-                currentMinedBrothers.stream()
-                        .filter(brother -> !brother.getId().equals(currentBiologicalObject.getId()))
-                        .map(MinedObject::getBiologicalObjectId).toList()
-        );
-
-        List<MinedObject> currentMinedSons = minedObjectRepository.findByParentId(currentBiologicalObject.getId(), pipelineId);
-        List<BiologicalObject> currentSons = biologicalObjectRepository.findByIds(
-                currentMinedSons.stream().map(MinedObject::getBiologicalObjectId).toList()
-        );
+        if (currentBiologicalObject == null) {
+            return List.of();
+        }
 
         Map<String, BiologicalObject> biologicalObjectsMap = new HashMap<>();
         biologicalObjectsMap.put(currentBiologicalObject.getId(), currentBiologicalObject);
-        biologicalObjectsMap.put(currentFather.getId(), currentFather);
-        biologicalObjectsMap.putAll(currentBrothers.stream().collect(Collectors.toMap(BiologicalObject::getId, Function.identity())));
-        biologicalObjectsMap.putAll(currentSons.stream().collect(Collectors.toMap(BiologicalObject::getId, Function.identity())));
 
-        return biologicalObjectsMap.values().stream().toList();
+        addFatherAndBrothers(biologicalObjectsMap, currentMinedObject, pipelineId);
+        addSons(biologicalObjectsMap, currentBiologicalObject.getId(), pipelineId);
+
+        return List.copyOf(biologicalObjectsMap.values());
+    }
+
+    private void addFatherAndBrothers(Map<String, BiologicalObject> result, MinedObject currentMinedObject, String pipelineId) {
+        String parentId = currentMinedObject.getBiologicalObjectParentId();
+        if (parentId == null) {
+            return;
+        }
+
+        BiologicalObject currentFather = biologicalObjectRepository.findById(parentId);
+        if (currentFather != null) {
+            result.put(currentFather.getId(), currentFather);
+        }
+
+        findBrothers(currentMinedObject, pipelineId)
+                .forEach(brother -> result.put(brother.getId(), brother));
+    }
+
+    private List<BiologicalObject> findBrothers(MinedObject currentMinedObject, String pipelineId) {
+        List<MinedObject> minedBrothers = minedObjectRepository.findByParentId(
+                currentMinedObject.getBiologicalObjectParentId(),
+                pipelineId
+        );
+        List<String> brotherIds = minedBrothers.stream()
+                .map(MinedObject::getBiologicalObjectId)
+                .filter(id -> !Objects.equals(id, currentMinedObject.getBiologicalObjectId()))
+                .toList();
+
+        if (brotherIds.isEmpty()) {
+            return List.of();
+        }
+        return biologicalObjectRepository.findByIds(brotherIds);
+    }
+
+    private void addSons(Map<String, BiologicalObject> result, String biologicalObjectId, String pipelineId) {
+        List<MinedObject> minedSons = minedObjectRepository.findByParentId(biologicalObjectId, pipelineId);
+        List<String> sonIds = minedSons.stream()
+                .map(MinedObject::getBiologicalObjectId)
+                .toList();
+
+        if (sonIds.isEmpty()) {
+            return;
+        }
+        biologicalObjectRepository.findByIds(sonIds)
+                .forEach(son -> result.put(son.getId(), son));
     }
 }

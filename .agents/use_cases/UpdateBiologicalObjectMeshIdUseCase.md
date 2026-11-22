@@ -14,7 +14,7 @@ Biological objects need to be linked with Medical Subject Headings (`meshId`) fo
 
 ## 3. Execution Flow
 1. Look up the biological object by `biologicalObjectId` via `biologicalObjectRepository.findById(biologicalObjectId)`.
-2. If not found (`null`), log an error and return early without updating.
+2. If not found (`null`), log an error and throw `ApiException(GeneralError.NOT_FOUND, "Biological object not found with id: " + biologicalObjectId)`.
 3. Set `biologicalObject.setMeshId(meshId)`.
 4. Persist the updated object via `biologicalObjectRepository.update(biologicalObject)` and log success.
 
@@ -29,7 +29,7 @@ sequenceDiagram
     UC->>R: findById(biologicalObjectId)
     R-->>UC: BiologicalObject
     alt not found (null)
-        UC-->>C: return (logs error)
+        UC-->>C: throws ApiException(GeneralError.NOT_FOUND)
     else found
         UC->>UC: setMeshId(meshId)
         UC->>R: update(biologicalObject)
@@ -39,5 +39,5 @@ sequenceDiagram
 ```
 
 ## 5. Exceptions and Failure Scenarios
-- If `biologicalObjectId` is not found, no exception is thrown by the use case; the operation logs an error and exits cleanly.
-- Invalid `ObjectId` formats or database persistence failures throw runtime exceptions caught by `BiologicalObjectController#updateMeshId` (returning HTTP `500`).
+- If `biologicalObjectId` is not found, `ApiException(GeneralError.NOT_FOUND)` is thrown by the use case (intended to be mapped to HTTP `404` by `ApiExceptionMapper`).
+- Invalid `ObjectId` formats or database persistence failures throw runtime exceptions.
