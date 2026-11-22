@@ -15,7 +15,6 @@
  */
 package com.biopatternsg.infrastructure.adapters.in.restcontrollers;
 
-import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.domain.port.in.FindBiologicalObject;
 import com.biopatternsg.domain.port.in.FindBiologicalObjectFatherBrothersAndSons;
 import com.biopatternsg.domain.port.in.FindBiologicalObjectsByPipelineAndLevel;
@@ -23,15 +22,15 @@ import com.biopatternsg.domain.port.in.FindBiologicalObjectsBySynonym;
 import com.biopatternsg.domain.port.in.GetExpertObjectsByPipelineAndLevel;
 import com.biopatternsg.domain.port.in.UpdateBiologicalObjectMeshId;
 import com.biopatternsg.infrastructure.adapters.dtos.BiologicalObjectDTO;
+import com.biopatternsg.infrastructure.adapters.dtos.BiologicalObjectDetailDTO;
 import com.biopatternsg.infrastructure.adapters.dtos.BiologicalObjectRequest;
 import com.biopatternsg.infrastructure.adapters.dtos.FatherBrothersAndSonsRequest;
 import com.biopatternsg.infrastructure.adapters.dtos.UpdateMeshIdRequest;
-import com.biopatternsg.infrastructure.session.SessionUtil;
+import com.biopatternsg.infrastructure.adapters.mappers.BiologicalObjectDtoMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -41,7 +40,6 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
 import java.util.List;
 
-@Slf4j
 @ApplicationScoped
 @Path("/biological-object")
 @RequiredArgsConstructor
@@ -53,7 +51,6 @@ public class BiologicalObjectController {
     private final FindBiologicalObjectFatherBrothersAndSons findBiologicalObjectFatherBrothersAndSons;
     private final FindBiologicalObjectsBySynonym findBiologicalObjectsBySynonym;
     private final GetExpertObjectsByPipelineAndLevel getExpertObjectsByPipelineAndLevel;
-    private final SessionUtil sessionUtil;
 
     @GET
     @Path("/search/{type}/{value}")
@@ -67,13 +64,13 @@ public class BiologicalObjectController {
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(
-                            implementation = BiologicalObject.class,
+                            implementation = BiologicalObjectDetailDTO.class,
                             description = "The biological object matching the search criteria"
                     )
             )
     )
-    public BiologicalObject find(@PathParam("type") String type, @PathParam("value") String value){
-        return findBiologicalObject.execute(type, value);
+    public BiologicalObjectDetailDTO find(@PathParam("type") String type, @PathParam("value") String value){
+        return BiologicalObjectDtoMapper.toDetailDto(findBiologicalObject.execute(type, value));
     }
 
     @PATCH
@@ -105,12 +102,7 @@ public class BiologicalObjectController {
             )
     )
     public Response updateMeshId(@RequestBody UpdateMeshIdRequest updateMeshIdRequest){
-        try {
-            updateBiologicalObjectMeshId.execute(updateMeshIdRequest.biologicalObjectId(), updateMeshIdRequest.meshId());
-        } catch (Exception e) {
-            log.error("Error updating mesh id", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
+        updateBiologicalObjectMeshId.execute(updateMeshIdRequest.biologicalObjectId(), updateMeshIdRequest.meshId());
         return Response.ok().build();
     }
 

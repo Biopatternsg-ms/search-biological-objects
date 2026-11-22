@@ -80,10 +80,10 @@ For any new or refactored Application Service:
 
 ### 4.1. Zero Business Logic in Controllers
 - Controllers (`BiologicalObjectController`, `BlatController`, `ComplexController`, `PipelineController`, `TranscriptionFactorController`) are strictly delivery adapters:
-    1. Receive HTTP request / path params / payload DTO (`com.biopatternsg.infrastructure.adapters.dtos.*` or `com.biopatternsg.infrastructure.dtos.*`).
-    2. Convert request DTOs to Domain Models when applicable.
-    3. Invoke the Use Case through its Inbound Port interface (`domain.port.in.*`).
-    4. Convert the Domain Model result to a Response DTO (e.g., `BiologicalObjectDTO::fromDomain`) and return it.
+    1. Receive HTTP request / path params / payload DTO (`com.biopatternsg.infrastructure.adapters.dtos.*` or shared request DTOs).
+    2. Convert request DTOs to Domain Models via static mappers in `com.biopatternsg.infrastructure.adapters.mappers.*`.
+    3. Invoke the Use Case through its Inbound Port interface (`domain.port.in.*`) or `AsyncPipelineDispatcher` for async execution.
+    4. Convert the Domain Model result to a Response DTO via static mappers (e.g., `BiologicalObjectDtoMapper::toDetailDto`, `ComplexDtoMapper::toDtoList`) and return it.
 - **No** business branching (`if/else`), existence queries, or domain calculations are allowed inside controller methods.
 
 ### 4.2. Business Exceptions in Domain/Application Layers

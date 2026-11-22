@@ -15,39 +15,29 @@
  */
 package com.biopatternsg.infrastructure.adapters.in.restcontrollers;
 
-import com.biopatternsg.domain.models.pipeline_config.PipelineConfig;
-import com.biopatternsg.domain.port.in.LaunchPipeline;
-import com.biopatternsg.infrastructure.session.SessionUtil;
-import io.quarkus.arc.Arc;
-import io.quarkus.arc.ManagedContext;
+import com.biopatternsg.infrastructure.adapters.dtos.LaunchPipelineRequest;
+import com.biopatternsg.infrastructure.adapters.dtos.LaunchPipelineResponse;
+import com.biopatternsg.infrastructure.adapters.in.AsyncPipelineDispatcher;
+import com.biopatternsg.infrastructure.adapters.mappers.PipelineDtoMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.MultivaluedHashMap;
-import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.context.ManagedExecutor;
 import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
-import java.util.concurrent.CompletableFuture;
-
-@Slf4j
 @ApplicationScoped
 @Path("/biological-object")
 @RequiredArgsConstructor
 public class PipelineController {
 
-    private final LaunchPipeline launchExperiment;
-    private final ManagedExecutor executor;
-    private final SessionUtil sessionUtil;
+    private final AsyncPipelineDispatcher asyncPipelineDispatcher;
 
     @POST
     @Path("/launch-pipeline")
@@ -62,45 +52,15 @@ public class PipelineController {
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(
-                type = SchemaType.STRING,
+                implementation = LaunchPipelineResponse.class,
                 description = "Success message with pipeline ID"
             )
         )
     )
-    public Response experiment(@RequestBody PipelineConfig launchExperimentRequest) {
-
-        // Get the context from the current request scope before going async
-        // We create a copy to avoid issues if the original request ends and the map is cleared/recycled
-        MultivaluedMap<String, String> currentContext = null;
-        if (sessionUtil.getContext() != null) {
-            currentContext = new MultivaluedHashMap<>(sessionUtil.getContext());
-        }
-        final MultivaluedMap<String, String> contextToPropagate = currentContext;
-
-        CompletableFuture.runAsync(() -> {
-            ManagedContext requestContext = Arc.container().requestContext();
-            boolean newlyActivated = false;
-            if (!requestContext.isActive()) {
-                requestContext.activate();
-                newlyActivated = true;
-            }
-            try {
-                // Set the copied context into the new request scope
-                if (contextToPropagate != null) {
-                    sessionUtil.setContext(contextToPropagate);
-                }
-                launchExperiment.execute(launchExperimentRequest);
-            } catch (Exception e) {
-                log.error("Error launch pipeline", e);
-            } finally {
-                if (newlyActivated) {
-                    requestContext.terminate();
-                }
-            }
-        }); // Removing 'executor' so it uses the common pool and doesn't inherit the parent RequestContext
-
-        return Response.accepted()
-                .entity("{\"message\": \"successful launch pipeline " + launchExperimentRequest.getPipelineId() + "\"}")
-                .build();
+    public Response experiment(@Valid @RequestBody LaunchPipelineRequest launchExperimentRequest) {
+        asyncPipelineDispatcher.dispatch(PipelineDtoMapper.toDomain(launchExperimentRequest));
+        return Response.accepted(
+                new LaunchPipelineResponse("successful launch pipeline " + launchExperimentRequest.pipelineId())
+        ).build();
     }
 }
