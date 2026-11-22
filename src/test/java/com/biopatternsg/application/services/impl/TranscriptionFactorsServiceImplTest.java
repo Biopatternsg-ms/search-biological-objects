@@ -15,8 +15,8 @@
  */
 package com.biopatternsg.application.services.impl;
 
+import com.biopatternsg.application.services.BiologicalObjectSearchService;
 import com.biopatternsg.application.services.OntologiesService;
-import com.biopatternsg.application.services.impl.biological_object_strategy.BiologicalObjectSearch;
 import com.biopatternsg.domain.enums.Genome;
 import com.biopatternsg.domain.enums.Strand;
 import com.biopatternsg.domain.enums.TranscriptionFactorSource;
@@ -50,7 +50,7 @@ class TranscriptionFactorsServiceImplTest {
     private TFBindRepository tfBindRepository;
 
     @Mock
-    private BiologicalObjectSearch biologicalObjectSearch;
+    private BiologicalObjectSearchService biologicalObjectSearchService;
 
     @Mock
     private BiologicalObjectRepository biologicalObjectRepository;
@@ -65,7 +65,7 @@ class TranscriptionFactorsServiceImplTest {
         transcriptionFactorsService = new TranscriptionFactorsServiceImpl(
                 jasparRepository,
                 tfBindRepository,
-                biologicalObjectSearch,
+                biologicalObjectSearchService,
                 biologicalObjectRepository,
                 ontologiesService
         );

@@ -45,13 +45,14 @@ public class PipelineServiceImpl implements PipelineService {
     private final TranscriptionFactorsService transcriptionFactorsService;
     private final ConfigAndControlRepository configAndControlRepository;
 
+    @Override
     public void execute(PipelineConfig pipelineConfig) {
         firstLevel(pipelineConfig);
         findLevels(pipelineConfig);
     }
 
 
-    void firstLevel(PipelineConfig pipelineConfig) {
+    private void firstLevel(PipelineConfig pipelineConfig) {
 
         List<String> biologicalObjectIdsFromTranscriptionFactors = new ArrayList<>();
 

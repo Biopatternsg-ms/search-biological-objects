@@ -129,4 +129,13 @@ class ArchitectureLayerTest {
                 )
                 .check(this.javaClasses);
     }
+
+    @DisplayName("The Use Cases in application should not depend on application service implementations")
+    @Test
+    void useCaseIsolationFromServiceImplTest() {
+        ArchRuleDefinition.noClasses()
+                .that().resideInAPackage(ROOT + ".application.usecase..")
+                .should().dependOnClassesThat().resideInAPackage(ROOT + ".application.services.impl..")
+                .check(this.javaClasses);
+    }
 }

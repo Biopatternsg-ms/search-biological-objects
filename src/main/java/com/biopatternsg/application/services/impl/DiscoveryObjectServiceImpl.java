@@ -32,14 +32,6 @@ public class DiscoveryObjectServiceImpl implements DiscoveryObjectService {
     private final BiologicalObjectRepository biologicalObjectRepository;
 
     @Override
-    public void execute(PipelineConfig pipelineConfig, String context) {
-
-        //var expertObjects = searchFirstLevel(pipelineConfig);
-        //var discoveryObjects = discoveryObjectContext.load(context);
-        //discoveryObjects.execute(expertObjects, pipelineConfig.getPipelineId(), pipelineConfig.getLevels());
-    }
-
-    @Override
     public List<String> execute(String id, Integer maxComplexes) {
 
         var biologicalObject = biologicalObjectRepository.findById(id);
