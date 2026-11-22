@@ -24,6 +24,7 @@ import java.util.List;
 @Setter
 @Getter
 @Builder
+@ToString
 public class GeneOntology {
     private List<String> cellularComponent;
     private List<String> molecularFunction;

@@ -23,7 +23,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 @RequiredArgsConstructor
@@ -37,7 +36,7 @@ public class PubmedIntegrationAdapter implements PubmedIntegrationRepository {
 
         List<PipelineSynonym> items = dto.items().stream()
                 .map(synDto -> new PipelineSynonym(synDto.name(), synDto.synonyms()))
-                .collect(Collectors.toList());
+                .toList();
 
         return new PaginatedResult<>(
                 items,

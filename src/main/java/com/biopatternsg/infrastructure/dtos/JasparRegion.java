@@ -17,8 +17,10 @@ package com.biopatternsg.infrastructure.dtos;
 
 import jakarta.ws.rs.QueryParam;
 import lombok.Builder;
+import lombok.ToString;
 
 @Builder
+@ToString
 public class JasparRegion {
         @QueryParam("genome") public String genome;
         @QueryParam("track") public String track;

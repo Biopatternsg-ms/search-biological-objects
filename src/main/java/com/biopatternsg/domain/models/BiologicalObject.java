@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -29,6 +30,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+@ToString
 public class BiologicalObject {
 
     private String id;

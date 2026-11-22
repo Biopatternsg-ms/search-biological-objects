@@ -17,15 +17,22 @@ package com.biopatternsg.infrastructure.mongo_db.mappers;
 
 import com.biopatternsg.domain.models.MinedObject;
 import com.biopatternsg.infrastructure.mongo_db.collections.MinedObjectCollection;
+import org.bson.types.ObjectId;
 
 import java.util.List;
 
-public class MinedObjectMapper {
+public final class MinedObjectMapper {
 
-    public static MinedObject toMinedObject(MinedObjectCollection minedObjectCollection){
+    private MinedObjectMapper() {
+    }
+
+    public static MinedObject toMinedObject(MinedObjectCollection minedObjectCollection) {
+        if (minedObjectCollection == null) {
+            return null;
+        }
 
         return MinedObject.builder()
-                .id(minedObjectCollection.id.toString())
+                .id(minedObjectCollection.id != null ? minedObjectCollection.id.toString() : null)
                 .userId(minedObjectCollection.getUserId())
                 .pipelineId(minedObjectCollection.getPipelineId())
                 .biologicalObjectId(minedObjectCollection.getBiologicalObjectId())
@@ -34,20 +41,32 @@ public class MinedObjectMapper {
                 .build();
     }
 
-    public static MinedObjectCollection toMinedObjectCollection(MinedObject minedObject){
+    public static MinedObjectCollection toMinedObjectCollection(MinedObject minedObject) {
+        if (minedObject == null) {
+            return null;
+        }
 
-        return MinedObjectCollection.builder()
-                //TODO chequearID
+        MinedObjectCollection collection = MinedObjectCollection.builder()
                 .userId(minedObject.getUserId())
                 .pipelineId(minedObject.getPipelineId())
                 .biologicalObjectId(minedObject.getBiologicalObjectId())
                 .biologicalObjectParentId(minedObject.getBiologicalObjectParentId())
                 .level(minedObject.getLevel())
                 .build();
+
+        if (minedObject.getId() != null && ObjectId.isValid(minedObject.getId())) {
+            collection.id = new ObjectId(minedObject.getId());
+        }
+
+        return collection;
     }
 
-    public static List<MinedObject> toMinedObjects(List<MinedObjectCollection> minedObjectCollections){
-
-        return minedObjectCollections.stream().map(MinedObjectMapper::toMinedObject).toList();
+    public static List<MinedObject> toMinedObjects(List<MinedObjectCollection> minedObjectCollections) {
+        if (minedObjectCollections == null) {
+            return List.of();
+        }
+        return minedObjectCollections.stream()
+                .map(MinedObjectMapper::toMinedObject)
+                .toList();
     }
 }

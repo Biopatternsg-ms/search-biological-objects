@@ -70,26 +70,14 @@ public class UniprotAdapter implements UniprotRepository {
     }
 
     private static void setCodesGO(UniprotResponse response, List<KBCrossReference> references) {
-
         List<String> goCc = new ArrayList<>();
         List<String> goMf = new ArrayList<>();
         List<String> goBp = new ArrayList<>();
 
         if (references != null) {
-            references.forEach(reference -> {
-                if (reference.properties() != null) {
-                    reference.properties().forEach(property -> {
-                        if (property.value() != null) {
-                            String branch = property.value().split(":")[FIRST_VALUE];
-                            switch (branch) {
-                                case "C" -> goCc.add(reference.id());
-                                case "F" -> goMf.add(reference.id());
-                                case "P" -> goBp.add(reference.id());
-                            }
-                        }
-                    });
-                }
-            });
+            for (KBCrossReference reference : references) {
+                classifyGoReference(reference, goCc, goMf, goBp);
+            }
         }
 
         response.setGoCc(goCc);
@@ -97,24 +85,53 @@ public class UniprotAdapter implements UniprotRepository {
         response.setGoBp(goBp);
     }
 
-    private static void setSynonyms(UniprotResponse response, ProteinDescription descriptions) {
-
-        Set<String> synonyms = new HashSet<>();
-        if (descriptions != null) {
-            if (descriptions.alternativeNames() != null) {
-                descriptions.alternativeNames().forEach(names -> {
-                    if (names != null && names.fullName() != null && names.fullName().value() != null) {
-                        synonyms.add(names.fullName().value());
-                    }
-                });
+    private static void classifyGoReference(
+            KBCrossReference reference,
+            List<String> goCc,
+            List<String> goMf,
+            List<String> goBp
+    ) {
+        if (reference.properties() == null) {
+            return;
+        }
+        for (var property : reference.properties()) {
+            if (property.value() == null) {
+                continue;
             }
-            if (descriptions.recommendedName() != null
-                    && descriptions.recommendedName().fullName() != null
-                    && descriptions.recommendedName().fullName().value() != null) {
-                synonyms.add(descriptions.recommendedName().fullName().value());
+            String branch = property.value().split(":")[FIRST_VALUE];
+            switch (branch) {
+                case "C" -> goCc.add(reference.id());
+                case "F" -> goMf.add(reference.id());
+                case "P" -> goBp.add(reference.id());
+                default -> { }
             }
         }
+    }
+
+    private static void setSynonyms(UniprotResponse response, ProteinDescription descriptions) {
+        Set<String> synonyms = new HashSet<>();
+        if (descriptions != null) {
+            addAlternativeNames(synonyms, descriptions.alternativeNames());
+            addRecommendedName(synonyms, descriptions.recommendedName());
+        }
         response.setSynonyms(synonyms);
+    }
+
+    private static void addAlternativeNames(Set<String> synonyms, List<AlternativeName> alternativeNames) {
+        if (alternativeNames == null) {
+            return;
+        }
+        for (AlternativeName names : alternativeNames) {
+            if (names != null && names.fullName() != null && names.fullName().value() != null) {
+                synonyms.add(names.fullName().value());
+            }
+        }
+    }
+
+    private static void addRecommendedName(Set<String> synonyms, RecommendedName recommendedName) {
+        if (recommendedName != null && recommendedName.fullName() != null && recommendedName.fullName().value() != null) {
+            synonyms.add(recommendedName.fullName().value());
+        }
     }
 
     private static void setGeneName(UniprotResponse response, List<Gene> gene) {

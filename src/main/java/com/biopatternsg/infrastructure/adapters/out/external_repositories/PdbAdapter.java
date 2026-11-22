@@ -38,16 +38,19 @@ import java.util.Optional;
 @ApplicationScoped
 public class PdbAdapter implements PdbRepository {
 
-    @ConfigProperty(name = "pdbe.target-organism", defaultValue = "Homo sapiens")
-    String targetOrganism;
-
+    private final String targetOrganism;
     private final QueryPdb queryPdbe;
     private final PdbeHttpClient pdbeHttpClient;
 
     @Inject
-    public PdbAdapter(QueryPdb queryPdbe, @RestClient PdbeHttpClient pdbeHttpClient) {
+    public PdbAdapter(
+            QueryPdb queryPdbe,
+            @RestClient PdbeHttpClient pdbeHttpClient,
+            @ConfigProperty(name = "pdbe.target-organism", defaultValue = "Homo sapiens") String targetOrganism
+    ) {
         this.queryPdbe = queryPdbe;
         this.pdbeHttpClient = pdbeHttpClient;
+        this.targetOrganism = targetOrganism;
     }
 
     @Override
@@ -62,19 +65,7 @@ public class PdbAdapter implements PdbRepository {
 
             return dataList.stream()
                     .sorted(Comparator.comparingDouble(this::calculateScore).reversed())
-                    .map(data -> {
-                        String complexId = data.pdbComplexId();
-                        List<String> participants = data.participants().stream()
-                                .map(Participants::accession)
-                                .filter(accession -> !accession.equals(uniprotId))
-                                .toList();
-
-                        return Complex.builder()
-                                .complexPdbId(complexId)
-                                .participants(participants)
-                                .score((float) calculateScore(data))
-                                .build();
-                    })
+                    .map(data -> toComplex(data, uniprotId, (float) calculateScore(data)))
                     .toList();
 
         } catch (Exception e) {
@@ -146,20 +137,37 @@ public class PdbAdapter implements PdbRepository {
     public List<Complex> getComplexesDeprecated(String uniprotId) {
         List<com.biopatternsg.infrastructure.external_services.dtos.pdbe_complex.Data> dataList = getPdbResponseDeprecated(uniprotId);
         return dataList.stream()
-                .map(data -> {
-                    String complexId = data.pdbComplexId();
-                    List<String> participants = data.participants().stream()
-                            .map(com.biopatternsg.infrastructure.external_services.dtos.pdbe_complex.Participants::accession)
-                            .filter(accession -> !accession.equals(uniprotId))
-                            .toList();
-
-                    return Complex.builder()
-                            .complexPdbId(complexId)
-                            .participants(participants)
-                            .score(0.0f)
-                            .build();
-                })
+                .map(data -> toComplexDeprecated(data, uniprotId))
                 .toList();
+    }
+
+    private Complex toComplexDeprecated(
+            com.biopatternsg.infrastructure.external_services.dtos.pdbe_complex.Data data,
+            String uniprotId
+    ) {
+        List<String> participants = data.participants().stream()
+                .map(com.biopatternsg.infrastructure.external_services.dtos.pdbe_complex.Participants::accession)
+                .filter(accession -> !accession.equals(uniprotId))
+                .toList();
+
+        return Complex.builder()
+                .complexPdbId(data.pdbComplexId())
+                .participants(participants)
+                .score(0.0f)
+                .build();
+    }
+
+    private Complex toComplex(Data data, String uniprotId, float score) {
+        List<String> participants = data.participants().stream()
+                .map(Participants::accession)
+                .filter(accession -> !accession.equals(uniprotId))
+                .toList();
+
+        return Complex.builder()
+                .complexPdbId(data.pdbComplexId())
+                .participants(participants)
+                .score(score)
+                .build();
     }
 
     @Deprecated(since = "2026-07-14", forRemoval = false)
