@@ -23,6 +23,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@ToString
 public class PipelineConfig {
 
     @NonNull

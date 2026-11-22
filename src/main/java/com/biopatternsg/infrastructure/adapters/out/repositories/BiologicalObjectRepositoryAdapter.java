@@ -22,7 +22,6 @@ import com.biopatternsg.infrastructure.mongo_db.mappers.BiologicalObjectMapper;
 import com.biopatternsg.infrastructure.mongo_db.repositories.BiologicalObjectRepositoryDB;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 
@@ -32,8 +31,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BiologicalObjectRepositoryAdapter implements BiologicalObjectRepository {
 
-    @Inject
-    private BiologicalObjectRepositoryDB biologicalObjectRepositoryDB;
+    private final BiologicalObjectRepositoryDB biologicalObjectRepositoryDB;
 
     @Override
     public BiologicalObject save(BiologicalObject biologicalObject) {
@@ -107,13 +105,15 @@ public class BiologicalObjectRepositoryAdapter implements BiologicalObjectReposi
     @Override
     public void updateAll(List<BiologicalObject> biologicalObjects) {
         List<BiologicalObjectCollection> mongoObjects = biologicalObjects.stream()
-                .map(bo -> {
-                    BiologicalObjectCollection mongoObject = BiologicalObjectMapper.toBiologicalObjectCollection(bo);
-                    mongoObject.id = new ObjectId(bo.getId());
-                    return mongoObject;
-                })
+                .map(this::toCollectionWithId)
                 .toList();
         biologicalObjectRepositoryDB.persistOrUpdate(mongoObjects);
+    }
+
+    private BiologicalObjectCollection toCollectionWithId(BiologicalObject biologicalObject) {
+        BiologicalObjectCollection mongoObject = BiologicalObjectMapper.toBiologicalObjectCollection(biologicalObject);
+        mongoObject.id = new ObjectId(biologicalObject.getId());
+        return mongoObject;
     }
 
 

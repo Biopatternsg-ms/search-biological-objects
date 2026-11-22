@@ -17,20 +17,20 @@ package com.biopatternsg.infrastructure.mongo_db.mappers;
 
 import com.biopatternsg.domain.models.BiologicalObject;
 import com.biopatternsg.infrastructure.mongo_db.collections.BiologicalObjectCollection;
-import lombok.experimental.UtilityClass;
 
 import java.util.List;
 
-@UtilityClass
-public class BiologicalObjectMapper {
+public final class BiologicalObjectMapper {
+
+    private BiologicalObjectMapper() {
+    }
 
     public static BiologicalObject toBiologicalObject(BiologicalObjectCollection biologicalObjectCollection) {
-
         if (biologicalObjectCollection == null) {
             return null;
         }
         return BiologicalObject.builder()
-                .id(biologicalObjectCollection.id.toString())
+                .id(biologicalObjectCollection.id != null ? biologicalObjectCollection.id.toString() : null)
                 .hgncId(biologicalObjectCollection.getHgncId())
                 .uniprotId(biologicalObjectCollection.getUniprotId())
                 .symbol(biologicalObjectCollection.getSymbol())
@@ -46,7 +46,9 @@ public class BiologicalObjectMapper {
     }
 
     public static BiologicalObjectCollection toBiologicalObjectCollection(BiologicalObject biologicalObject) {
-
+        if (biologicalObject == null) {
+            return null;
+        }
         return BiologicalObjectCollection.builder()
                 .hgncId(biologicalObject.getHgncId())
                 .uniprotId(biologicalObject.getUniprotId())
@@ -63,7 +65,12 @@ public class BiologicalObjectMapper {
                 .build();
     }
 
-    public static List<BiologicalObject> toBiologicalObjects(List<BiologicalObjectCollection> biologicalObjectCollections){
-        return biologicalObjectCollections.stream().map(BiologicalObjectMapper::toBiologicalObject).toList();
+    public static List<BiologicalObject> toBiologicalObjects(List<BiologicalObjectCollection> biologicalObjectCollections) {
+        if (biologicalObjectCollections == null) {
+            return List.of();
+        }
+        return biologicalObjectCollections.stream()
+                .map(BiologicalObjectMapper::toBiologicalObject)
+                .toList();
     }
 }

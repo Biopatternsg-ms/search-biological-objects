@@ -25,6 +25,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+@ToString
 public class UniprotResponse {
 
     private String id;

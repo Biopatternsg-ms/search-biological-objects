@@ -86,28 +86,23 @@ public class TranscriptionFactorsServiceImpl implements TranscriptionFactorsServ
     }
 
     private List<String> getBiologicalObjectIds(Map<String, TranscriptionFactor> transcriptionFactorMap) {
-        List<TranscriptionFactor> transcriptionFactors = transcriptionFactorMap.values().stream().toList();
+        return transcriptionFactorMap.values().stream()
+                .map(this::resolveOrPersistFactorObjectId)
+                .toList();
+    }
 
-        List<String> biologicalObjectIds = new ArrayList<>();
+    private String resolveOrPersistFactorObjectId(TranscriptionFactor transcriptionFactor) {
+        var biologicalObjectConfig = BiologicalObjectConfig.builder()
+                .symbol(transcriptionFactor.name())
+                .build();
 
-        transcriptionFactors.forEach(transcriptionFactor -> {
-
-            var biologicalObjectConfig = BiologicalObjectConfig.builder()
-                    .symbol(transcriptionFactor.name())
-                    .build();
-
-            var biologicalObject = biologicalObjectSearchService.request(biologicalObjectConfig);
-
-            if(biologicalObject.getId() == null){
-                biologicalObject.setTranscriptionFactor(transcriptionFactor);
-                biologicalObject = biologicalObjectRepository.save(biologicalObject);
-                ontologiesService.buildGeneOntologyTree(biologicalObject.getGeneOntology());
-            }
-
-            biologicalObjectIds.add(biologicalObject.getId());
-        });
-
-        return biologicalObjectIds;
+        var biologicalObject = biologicalObjectSearchService.request(biologicalObjectConfig);
+        if (biologicalObject.getId() == null) {
+            biologicalObject.setTranscriptionFactor(transcriptionFactor);
+            biologicalObject = biologicalObjectRepository.save(biologicalObject);
+            ontologiesService.buildGeneOntologyTree(biologicalObject.getGeneOntology());
+        }
+        return biologicalObject.getId();
     }
 
     private List<TranscriptionFactor> executeJaspar(TranscriptionFactorConfig transcriptionFactorConfig){

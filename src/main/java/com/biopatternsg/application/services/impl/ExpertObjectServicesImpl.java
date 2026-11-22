@@ -23,7 +23,6 @@ import com.biopatternsg.domain.port.out.repositories.BiologicalObjectRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -36,20 +35,18 @@ public class ExpertObjectServicesImpl implements ExpertObjectService {
 
     @Override
     public List<String> execute(List<BiologicalObjectConfig> expertObjects) {
+        return expertObjects.stream()
+                .map(this::resolveOrPersistObjectId)
+                .toList();
+    }
 
-        List<String> response = new ArrayList<>();
-
-        expertObjects.forEach(expertObject -> {
-            var biologicalObject = biologicalObjectSearchService.request(expertObject);
-            if(biologicalObject.getId() == null){
-                biologicalObject = biologicalObjectRepository.save(biologicalObject);
-                ontologiesService.buildGeneOntologyTree(biologicalObject.getGeneOntology());
-                ontologiesService.buildMeshOntologyTree(biologicalObject);
-            }
-
-            response.add(biologicalObject.getId());
-        });
-
-        return response;
+    private String resolveOrPersistObjectId(BiologicalObjectConfig expertObject) {
+        var biologicalObject = biologicalObjectSearchService.request(expertObject);
+        if (biologicalObject.getId() == null) {
+            biologicalObject = biologicalObjectRepository.save(biologicalObject);
+            ontologiesService.buildGeneOntologyTree(biologicalObject.getGeneOntology());
+            ontologiesService.buildMeshOntologyTree(biologicalObject);
+        }
+        return biologicalObject.getId();
     }
 }

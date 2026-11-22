@@ -22,6 +22,7 @@ import lombok.*;
 @Setter
 @Getter
 @Builder
+@ToString
 public class MinedObject {
 
     private String id;

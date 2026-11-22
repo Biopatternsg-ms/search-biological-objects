@@ -45,20 +45,23 @@ public class MinedObjectRepositoryAdapter implements MinedObjectRepository {
 
     @Override
     public List<MinedObject> save(List<MinedObject> minedObjects) {
-
-        List<MinedObjectCollection> listMinedObjectsCollection = minedObjects.stream().map(minedObject ->
-                MinedObjectCollection.builder()
-                        .userId(sessionUtil.getUserId())
-                        .pipelineId(minedObject.getPipelineId())
-                        .biologicalObjectId(minedObject.getBiologicalObjectId())
-                        .biologicalObjectParentId(minedObject.getBiologicalObjectParentId())
-                        .level(minedObject.getLevel())
-                        .build()
-                ).toList();
+        List<MinedObjectCollection> listMinedObjectsCollection = minedObjects.stream()
+                .map(this::toNewMinedObjectCollection)
+                .toList();
 
         MinedObjectCollection.persist(listMinedObjectsCollection);
 
         return MinedObjectMapper.toMinedObjects(listMinedObjectsCollection);
+    }
+
+    private MinedObjectCollection toNewMinedObjectCollection(MinedObject minedObject) {
+        return MinedObjectCollection.builder()
+                .userId(sessionUtil.getUserId())
+                .pipelineId(minedObject.getPipelineId())
+                .biologicalObjectId(minedObject.getBiologicalObjectId())
+                .biologicalObjectParentId(minedObject.getBiologicalObjectParentId())
+                .level(minedObject.getLevel())
+                .build();
     }
 
     @Override
@@ -104,7 +107,6 @@ public class MinedObjectRepositoryAdapter implements MinedObjectRepository {
 
         mongoObject.setUserId(sessionUtil.getUserId());
         mongoObject.setPipelineId(minedObject.getPipelineId());
-        mongoObject.setBiologicalObjectId(minedObject.getBiologicalObjectId());
         mongoObject.setBiologicalObjectId(minedObject.getBiologicalObjectId());
         mongoObject.setBiologicalObjectParentId(minedObject.getBiologicalObjectParentId());
         mongoObject.setLevel(minedObject.getLevel());
