@@ -1,0 +1,53 @@
+/*
+ * Copyright © 2026 biopatternsg (biopatternsg@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.biopatternsg.infrastructure.mongo_db.mappers;
+
+import com.biopatternsg.domain.models.MinedObject;
+import com.biopatternsg.infrastructure.mongo_db.collections.MinedObjectCollection;
+
+import java.util.List;
+
+public class MinedObjectMapper {
+
+    public static MinedObject toMinedObject(MinedObjectCollection minedObjectCollection){
+
+        return MinedObject.builder()
+                .id(minedObjectCollection.id.toString())
+                .userId(minedObjectCollection.getUserId())
+                .pipelineId(minedObjectCollection.getPipelineId())
+                .biologicalObjectId(minedObjectCollection.getBiologicalObjectId())
+                .biologicalObjectParentId(minedObjectCollection.getBiologicalObjectParentId())
+                .level(minedObjectCollection.getLevel())
+                .build();
+    }
+
+    public static MinedObjectCollection toMinedObjectCollection(MinedObject minedObject){
+
+        return MinedObjectCollection.builder()
+                //TODO chequearID
+                .userId(minedObject.getUserId())
+                .pipelineId(minedObject.getPipelineId())
+                .biologicalObjectId(minedObject.getBiologicalObjectId())
+                .biologicalObjectParentId(minedObject.getBiologicalObjectParentId())
+                .level(minedObject.getLevel())
+                .build();
+    }
+
+    public static List<MinedObject> toMinedObjects(List<MinedObjectCollection> minedObjectCollections){
+
+        return minedObjectCollections.stream().map(MinedObjectMapper::toMinedObject).toList();
+    }
+}
