@@ -95,15 +95,18 @@ com.biopatternsg/
 │
 └── infrastructure/              <-- Capa de Infraestructura (Quarkus, MongoDB, HTTP)
     ├── adapters/
-    │   ├── dtos/                <-- DTOs de entrada/salida REST
-    │   ├── in/restcontrollers/  <-- Controladores REST (*Controller.java)
+    │   ├── dtos/                <-- DTOs de entrada/salida REST (records)
+    │   ├── mappers/             <-- Mappers estáticos puros entre DTOs REST y Dominio
+    │   ├── in/
+    │   │   ├── AsyncPipelineDispatcher.java <-- Propagación de contexto y ejecución asíncrona de pipelines
+    │   │   └── restcontrollers/ <-- Controladores REST (*Controller.java)
     │   └── out/
     │       ├── repositories/           <-- Adaptadores de persistencia y config/user (*Adapter.java)
     │       └── external_repositories/  <-- Adaptadores hacia APIs externas y servicios internos (*Adapter.java)
     ├── boot_functions/          <-- Inicialización de ciclo de vida (AppLifecycleBean)
     ├── clients/                 <-- Clientes HTTP MicroProfile RestClient (external_clients, internal_clients)
     ├── config/                  <-- Filtros e interceptores
-    ├── dtos/                    <-- DTOs de infraestructura
+    ├── dtos/                    <-- DTOs de clientes HTTP internos/externos e infraestructura
     ├── exceptions/              <-- ExceptionMappers de Jakarta/Quarkus (ApiExceptionMapper)
     ├── external_services/       <-- Wrappers/DTOs de servicios externos (BLAT, HGNC, JASPAR, PDBe, TFBIND, UniProt)
     ├── internal_services/       <-- Wrappers de servicios internos (ConfigAndControl, Ontologies, PubmedIntegration)

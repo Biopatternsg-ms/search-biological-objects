@@ -15,8 +15,9 @@
  */
 package com.biopatternsg.infrastructure.adapters.in.restcontrollers;
 
-import com.biopatternsg.domain.models.Complex;
 import com.biopatternsg.domain.port.in.FindComplex;
+import com.biopatternsg.infrastructure.adapters.dtos.ComplexDTO;
+import com.biopatternsg.infrastructure.adapters.mappers.ComplexDtoMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -49,14 +50,13 @@ public class ComplexController {
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(
-                implementation = Complex.class,
+                implementation = ComplexDTO.class,
                 type = SchemaType.ARRAY,
                 description = "List of complexes for the specified UniProt ID"
             )
         )
     )
-    public List<Complex> find(@PathParam("uniprotId") String value){
-
-        return findComplex.execute(value);
+    public List<ComplexDTO> find(@PathParam("uniprotId") String value) {
+        return ComplexDtoMapper.toDtoList(findComplex.execute(value));
     }
 }

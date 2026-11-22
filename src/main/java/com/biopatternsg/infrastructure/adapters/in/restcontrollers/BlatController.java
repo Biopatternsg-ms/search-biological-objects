@@ -15,8 +15,9 @@
  */
 package com.biopatternsg.infrastructure.adapters.in.restcontrollers;
 
-import com.biopatternsg.domain.models.external_entities.BlatSearchOptionsResponse;
 import com.biopatternsg.domain.port.in.FindBlatOption;
+import com.biopatternsg.infrastructure.adapters.dtos.BlatSearchOptionDTO;
+import com.biopatternsg.infrastructure.adapters.mappers.BlatDtoMapper;
 import com.biopatternsg.infrastructure.dtos.PromoterRegionRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.Valid;
@@ -49,7 +50,7 @@ public class BlatController {
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(
-                implementation = BlatSearchOptionsResponse.class,
+                implementation = BlatSearchOptionDTO.class,
                 type = SchemaType.ARRAY
             )
         )
@@ -58,7 +59,9 @@ public class BlatController {
     public Response getByPromoterJasparRegion(
             @Valid PromoterRegionRequest promoterRegion) {
         return Response
-                .ok(findBlatOptions.execute(promoterRegion.reliability(), promoterRegion.promoterRegion()))
+                .ok(BlatDtoMapper.toDtoList(
+                        findBlatOptions.execute(promoterRegion.reliability(), promoterRegion.promoterRegion())
+                ))
                 .build();
     }
 

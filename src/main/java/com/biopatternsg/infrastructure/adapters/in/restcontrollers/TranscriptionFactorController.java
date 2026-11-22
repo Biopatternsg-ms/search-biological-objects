@@ -15,10 +15,10 @@
  */
 package com.biopatternsg.infrastructure.adapters.in.restcontrollers;
 
-import com.biopatternsg.domain.models.JasparQuery;
-import com.biopatternsg.domain.models.TranscriptionFactor;
-import com.biopatternsg.domain.models.pipeline_config.TranscriptionFactorConfig;
 import com.biopatternsg.domain.port.in.FindTranscriptionFactor;
+import com.biopatternsg.infrastructure.adapters.dtos.TranscriptionFactorConfigRequest;
+import com.biopatternsg.infrastructure.adapters.dtos.TranscriptionFactorDTO;
+import com.biopatternsg.infrastructure.adapters.mappers.TranscriptionFactorMapper;
 import com.biopatternsg.infrastructure.dtos.JasparRequest;
 import com.biopatternsg.infrastructure.dtos.PromoterRegionRequest;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -52,7 +52,7 @@ public class TranscriptionFactorController {
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(
-                implementation = TranscriptionFactor.class,
+                implementation = TranscriptionFactorDTO.class,
                 type = SchemaType.ARRAY
             )
         )
@@ -60,7 +60,12 @@ public class TranscriptionFactorController {
     public Response getByPromoterRegion(
             @Valid PromoterRegionRequest promoterRegionRequest) {
         return Response
-                .ok(findTranscriptionFactor.getTFBindTranscriptionFactors(promoterRegionRequest.reliability(), promoterRegionRequest.promoterRegion()))
+                .ok(TranscriptionFactorMapper.toDtoList(
+                        findTranscriptionFactor.getTFBindTranscriptionFactors(
+                                promoterRegionRequest.reliability(),
+                                promoterRegionRequest.promoterRegion()
+                        )
+                ))
                 .build();
     }
 
@@ -76,24 +81,19 @@ public class TranscriptionFactorController {
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(
-                implementation = TranscriptionFactor.class,
+                implementation = TranscriptionFactorDTO.class,
                 type = SchemaType.ARRAY,
                 description = "List of transcription factors for the specified genomic coordinates"
             )
         )
     )
     public Response getByPromoterJasparRegion(@Valid JasparRequest jasparRequest) {
-        JasparQuery jasparQuery = new JasparQuery(
-                jasparRequest.genome(),
-                jasparRequest.track(),
-                jasparRequest.chromosome(),
-                jasparRequest.start(),
-                jasparRequest.end(),
-                jasparRequest.strand(),
-                jasparRequest.reliability()
-        );
         return Response
-                .ok(findTranscriptionFactor.getJasparTranscriptionFactors(jasparQuery))
+                .ok(TranscriptionFactorMapper.toDtoList(
+                        findTranscriptionFactor.getJasparTranscriptionFactors(
+                                TranscriptionFactorMapper.requestToModel(jasparRequest)
+                        )
+                ))
                 .build();
     }
 
@@ -109,15 +109,19 @@ public class TranscriptionFactorController {
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(
-                implementation = TranscriptionFactor.class,
+                implementation = TranscriptionFactorDTO.class,
                 type = SchemaType.ARRAY,
                 description = "List of transcription factors matching the config"
             )
         )
     )
-    public Response getByConfig(@Valid TranscriptionFactorConfig transcriptionFactorConfig) {
+    public Response getByConfig(@Valid TranscriptionFactorConfigRequest transcriptionFactorConfig) {
         return Response
-                .ok(findTranscriptionFactor.getTranscriptionFactorsByConfig(transcriptionFactorConfig))
+                .ok(TranscriptionFactorMapper.toDtoList(
+                        findTranscriptionFactor.getTranscriptionFactorsByConfig(
+                                TranscriptionFactorMapper.toDomain(transcriptionFactorConfig)
+                        )
+                ))
                 .build();
     }
 
